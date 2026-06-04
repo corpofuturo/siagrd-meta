@@ -1,0 +1,38 @@
+{
+  "name": "siagrd-meta",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sistema Integrado de Alertas Tempranas y Gestión del Riesgo — Departamento del Meta, Colombia",
+  "license": "MIT",
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter backend dev",
+    "build:backend": "pnpm --filter backend build",
+    "build:panel-web": "pnpm --filter panel-web build",
+    "build:ciudadano": "pnpm --filter ciudadano build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "test:backend": "pnpm --filter backend test",
+    "test:ui": "pnpm --filter @siagrd/ui test",
+    "db:migrate": "pnpm --filter backend db:migrate",
+    "db:seed": "pnpm --filter backend db:seed",
+    "ci": "pnpm lint && pnpm typecheck && pnpm test"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "backend"
+  ],
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.4.0"
+  }
+}
