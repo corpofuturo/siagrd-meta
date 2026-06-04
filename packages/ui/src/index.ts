@@ -7,3 +7,4 @@ export * from './components/OfflineBanner';
 export * from './components/CoordDisplay';
 export * from './components/IncidentCard';
 export * from './components/SyncStatus';
+export * from './components/NivelAlertaHeader';
