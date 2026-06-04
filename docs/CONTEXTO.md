@@ -1,6 +1,6 @@
 # Estado del sistema SIAGRD Meta
 ## Última actualización: 2026-06-04
-## Agente activo: Checkpoint Semana 1
+## Agente activo: Checkpoint Semana 3
 
 ### Completado ✅
 - Monorepo inicializado con pnpm workspaces
@@ -27,13 +27,19 @@
   - IncidentCard con nivel visual y distancia
   - SyncStatus con badge y botón sync manual
   - Exportación de todos los componentes desde index
+- **Agente 3 — App Móvil Socorro (offline-first):**
+  - 9 pantallas implementadas (login, dashboard, mapa incidentes, reporte nuevo, detalle incidente, recursos, alerta temprana, sync status, perfil)
+  - Navegación React Navigation con soporte offline
+  - Drift + sincronización delta con backend Fastify
+- **Agente 4 — Panel Web Coordinación CDGRD:**
+  - 12 rutas implementadas (dashboard, incidentes, mapa general, recursos, alertas, organismos, reportes, usuarios, municipios, configuración, historial, exportaciones)
+  - Next.js + Leaflet + React Query
+  - Roles CDGRD / Organismo / Observador con guards
 
 ### En progreso 🔄
-- Agente 3: App Móvil Socorro (offline-first)
+- Agente 5: App Ciudadana (PWA + nativa)
 
 ### Pendiente ⏳
-- Agente 3: App Móvil Socorro (offline-first)
-- Agente 4: Panel Web Coordinación (CDGRD)
 - Agente 5: App Ciudadana (PWA + nativa)
 - Agente 6: Seguridad, CI/CD y Observabilidad
 - Integración y pruebas de campo
