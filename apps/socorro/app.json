@@ -1,0 +1,83 @@
+{
+  "expo": {
+    "name": "SIAGRD Socorro",
+    "slug": "siagrd-socorro",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "scheme": "siagrd-socorro",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A0E1A"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "org.corpofuturo.siagrd.socorro",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "SIAGRD Socorro necesita tu ubicación para registrar incidentes con coordenadas precisas.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "SIAGRD Socorro usa tu ubicación en segundo plano para alertas de emergencia.",
+        "NSCameraUsageDescription": "SIAGRD Socorro necesita la cámara para fotografiar incidentes y evidencias.",
+        "NSPhotoLibraryUsageDescription": "SIAGRD Socorro necesita acceso a fotos para adjuntar evidencias a incidentes."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0A0E1A"
+      },
+      "package": "org.corpofuturo.siagrd.socorro",
+      "minSdkVersion": 26,
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_BACKGROUND_LOCATION",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "POST_NOTIFICATIONS"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "SIAGRD Socorro usa tu ubicación para registrar incidentes con coordenadas precisas.",
+          "locationAlwaysPermission": "SIAGRD Socorro usa tu ubicación en segundo plano para alertas de emergencia.",
+          "locationWhenInUsePermission": "SIAGRD Socorro necesita tu ubicación para registrar incidentes."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "SIAGRD Socorro necesita la cámara para fotografiar incidentes."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#FF3B30",
+          "sounds": ["./assets/alert.wav"]
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "siagrd-socorro"
+      },
+      "router": {
+        "origin": false
+      }
+    }
+  }
+}
