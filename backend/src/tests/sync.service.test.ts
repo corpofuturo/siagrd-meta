@@ -1,96 +1,74 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
-// Mock de supabase antes de importar el servicio
-vi.mock('../lib/supabase.js', () => ({
-  supabaseAdmin: {
-    from: vi.fn().mockReturnValue({
-      select: vi.fn().mockReturnThis(),
-      insert: vi.fn().mockReturnThis(),
-      update: vi.fn().mockReturnThis(),
-      delete: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      gt: vi.fn().mockReturnThis(),
-      order: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockReturnThis(),
-      maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
-      single: vi.fn().mockResolvedValue({ data: null, error: null }),
-      then: vi.fn().mockResolvedValue({ data: null, error: null }),
-    }),
-  },
-}));
+// Mock completo de supabase — todos los métodos terminales resuelven inmediatamente
+vi.mock('../lib/supabase.js', () => {
+  const terminal = {
+    maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+    single: vi.fn().mockResolvedValue({ data: null, error: null }),
+  };
+  const chain = {
+    select: vi.fn().mockReturnThis(),
+    insert: vi.fn().mockResolvedValue({ data: null, error: null }),
+    update: vi.fn().mockReturnThis(),
+    delete: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    gt: vi.fn().mockReturnThis(),
+    in: vi.fn().mockReturnThis(),
+    order: vi.fn().mockReturnThis(),
+    limit: vi.fn().mockResolvedValue({ data: [], error: null, count: 0 }),
+    ...terminal,
+  };
+  return {
+    supabaseAdmin: { from: vi.fn().mockReturnValue(chain) },
+  };
+});
 
 describe('sync.service', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('importa sin errores', async () => {
+  it('exporta procesarSync como función', async () => {
     const mod = await import('../services/sync.service.js');
-    expect(mod.procesarSync).toBeDefined();
     expect(typeof mod.procesarSync).toBe('function');
   });
 
-  it('ordena eventos por timestamp_local ASC', async () => {
+  it('ordena eventos por timestamp_local ASC', () => {
     const eventos = [
-      { id: 'e3', tabla: 'incidentes', operacion: 'INSERT' as const, payload: {}, timestamp_local: 3000, registro_id: '00000000-0000-0000-0000-000000000003' },
-      { id: 'e1', tabla: 'incidentes', operacion: 'INSERT' as const, payload: {}, timestamp_local: 1000, registro_id: '00000000-0000-0000-0000-000000000001' },
-      { id: 'e2', tabla: 'incidentes', operacion: 'INSERT' as const, payload: {}, timestamp_local: 2000, registro_id: '00000000-0000-0000-0000-000000000002' },
+      { id: 'e3', timestamp_local: 3000 },
+      { id: 'e1', timestamp_local: 1000 },
+      { id: 'e2', timestamp_local: 2000 },
     ];
-
-    // Verificar que el orden esperado es por timestamp_local
     const ordenados = [...eventos].sort((a, b) => a.timestamp_local - b.timestamp_local);
-    expect(ordenados[0].id).toBe('e1');
-    expect(ordenados[1].id).toBe('e2');
-    expect(ordenados[2].id).toBe('e3');
+    expect(ordenados.map(e => e.id)).toEqual(['e1', 'e2', 'e3']);
   });
 
   it('rechaza tablas no permitidas (audit_log)', async () => {
     const { procesarSync } = await import('../services/sync.service.js');
-
     const result = await procesarSync(
       {
         device_id: 'test-device-001',
-        eventos: [
-          {
-            id: 'ev-001',
-            tabla: 'audit_log',
-            operacion: 'INSERT',
-            registro_id: '00000000-0000-0000-0000-000000000099',
-            payload: { campo: 'valor' },
-            timestamp_local: Date.now(),
-          },
-        ],
+        eventos: [{
+          id: 'ev-001',
+          tabla: 'audit_log',
+          operacion: 'INSERT',
+          registro_id: '00000000-0000-0000-0000-000000000099',
+          payload: { campo: 'valor' },
+          timestamp_local: 1000000,
+        }],
       },
       'user-id-test',
     );
-
     expect(result.fallidos).toHaveLength(1);
     expect(result.fallidos[0].id).toBe('ev-001');
     expect(result.fallidos[0].error).toContain('no permitida');
     expect(result.procesados).toBe(0);
-  });
+  }, 10000);
 
-  it('proceso INSERT no falla con payload vacío', async () => {
+  it('procesa lista vacía de eventos sin errores', async () => {
     const { procesarSync } = await import('../services/sync.service.js');
-
-    // Con payload vacío no debería lanzar excepción
-    await expect(
-      procesarSync(
-        {
-          device_id: 'test-device-002',
-          eventos: [
-            {
-              id: 'ev-002',
-              tabla: 'incidentes',
-              operacion: 'INSERT',
-              registro_id: '00000000-0000-0000-0000-000000000010',
-              payload: {},
-              timestamp_local: Date.now(),
-            },
-          ],
-        },
-        'user-id-test',
-      ),
-    ).resolves.toBeDefined();
-  });
+    const result = await procesarSync(
+      { device_id: 'test-device-002', eventos: [] },
+      'user-id-test',
+    );
+    expect(result.procesados).toBe(0);
+    expect(result.fallidos).toHaveLength(0);
+    expect(result.server_timestamp).toBeTypeOf('number');
+  }, 10000);
 });

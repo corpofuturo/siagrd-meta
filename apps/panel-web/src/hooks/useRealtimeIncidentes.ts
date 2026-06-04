@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase';
 
 export interface IncidenteMapData {
   id: string;
@@ -24,7 +24,7 @@ export function useRealtimeIncidentes() {
     // Carga inicial
     async function fetchIncidentes() {
       setLoading(true);
-      const { data, error } = await supabase
+      const { data, error } = await createClient()
         .from('incidentes')
         .select(
           'id, codigo, titulo, tipo_amenaza, nivel_alerta, estado, lat, lng, municipio_id, fecha_inicio'
@@ -41,7 +41,7 @@ export function useRealtimeIncidentes() {
     fetchIncidentes();
 
     // Suscripción realtime
-    const channel = supabase
+    const channel = createClient()
       .channel('incidentes-realtime')
       .on(
         'postgres_changes',
@@ -92,7 +92,7 @@ export function useRealtimeIncidentes() {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      createClient().removeChannel(channel);
     };
   }, []);
 

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase';
 
 type Nivel = 'VERDE' | 'AMARILLO' | 'NARANJA' | 'ROJO';
 
@@ -60,7 +60,7 @@ export default function AlertaNuevaPage() {
     setError(null);
     try {
       // 1. Crear alerta
-      const { data: alerta, error: errCreate } = await supabase
+      const { data: alerta, error: errCreate } = await createClient()
         .from('alertas')
         .insert({
           tipo,
@@ -77,7 +77,7 @@ export default function AlertaNuevaPage() {
       if (errCreate || !alerta) throw new Error(errCreate?.message ?? 'Error al crear alerta');
 
       // 2. Emitir alerta
-      const { error: errEmitir } = await supabase
+      const { error: errEmitir } = await createClient()
         .from('alertas')
         .update({ estado: 'ACTIVA', fecha_emision: new Date().toISOString() })
         .eq('id', alerta.id);

@@ -6,7 +6,7 @@ import type { MapMouseEvent } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { MAP_STYLE_DARK, META_CENTER, META_ZOOM, ALERTA_COLORS } from '@/lib/map-config';
 import type { IncidenteMapData } from '@/hooks/useRealtimeIncidentes';
-import type { GeoJSON } from 'geojson';
+import type { FeatureCollection, Point } from 'geojson';
 
 interface MapaDepartamentalProps {
   incidentes: IncidenteMapData[];
@@ -19,7 +19,7 @@ export default function MapaDepartamental({
 }: MapaDepartamentalProps) {
   const hasMany = incidentes.length > 100;
 
-  const geojson = useMemo<GeoJSON.FeatureCollection>(() => ({
+  const geojson = useMemo<FeatureCollection<Point>>(() => ({
     type: 'FeatureCollection',
     features: incidentes.map((inc) => ({
       type: 'Feature',
@@ -39,10 +39,10 @@ export default function MapaDepartamental({
   }), [incidentes]);
 
   const handleClick = useCallback(
-    (e: MapMouseEvent) => {
+    (e: MapMouseEvent & { features?: Array<{ properties?: Record<string, unknown> }> }) => {
       const features = e.features;
       if (features && features.length > 0) {
-        const id = features[0].properties?.id as string;
+        const id = features[0].properties?.['id'] as string | undefined;
         if (id) onIncidenteClick(id);
       }
     },

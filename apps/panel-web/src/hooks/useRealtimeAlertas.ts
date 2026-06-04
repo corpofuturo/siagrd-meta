@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase';
 
 export interface AlertaActiva {
   id: string;
@@ -35,7 +35,7 @@ export function useRealtimeAlertas() {
 
   const fetchAlertas = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    const { data, error } = await createClient()
       .from('alertas')
       .select('id, codigo, tipo, nivel, estado, municipios, fecha_emision')
       .eq('estado', 'ACTIVA');
@@ -49,7 +49,7 @@ export function useRealtimeAlertas() {
   useEffect(() => {
     fetchAlertas();
 
-    const channel = supabase
+    const channel = createClient()
       .channel('alertas-realtime')
       .on(
         'postgres_changes',
@@ -87,7 +87,7 @@ export function useRealtimeAlertas() {
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      createClient().removeChannel(channel);
     };
   }, [fetchAlertas]);
 

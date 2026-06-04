@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-
-export type NivelAlerta = 'VERDE' | 'AMARILLO' | 'NARANJA' | 'ROJO';
+import type { NivelAlerta } from '../types';
 
 interface NivelAlertaHeaderProps {
   nivel: NivelAlerta;

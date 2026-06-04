@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase';
 import type { IncidenteMapData } from '@/hooks/useRealtimeIncidentes';
 
 const PAGE_SIZE = 50;
@@ -43,7 +43,7 @@ export default function IncidentesPage() {
 
   const fetchIncidentes = useCallback(async () => {
     setLoading(true);
-    let query = supabase
+    let query = createClient()
       .from('incidentes')
       .select('id, codigo, titulo, tipo_amenaza, nivel_alerta, estado, lat, lng, municipio_id, fecha_inicio', {
         count: 'exact',

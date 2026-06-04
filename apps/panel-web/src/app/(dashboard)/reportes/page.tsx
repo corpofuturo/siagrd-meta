@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase';
 
 interface ReporteCiudadano {
   id: string;
@@ -23,7 +23,7 @@ export default function ReportesPage() {
 
   const fetchReportes = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
+    const { data } = await createClient()
       .from('reportes_ciudadanos')
       .select('*')
       .eq('estado', 'PENDIENTE')
@@ -40,7 +40,7 @@ export default function ReportesPage() {
 
   async function descartar(id: string) {
     setAccionando(id);
-    await supabase
+    await createClient()
       .from('reportes_ciudadanos')
       .update({ estado: 'DESCARTADO' })
       .eq('id', id);
