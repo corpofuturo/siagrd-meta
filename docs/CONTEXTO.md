@@ -1,6 +1,6 @@
 # Estado del sistema SIAGRD Meta
 ## Última actualización: 2026-06-04
-## Agente activo: Checkpoint Semana 3
+## Agente activo: Completo
 
 ### Completado ✅
 - Monorepo inicializado con pnpm workspaces
@@ -35,14 +35,26 @@
   - 12 rutas implementadas (dashboard, incidentes, mapa general, recursos, alertas, organismos, reportes, usuarios, municipios, configuración, historial, exportaciones)
   - Next.js + Leaflet + React Query
   - Roles CDGRD / Organismo / Observador con guards
+- **Agente 5 — App Ciudadana (PWA + nativa):**
+  - 15 pantallas implementadas (onboarding, home, mapa alertas, detalle alerta, reportar incidente, mis reportes, perfil, notificaciones, preparación emergencias, directorio contactos, zona segura, historial alertas, configuración, ayuda, acerca de)
+  - PWA con service worker + React Native (Android/iOS)
+  - Registro de dispositivo y preferencias por municipio
+  - Push notifications para alertas en tiempo real
+  - Modo offline para consulta de guías de preparación
+- **Agente 6 — CI/CD, Seguridad y Disaster Recovery:**
+  - GitHub Actions pipelines: lint, test, build, deploy (Railway + Vercel)
+  - Análisis de seguridad: CodeQL, Snyk, OWASP dependency check
+  - Secrets scanning con git-secrets y trufflehog
+  - Política de backup automático PostgreSQL (RPO 1h, RTO 4h)
+  - Runbook de DR con pasos de restauración documentados
+  - Sentry integrado en todos los paquetes (backend, web, mobile)
+  - Rate limiting y WAF configurado en Railway
+  - Certificados TLS automáticos (Let's Encrypt via Railway/Vercel)
 
 ### En progreso 🔄
-- Agente 5: App Ciudadana (PWA + nativa)
 
 ### Pendiente ⏳
-- Agente 5: App Ciudadana (PWA + nativa)
-- Agente 6: Seguridad, CI/CD y Observabilidad
-- Integración y pruebas de campo
+- Semana 8: Integración y pruebas de campo con usuarios reales
 
 ### Decisiones técnicas clave tomadas
 - Stack inamovible: Node.js+Fastify+Supabase / React Native / Next.js

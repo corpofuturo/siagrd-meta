@@ -10,10 +10,10 @@ Departamento del Meta, Colombia — Ley 1523 de 2012
 
 | Producto | Descripción | Estado |
 |----------|-------------|--------|
-| Panel Web CDGRD | Dashboard de coordinación para los 27 municipios | En desarrollo |
-| App Socorro | React Native offline-first para Bomberos/Defensa Civil/Cruz Roja | En desarrollo |
-| Motor de Alertas | Integración IDEAM + SGC, clasificación VERDE/AMARILLO/NARANJA/ROJO | En desarrollo |
-| App Ciudadana | Android + iOS + PWA para 1.000.000 habitantes del Meta | En desarrollo |
+| Panel Web CDGRD | Dashboard de coordinación para los 27 municipios | Beta - Listo para pruebas |
+| App Socorro | React Native offline-first para Bomberos/Defensa Civil/Cruz Roja | Beta - Listo para pruebas |
+| Motor de Alertas | Integración IDEAM + SGC, clasificación VERDE/AMARILLO/NARANJA/ROJO | Beta - Listo para pruebas |
+| App Ciudadana | Android + iOS + PWA para 1.000.000 habitantes del Meta | Beta - Listo para pruebas |
 
 ## Desarrollo rápido
 
