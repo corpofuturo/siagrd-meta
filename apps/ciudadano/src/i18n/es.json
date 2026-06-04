@@ -1,0 +1,210 @@
+{
+  "nav": {
+    "inicio": "Inicio",
+    "alertas": "Alertas",
+    "mapa": "Mapa de Riesgos",
+    "autoproteccion": "Autoprotección",
+    "perfil": "Perfil"
+  },
+  "alerta": {
+    "nivel": {
+      "VERDE": "Sin alerta activa",
+      "AMARILLO": "Alerta Amarilla",
+      "NARANJA": "Alerta Naranja",
+      "ROJO": "ALERTA ROJA"
+    },
+    "titulo_emergencia": "EMERGENCIA EN TU ZONA",
+    "sin_alerta": "Tu municipio está en calma",
+    "ver_mapa": "Ver mapa de riesgos",
+    "llamar_emergencias": "Llamar al 123",
+    "activa_tu_municipio": "Alerta activa en tu municipio",
+    "historial": "Historial últimos 30 días",
+    "sin_historial": "Sin alertas recientes",
+    "offline": "Mostrando datos guardados (sin conexión)"
+  },
+  "reportar": {
+    "titulo": "Reportar emergencia",
+    "paso1": "¿Qué tipo de amenaza?",
+    "paso2": "Confirmar y enviar",
+    "tipos": {
+      "inundacion": "Inundación",
+      "deslizamiento": "Deslizamiento",
+      "incendio": "Incendio",
+      "sismo": "Sismo",
+      "vendaval": "Vendaval",
+      "otro": "Otro"
+    },
+    "ubicacion_auto": "Ubicación automática",
+    "obteniendo_gps": "Obteniendo tu posición...",
+    "sin_gps": "No se pudo obtener ubicación",
+    "enviar": "ENVIAR REPORTE",
+    "enviando": "Enviando...",
+    "enviado_ok": "Reporte enviado. Gracias por avisar.",
+    "error_envio": "Error al enviar. Intenta de nuevo.",
+    "descripcion_opcional": "Descripción (opcional)",
+    "foto_opcional": "Agregar foto (opcional)",
+    "anonimo": "Reporte anónimo"
+  },
+  "mapa": {
+    "titulo": "Mapa de Riesgos",
+    "sin_login": "Sin registro requerido",
+    "zona_riesgo": "ESTOY EN ZONA DE RIESGO",
+    "leyenda": "Leyenda",
+    "nivel_bajo": "Riesgo bajo",
+    "nivel_medio": "Riesgo medio",
+    "nivel_alto": "Riesgo alto",
+    "nivel_critico": "Riesgo crítico",
+    "cargando": "Cargando mapa..."
+  },
+  "autoproteccion": {
+    "titulo": "Guías de Autoprotección",
+    "subtitulo": "Funciona sin conexión",
+    "amenazas": {
+      "inundacion": {
+        "nombre": "Inundación",
+        "antes": [
+          "Conoce las rutas de evacuación de tu barrio",
+          "Ten lista una maleta con documentos y elementos esenciales",
+          "Mantén cargados celulares y linternas",
+          "Eleva objetos valiosos a lugares altos",
+          "Escucha las alertas del IDEAM y la Alcaldía"
+        ],
+        "durante": [
+          "Evacúa inmediatamente si las autoridades lo indican",
+          "No cruces corrientes de agua en movimiento",
+          "Aléjate de cables eléctricos caídos",
+          "Lleva tus documentos y medicamentos",
+          "Dirígete al punto de encuentro más cercano"
+        ],
+        "despues": [
+          "No vuelvas hasta que las autoridades lo autoricen",
+          "Revisa daños estructurales antes de entrar",
+          "Usa guantes para limpiar — el agua puede estar contaminada",
+          "Reporta daños a la Alcaldía o al UNGRD",
+          "Sigue instrucciones de salud pública"
+        ]
+      },
+      "deslizamiento": {
+        "nombre": "Deslizamiento",
+        "antes": [
+          "Identifica taludes o laderas inestables cerca de tu casa",
+          "Observa grietas en muros o el suelo",
+          "Escucha sonidos inusuales (crujidos, rumores del suelo)",
+          "Prepara mochila de emergencia",
+          "Conoce rutas de evacuación"
+        ],
+        "durante": [
+          "Evacúa rápidamente hacia zonas altas y estables",
+          "No te quedes cerca de árboles ni postes",
+          "Si no puedes salir, protégete debajo de una mesa resistente",
+          "Llama al 123 después de ponerte a salvo",
+          "Alerta a tus vecinos"
+        ],
+        "despues": [
+          "No regreses hasta que Bomberos o Defensa Civil lo autoricen",
+          "Busca lesionados pero no muevas a heridos graves",
+          "Evita áreas donde el suelo sigue inestable",
+          "Documenta los daños con fotos para reclamar ayuda",
+          "Reporta el evento a las autoridades"
+        ]
+      },
+      "incendio": {
+        "nombre": "Incendio",
+        "antes": [
+          "No quemes en épocas de verano fuerte",
+          "Mantén limpias las zonas alrededor de tu casa",
+          "Ten un extintor a mano y sabe cómo usarlo",
+          "Conoce el número de Bomberos: 119",
+          "Planifica una ruta de evacuación familiar"
+        ],
+        "durante": [
+          "Llama al 119 inmediatamente",
+          "Evacúa en dirección contraria al viento",
+          "Cúbrete boca y nariz con tela húmeda",
+          "Cierra puertas y ventanas al salir",
+          "No vuelvas por ningún objeto material"
+        ],
+        "despues": [
+          "No entres a la zona hasta que Bomberos lo autoricen",
+          "Reporta focos activos que puedas ver",
+          "Apoya a los afectados en los albergues",
+          "Ayuda a identificar causas para prevenir futuros incendios",
+          "Contacta a la alcaldía para ayuda humanitaria"
+        ]
+      },
+      "sismo": {
+        "nombre": "Sismo",
+        "antes": [
+          "Asegura muebles y objetos pesados a paredes",
+          "Identifica zonas seguras en casa (bajo mesas, marcos de puertas)",
+          "Practica simulacros con tu familia",
+          "Ten botiquín, agua y comida para 72 horas",
+          "Conoce cómo cerrar gas y electricidad"
+        ],
+        "durante": [
+          "Agáchate, cúbrete y agárrate (protocoloACBA)",
+          "Aléjate de ventanas, estanterías y objetos que puedan caer",
+          "No uses ascensores",
+          "Si estás afuera, aléjate de edificios y cables",
+          "Espera hasta que el movimiento cese completamente"
+        ],
+        "despues": [
+          "Revisa lesiones propias y de tu familia",
+          "Cierra el gas si hueles fuga",
+          "Usa calzado para evitar cortaduras con vidrios",
+          "Prepárate para réplicas",
+          "Sigue las instrucciones del SGC y autoridades locales"
+        ]
+      },
+      "vendaval": {
+        "nombre": "Vendaval",
+        "antes": [
+          "Refuerza el techo de tu casa",
+          "Poda árboles cercanos que puedan caer",
+          "Guarda objetos que el viento pueda arrastrar",
+          "Mantén cargados equipos de comunicación",
+          "Sigue las alertas meteorológicas del IDEAM"
+        ],
+        "durante": [
+          "Quédate dentro de casa",
+          "Aléjate de ventanas",
+          "Evita usar aparatos eléctricos",
+          "No salgas hasta que el vendaval haya pasado",
+          "Si estás afuera, busca refugio sólido de inmediato"
+        ],
+        "despues": [
+          "Revisa daños en techo y estructura",
+          "Reporta cables caídos a Electricaribe/ENEL",
+          "No toques cables eléctricos en el suelo",
+          "Documenta daños para acceder a ayudas",
+          "Ayuda a vecinos vulnerables"
+        ]
+      }
+    }
+  },
+  "perfil": {
+    "titulo": "Perfil",
+    "municipio": "Mi municipio",
+    "seleccionar_municipio": "Seleccionar municipio",
+    "notificaciones": "Alertas push",
+    "idioma": "Idioma",
+    "idioma_es": "Español",
+    "idioma_sik": "Sikuani",
+    "login_opcional": "Iniciar sesión (opcional)",
+    "login_desc": "Con cuenta puedes rastrear tus reportes y recibir alertas personalizadas.",
+    "iniciar_sesion": "Iniciar sesión",
+    "cerrar_sesion": "Cerrar sesión",
+    "sesion_activa": "Sesión activa",
+    "guardado": "Configuración guardada"
+  },
+  "comun": {
+    "cargando": "Cargando...",
+    "error": "Error",
+    "reintentar": "Reintentar",
+    "volver": "Volver",
+    "cancelar": "Cancelar",
+    "aceptar": "Aceptar",
+    "sin_conexion": "Sin conexión a internet",
+    "datos_offline": "Mostrando datos guardados"
+  }
+}

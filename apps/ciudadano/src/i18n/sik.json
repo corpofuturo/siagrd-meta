@@ -1,0 +1,49 @@
+{
+  "_meta": {
+    "idioma": "Sikuani (Jiwi)",
+    "estado": "PENDIENTE TRADUCCION PROFESIONAL",
+    "nota": "DT-003 — Requiere traductor certificado de la comunidad Sikuani del Meta. Solo textos críticos de seguridad listados aquí.",
+    "contacto": "gerente@corpofuturo.org"
+  },
+  "nav": {
+    "inicio": "[TRADUCIR: Inicio]",
+    "alertas": "[TRADUCIR: Alertas]",
+    "mapa": "[TRADUCIR: Mapa de Riesgos]",
+    "autoproteccion": "[TRADUCIR: Autoprotección]",
+    "perfil": "[TRADUCIR: Perfil]"
+  },
+  "alerta": {
+    "nivel": {
+      "VERDE": "[TRADUCIR: Sin alerta activa]",
+      "AMARILLO": "[TRADUCIR: Alerta Amarilla]",
+      "NARANJA": "[TRADUCIR: Alerta Naranja]",
+      "ROJO": "[TRADUCIR: ALERTA ROJA]"
+    },
+    "titulo_emergencia": "[TRADUCIR: EMERGENCIA EN TU ZONA]",
+    "llamar_emergencias": "[TRADUCIR: Llamar al 123]",
+    "ver_mapa": "[TRADUCIR: Ver mapa de riesgos]"
+  },
+  "reportar": {
+    "titulo": "[TRADUCIR: Reportar emergencia]",
+    "enviar": "[TRADUCIR: ENVIAR REPORTE]",
+    "enviado_ok": "[TRADUCIR: Reporte enviado. Gracias por avisar.]",
+    "tipos": {
+      "inundacion": "[TRADUCIR: Inundación]",
+      "deslizamiento": "[TRADUCIR: Deslizamiento]",
+      "incendio": "[TRADUCIR: Incendio]",
+      "sismo": "[TRADUCIR: Sismo]",
+      "vendaval": "[TRADUCIR: Vendaval]",
+      "otro": "[TRADUCIR: Otro]"
+    }
+  },
+  "mapa": {
+    "titulo": "[TRADUCIR: Mapa de Riesgos]",
+    "zona_riesgo": "[TRADUCIR: ESTOY EN ZONA DE RIESGO]"
+  },
+  "comun": {
+    "cargando": "[TRADUCIR: Cargando...]",
+    "sin_conexion": "[TRADUCIR: Sin conexión a internet]",
+    "volver": "[TRADUCIR: Volver]",
+    "cancelar": "[TRADUCIR: Cancelar]"
+  }
+}
