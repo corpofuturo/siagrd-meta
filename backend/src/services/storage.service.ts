@@ -1,5 +1,5 @@
 import sharp from 'sharp';
-import { fileTypeFromBuffer } from 'file-type';
+import { fromBuffer as fileTypeFromBuffer } from 'file-type';
 import { supabaseAdmin } from '../lib/supabase.js';
 import { logger } from '../utils/logger.js';
 import { ValidationError } from '../utils/errors.js';

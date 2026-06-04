@@ -25,7 +25,7 @@ vi.mock('sharp', () => ({
 
 // Mock de file-type
 vi.mock('file-type', () => ({
-  fileTypeFromBuffer: vi.fn().mockResolvedValue({ mime: 'image/jpeg', ext: 'jpg' }),
+  fromBuffer: vi.fn().mockResolvedValue({ mime: 'image/jpeg', ext: 'jpg' }),
 }));
 
 describe('storage.service', () => {
@@ -49,8 +49,8 @@ describe('storage.service', () => {
   });
 
   it('uploadFoto rechaza MIME no permitido', async () => {
-    const { fileTypeFromBuffer } = await import('file-type');
-    vi.mocked(fileTypeFromBuffer).mockResolvedValueOnce({ mime: 'application/pdf', ext: 'pdf' });
+    const { fromBuffer } = await import('file-type');
+    vi.mocked(fromBuffer).mockResolvedValueOnce({ mime: 'application/pdf', ext: 'pdf' });
 
     const { uploadFoto } = await import('../services/storage.service.js');
     const fakeBuffer = Buffer.from('fake-pdf-data');
