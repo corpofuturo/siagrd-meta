@@ -1,15 +1,35 @@
 # Estado del sistema SIAGRD Meta
 ## Última actualización: 2026-06-04
-## Agente activo: Inicialización
+## Agente activo: Checkpoint Semana 1
 
 ### Completado ✅
 - Monorepo inicializado con pnpm workspaces
 - Estructura de directorios creada
 - .gitignore y .env.example configurados
+- **Agente 1 — Schema DB + API Fastify:**
+  - Schema PostgreSQL+PostGIS con 27 municipios del Meta y organismos de socorro (seeds)
+  - Script de validación RLS cross-municipio
+  - Tipos TypeScript del dominio SIAGRD
+  - Logger pino, error classes, Supabase client
+  - Middleware JWT Supabase con inyección de usuario en request
+  - Servicios mock IDEAM y SGC (DT-001 y DT-002)
+  - sync.service (offline-critical) + storage.service (compresión fotos)
+  - Rutas: health, sync, incidentes, alertas, archivos
+  - notifications.service FCM batch con fallback graceful
+  - Entry point Fastify con helmet, cors, rate-limit
+  - Docker Compose con PostgreSQL+PostGIS + Redis
+  - Tests básicos sync.service y health
+- **Agente 2 — Design System "Tactical Clarity":**
+  - Tokens de diseño (colores, tipografía, espaciado)
+  - EmergencyButton 56/72dp para uso en campo
+  - OfflineBanner con animación de entrada
+  - CoordDisplay formato DMS con precisión GPS
+  - IncidentCard con nivel visual y distancia
+  - SyncStatus con badge y botón sync manual
+  - Exportación de todos los componentes desde index
 
 ### En progreso 🔄
-- Agente 1: Schema de base de datos + API Fastify
-- Agente 2: Design System "Tactical Clarity"
+- Agente 3: App Móvil Socorro (offline-first)
 
 ### Pendiente ⏳
 - Agente 3: App Móvil Socorro (offline-first)
