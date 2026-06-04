@@ -1,0 +1,33 @@
+name: EAS Build - App Socorro
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/socorro/**'
+
+jobs:
+  build:
+    name: EAS Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        working-directory: apps/socorro
+        run: npm install
+
+      - name: Build app
+        working-directory: apps/socorro
+        run: eas build --platform all --non-interactive
