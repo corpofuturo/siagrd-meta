@@ -18,19 +18,27 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    const { error: authError } = await createClient().auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const { data, error: authError } = await createClient().auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (authError) {
-      setError(authError.message);
+      if (authError) {
+        setError(authError.message === 'Invalid login credentials'
+          ? 'Correo o contraseña incorrectos'
+          : authError.message);
+        return;
+      }
+
+      if (data.session) {
+        window.location.href = '/';
+      }
+    } catch (err) {
+      setError('No se pudo conectar con el servidor de autenticación');
+    } finally {
       setLoading(false);
-      return;
     }
-
-    router.push('/');
-    router.refresh();
   }
 
   return (

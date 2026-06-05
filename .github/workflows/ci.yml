@@ -132,7 +132,7 @@ jobs:
           service: backend
 
   deploy-web:
-    name: Deploy Web (Vercel)
+    name: Deploy Web (Netlify)
     runs-on: ubuntu-latest
     needs: [lint-typecheck, test, security-audit, build-check]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -151,11 +151,19 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
+      - name: Build panel-web
+        run: pnpm build:panel-web
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v3
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: apps/panel-web
-          vercel-args: '--prod'
+          publish-dir: apps/panel-web/.next
+          production-branch: main
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deploy from GitHub Actions"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
