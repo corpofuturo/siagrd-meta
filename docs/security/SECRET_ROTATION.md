@@ -1,4 +1,4 @@
-# Rotacion de Secretos — SIAGRD
+# Guía de Rotación de Secretos — SIAGRD Meta
 
 ## Frecuencias de rotacion
 

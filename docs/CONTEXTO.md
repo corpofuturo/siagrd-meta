@@ -1,5 +1,5 @@
 # Estado del sistema SIAGRD Meta
-## Última actualización: 2026-06-04
+## Última actualización: 2026-06-05
 ## Agente activo: Completo
 
 ### Completado ✅
@@ -51,10 +51,39 @@
   - Rate limiting y WAF configurado en Railway
   - Certificados TLS automáticos (Let's Encrypt via Railway/Vercel)
 
+**Sesión 2026-06-05 — Integración backend + tests + seguridad:**
+
+- **A1 — Rutas backend faltantes:**
+  - `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`, `GET /auth/me` (JWT Supabase)
+  - `GET /dashboard/stats` con 6 métricas paralelas, `GET /dashboard/mapa-datos` GeoJSON
+  - Utilidades geo: `wktPoint`, `parseGeoJSONPoint`, `distanciaKm` (Haversine)
+  - Seed SQL: 10 organismos de socorro del Meta con JOIN a municipios
+  - `index.ts` actualizado con 5 rutas registradas bajo `/api/v1`
+
+- **A2 — Design System (componente nuevo + tests):**
+  - `PhotoCapture.tsx` — captura de foto desde cámara/galería con preview (195 líneas)
+  - Tests unitarios: 7 tests tokens, 4 tests EmergencyButton, 5 tests AlertaBadge
+  - Setup Vitest con mocks de módulos nativos
+
+- **A4 — Panel Web (páginas nuevas):**
+  - Componentes: `RealtimeIndicator`, `NivelAlertaGlobal`, `IncidenteTimeline`, `SistemasSalud`, `AlertaEmision`
+  - Hooks: `useRealtimeReportes` (suscripción realtime Supabase, reportes pendientes)
+  - Páginas nuevas: recursos, damnificados, municipios/[id], organismos, usuarios, configuración, historial, exportaciones (CSV real con `URL.createObjectURL`)
+
+- **QA1 — Tests backend (suite completa):**
+  - 56 tests en 6 archivos: auth.routes (9), incidentes.routes (13), alertas.routes (10), geo.utils (10), dashboard.routes (7), middleware (7)
+  - Cobertura de rutas críticas, casos de borde, control de acceso por rol
+
+- **SEC — Auditoría de seguridad:**
+  - 13 hallazgos documentados; 1 bloqueante para producción (Hallazgo 4: sin whitelist MIME en upload)
+  - `docs/security/SECURITY_CHECKLIST.md` y `docs/security/SECRET_ROTATION.md` creados
+  - Hallazgos MEDIO: rate limit genérico, perfil null → rol silencioso, recursos visibles para todos, INSERT anónimo en reportes, audit_log sin RLS anti-DELETE, incidentes_cercanos sin filtro tenant
+
 ### En progreso 🔄
 
 ### Pendiente ⏳
 - Semana 8: Integración y pruebas de campo con usuarios reales
+- **Acción inmediata (bloqueante producción):** Agregar whitelist MIME types en `backend/src/routes/archivos.ts` — ver DT-004
 
 ### Decisiones técnicas clave tomadas
 - Stack inamovible: Node.js+Fastify+Supabase / React Native / Next.js

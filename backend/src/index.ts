@@ -13,6 +13,11 @@ import { syncRoutes } from './routes/sync.js';
 import { incidentesRoutes } from './routes/incidentes.js';
 import { alertasRoutes } from './routes/alertas.js';
 import { archivosRoutes } from './routes/archivos.js';
+import { authRoutes } from './routes/auth.js';
+import { dashboardRoutes } from './routes/dashboard.js';
+import { recursosRoutes } from './routes/recursos.js';
+import { damnificadosRoutes } from './routes/damnificados.js';
+import { reportesRoutes } from './routes/reportes.js';
 
 const IS_DEV = process.env.NODE_ENV !== 'production';
 const PORT = parseInt(process.env.PORT ?? '3000', 10);
@@ -95,6 +100,11 @@ async function bootstrap(): Promise<void> {
   await app.register(incidentesRoutes, { prefix: '/api/v1' });
   await app.register(alertasRoutes, { prefix: '/api/v1' });
   await app.register(archivosRoutes, { prefix: '/api/v1' });
+  await app.register(authRoutes, { prefix: '/api/v1' });
+  await app.register(dashboardRoutes, { prefix: '/api/v1' });
+  await app.register(recursosRoutes, { prefix: '/api/v1' });
+  await app.register(damnificadosRoutes, { prefix: '/api/v1' });
+  await app.register(reportesRoutes, { prefix: '/api/v1' });
 
   // Inicializar FCM (modo graceful si no configurado)
   initFCM();
