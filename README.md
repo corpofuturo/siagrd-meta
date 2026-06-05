@@ -45,3 +45,6 @@ Stack: Railway + Supabase + Vercel + Firebase FCM + Upstash (todos gratuitos).
 
 Código abierto — obligatorio para software del sector público colombiano.  
 Licencia: MIT. Ver [LICENSE](LICENSE).
+
+
+<!-- CI/CD configurado con GitHub Actions - secrets OK -->
