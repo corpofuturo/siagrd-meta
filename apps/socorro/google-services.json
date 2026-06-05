@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "924611198351",
+    "project_id": "siagrd-meta",
+    "storage_bucket": "siagrd-meta.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:924611198351:android:99be8cd8793d0b557b1ffa",
+        "android_client_info": {
+          "package_name": "com.siagrd.socorro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEAgJFSUVTSoZxXJjHRINk9PuFBaDV8rQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
