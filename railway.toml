@@ -1,6 +1,8 @@
 [build]
   builder = "DOCKERFILE"
   dockerfilePath = "backend/Dockerfile"
+  # El build context debe ser la raíz del monorepo para que COPY pnpm-lock.yaml funcione
+  buildContext = "."
 
 [deploy]
   numReplicas = 1
