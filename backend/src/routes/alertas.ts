@@ -47,7 +47,7 @@ export async function alertasRoutes(app: FastifyInstance): Promise<void> {
   // POST /alertas/:id/emitir — emitir push notifications
   app.post(
     '/alertas/:id/emitir',
-    { preHandler: authMiddleware },
+    { config: { rateLimit: { max: 10, timeWindow: '1 hour' } }, preHandler: authMiddleware },
     async (request, reply) => {
       const user = request.user!;
       if (!ROLES_GESTION.includes(user.rol)) {

@@ -1,7 +1,10 @@
 import { useEffect, useRef } from 'react';
+import { Platform } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
+import { Head } from 'expo-router/head';
 import { StatusBar } from 'expo-status-bar';
 import { getAlertasCachedOrFetch, getNivelMaximo } from '../services/alertas.service';
+import { registerServiceWorker } from '../lib/pwa';
 
 /**
  * Layout raíz de la app ciudadana.
@@ -11,6 +14,12 @@ import { getAlertasCachedOrFetch, getNivelMaximo } from '../services/alertas.ser
 export default function RootLayout() {
   const router = useRouter();
   const checked = useRef(false);
+
+  useEffect(() => {
+    if (Platform.OS === 'web') {
+      registerServiceWorker();
+    }
+  }, []);
 
   useEffect(() => {
     if (checked.current) return;
@@ -31,6 +40,16 @@ export default function RootLayout() {
 
   return (
     <>
+      {Platform.OS === 'web' && (
+        <Head>
+          <link rel="manifest" href="/manifest.json" />
+          <meta name="theme-color" content="#0A0E1A" />
+          <meta name="mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+          <meta name="apple-mobile-web-app-title" content="SIAGRD" />
+        </Head>
+      )}
       <StatusBar style="light" />
       <Stack
         screenOptions={{

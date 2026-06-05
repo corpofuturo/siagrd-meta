@@ -56,6 +56,16 @@ export async function incidentesRoutes(app: FastifyInstance): Promise<void> {
         throw new ValidationError('lat y lng deben ser números válidos');
       }
 
+      // Hallazgo 5: validar rangos geográficos válidos
+      if (latNum < -90 || latNum > 90) throw new ValidationError('lat debe estar entre -90 y 90');
+      if (lngNum < -180 || lngNum > 180) throw new ValidationError('lng debe estar entre -180 y 180');
+      // Colombia: lat [-4.5, 13.0], lng [-82, -66] — advertencia si fuera de rango
+      const fueraDeColombia =
+        latNum < -4.5 || latNum > 13.0 || lngNum < -82 || lngNum > -66;
+      if (fueraDeColombia) {
+        request.log.warn({ lat: latNum, lng: lngNum }, 'Coordenadas fuera del territorio colombiano');
+      }
+
       const { data, error } = await supabaseAdmin.rpc('incidentes_cercanos', {
         p_lat: latNum,
         p_lng: lngNum,

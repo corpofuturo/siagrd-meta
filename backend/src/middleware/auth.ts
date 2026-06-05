@@ -2,6 +2,7 @@ import type { FastifyRequest, FastifyReply } from 'fastify';
 import { supabaseAnon } from '../lib/supabase.js';
 import { UnauthorizedError } from '../utils/errors.js';
 import type { AuthenticatedUser } from '../types/domain.js';
+import { logger } from '../utils/logger.js';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -33,6 +34,12 @@ export async function authMiddleware(
     .select('rol, municipio_id, organismo_id')
     .eq('id', user.id)
     .single();
+
+  if (!profile) {
+    // Usuario autenticado en Supabase pero sin registro en profiles
+    // Puede ser un usuario recién creado antes de que el trigger cree el perfil
+    logger.warn({ userId: user.id }, 'Usuario sin perfil en tabla profiles — asignando CIUDADANO');
+  }
 
   request.user = {
     id: user.id,

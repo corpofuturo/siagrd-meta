@@ -7,7 +7,7 @@ export async function archivosRoutes(app: FastifyInstance): Promise<void> {
   // POST /archivos/upload — subir foto de incidente
   app.post(
     '/archivos/upload',
-    { preHandler: authMiddleware },
+    { config: { rateLimit: { max: 50, timeWindow: '1 hour' } }, preHandler: authMiddleware },
     async (request, reply) => {
       const user = request.user!;
 
@@ -33,7 +33,6 @@ export async function archivosRoutes(app: FastifyInstance): Promise<void> {
         throw new ValidationError('El archivo supera el límite de 10 MB');
       }
 
-      // Validar magic bytes para no confiar solo en el Content-Type del cliente
       const MAGIC: Record<string, number[][]> = {
         'image/jpeg': [[0xFF, 0xD8, 0xFF]],
         'image/png':  [[0x89, 0x50, 0x4E, 0x47]],

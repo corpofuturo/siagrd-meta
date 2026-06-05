@@ -19,8 +19,9 @@
     "test": "pnpm -r test",
     "test:backend": "pnpm --filter backend test",
     "test:ui": "pnpm --filter @siagrd/ui test",
+    "test:e2e": "pnpm --filter panel-web exec playwright test",
     "db:migrate": "pnpm --filter backend db:migrate",
-    "db:seed": "pnpm --filter backend db:seed",
+    "db:seed": "psql $DATABASE_URL -f database/seeds/municipios_meta.sql && psql $DATABASE_URL -f database/seeds/organismos_meta.sql",
     "ci": "pnpm lint && pnpm typecheck && pnpm test"
   },
   "workspaces": [
