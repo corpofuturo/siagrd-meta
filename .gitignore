@@ -1,4 +1,11 @@
 node_modules/
+start-backend.cmd
+start-panel.cmd
+backend.log
+backend.err
+panel.log
+panel.err
+.env
 dist/
 build/
 .next/
