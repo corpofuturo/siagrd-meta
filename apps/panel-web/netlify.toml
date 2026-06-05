@@ -1,11 +1,11 @@
 [build]
-  base = "apps/panel-web"
-  command = "npm install -g pnpm && cd ../.. && pnpm install --frozen-lockfile && pnpm build:panel-web"
-  publish = "apps/panel-web/.next"
+base = "apps/panel-web"
+command = "cd ../.. && pnpm install --frozen-lockfile && pnpm build:panel-web"
+publish = "apps/panel-web/.next"
 
 [build.environment]
-  NODE_VERSION = "20"
-  PNPM_VERSION = "9"
+NODE_VERSION = "20"
+PNPM_VERSION = "9"
 
 [[plugins]]
-  package = "@netlify/plugin-nextjs"
+package = "@netlify/plugin-nextjs"
