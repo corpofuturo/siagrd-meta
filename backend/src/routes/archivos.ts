@@ -22,10 +22,28 @@ export async function archivosRoutes(app: FastifyInstance): Promise<void> {
 
       if (!incidente_id) throw new ValidationError('incidente_id es requerido');
 
+      const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'];
+      if (!ALLOWED_MIME.includes(data.mimetype)) {
+        throw new ValidationError(`Tipo de archivo no permitido: ${data.mimetype}`);
+      }
+
       const buffer = await data.toBuffer();
       const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
       if (buffer.length > MAX_BYTES) {
         throw new ValidationError('El archivo supera el límite de 10 MB');
+      }
+
+      // Validar magic bytes para no confiar solo en el Content-Type del cliente
+      const MAGIC: Record<string, number[][]> = {
+        'image/jpeg': [[0xFF, 0xD8, 0xFF]],
+        'image/png':  [[0x89, 0x50, 0x4E, 0x47]],
+        'image/webp': [[0x52, 0x49, 0x46, 0x46]],
+        'image/gif':  [[0x47, 0x49, 0x46, 0x38]],
+        'application/pdf': [[0x25, 0x50, 0x44, 0x46]],
+      };
+      const magic = MAGIC[data.mimetype];
+      if (magic && !magic.some(sig => sig.every((byte, i) => buffer[i] === byte))) {
+        throw new ValidationError('El contenido del archivo no coincide con su tipo declarado');
       }
 
       const coordenadas =
