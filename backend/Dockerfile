@@ -4,34 +4,39 @@ RUN npm install -g pnpm@9
 
 WORKDIR /app
 
-# Copiar manifiestos del monorepo para que pnpm resuelva el workspace
+# Copiar manifiestos del monorepo
 COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY package.json ./package.json
 COPY backend/package.json ./backend/package.json
-# packages/ui tiene package.json (lo necesita pnpm para mapear el workspace)
 COPY packages/ui/package.json ./packages/ui/package.json
 
-# Instalar solo las deps del backend (--filter backend... incluye sus deps de workspace)
 RUN pnpm install --frozen-lockfile --filter backend...
 
 # ── Build ─────────────────────────────────────────────────────────────────────
 FROM base AS builder
 WORKDIR /app
 
-# Copiar fuentes
 COPY backend/src ./backend/src
 COPY backend/tsconfig.json ./backend/tsconfig.json
 
+# Compilar TypeScript
 RUN pnpm --filter backend run build
+
+# pnpm deploy resuelve TODAS las dependencias del workspace en un directorio standalone
+# Resultado: /app/deploy/ tiene node_modules completo sin symlinks ni workspace magic
+RUN pnpm --filter backend deploy --prod /app/deploy
 
 # ── Runner ────────────────────────────────────────────────────────────────────
 FROM node:20-alpine AS runner
-RUN apk add --no-cache libc6-compat && npm install -g pnpm@9
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
+# Copiar node_modules standalone (sin pnpm, sin workspace)
+COPY --from=builder /app/deploy/node_modules ./node_modules
+# Copiar el build compilado
 COPY --from=builder /app/backend/dist ./dist
-COPY --from=builder /app/backend/node_modules ./node_modules
-COPY --from=builder /app/backend/package.json ./package.json
+# package.json necesario para que Node resuelva el "main"
+COPY --from=builder /app/deploy/package.json ./package.json
 
 EXPOSE 3000
 ENV NODE_ENV=production
