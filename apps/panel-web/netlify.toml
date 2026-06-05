@@ -1,7 +1,7 @@
 [build]
 base = "apps/panel-web"
 command = "cd ../.. && pnpm install --frozen-lockfile && pnpm build:panel-web"
-publish = "apps/panel-web/.next"
+publish = ".next"
 
 [build.environment]
 NODE_VERSION = "20"
