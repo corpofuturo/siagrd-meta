@@ -26,7 +26,7 @@ RUN pnpm --filter backend run build
 
 # ── Runner ────────────────────────────────────────────────────────────────────
 FROM node:20-alpine AS runner
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat && npm install -g pnpm@9
 WORKDIR /app
 
 COPY --from=builder /app/backend/dist ./dist
