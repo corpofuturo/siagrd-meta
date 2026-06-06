@@ -62,7 +62,7 @@ async function buildApp() {
 
 describe('GET /incidentes', () => {
     beforeEach(() => {
-          vi.mocked(authMiddleware).mockImplementation((req: any, _reply: any, done: any) => {
+          (authMiddleware as any).mockImplementation((req: any, _reply: any, done: any) => {
                   req.user = mockUser;
                   done?.();
           });
@@ -82,7 +82,7 @@ describe('GET /incidentes', () => {
            });
 
            it('usuario CMGRD con municipio_id recibe incidentes filtrados por municipio', async () => {
-                 vi.mocked(authMiddleware).mockImplementationOnce((req: any, _reply: any, done: any) => {
+                 (authMiddleware as any).mockImplementationOnce((req: any, _reply: any, done: any) => {
                          req.user = { id: 'user-cmgrd', email: 'cmgrd@test.com', rol: 'CMGRD', municipio_id: 'muni-50001' };
                          done?.();
                  });
@@ -98,7 +98,7 @@ describe('GET /incidentes', () => {
            });
 
            it('retorna 401 sin token', async () => {
-                 vi.mocked(authMiddleware).mockImplementationOnce(() => {
+                 (authMiddleware as any).mockImplementationOnce(() => {
                          throw new UnauthorizedError('Token requerido');
                  });
 
@@ -114,7 +114,7 @@ describe('GET /incidentes', () => {
 
 describe('GET /incidentes/cercanos', () => {
     beforeEach(() => {
-          vi.mocked(authMiddleware).mockImplementation((req: any, _reply: any, done: any) => {
+          (authMiddleware as any).mockImplementation((req: any, _reply: any, done: any) => {
                   req.user = mockUser;
                   done?.();
           });
@@ -161,7 +161,7 @@ describe('GET /incidentes/cercanos', () => {
 
 describe('GET /incidentes/:id', () => {
     it('retorna 403 cuando usuario de otro municipio intenta acceder', async () => {
-          vi.mocked(authMiddleware).mockImplementationOnce((req: any, _reply: any, done: any) => {
+          (authMiddleware as any).mockImplementationOnce((req: any, _reply: any, done: any) => {
                   req.user = { id: 'user-cmgrd', email: 'cmgrd@test.com', rol: 'CMGRD', municipio_id: 'muni-50001' };
                   done?.();
           });
@@ -207,7 +207,7 @@ describe('GET /incidentes/:id', () => {
 
 describe('POST /incidentes', () => {
     it('retorna 403 cuando usuario es CIUDADANO', async () => {
-          vi.mocked(authMiddleware).mockImplementationOnce((req: any, _reply: any, done: any) => {
+          (authMiddleware as any).mockImplementationOnce((req: any, _reply: any, done: any) => {
                   req.user = { id: 'user-ciu', email: 'ciudadano@test.com', rol: 'CIUDADANO', municipio_id: undefined };
                   done?.();
           });
@@ -224,7 +224,7 @@ describe('POST /incidentes', () => {
     });
 
            it('retorna 201 cuando usuario es SOCORRO', async () => {
-                 vi.mocked(authMiddleware).mockImplementationOnce((req: any, _reply: any, done: any) => {
+                 (authMiddleware as any).mockImplementationOnce((req: any, _reply: any, done: any) => {
                          req.user = { id: 'user-socorro', email: 'socorro@test.com', rol: 'SOCORRO', municipio_id: 'muni-50001' };
                          done?.();
                  });
@@ -251,7 +251,7 @@ describe('POST /incidentes', () => {
            });
 
            it('retorna 401 sin token', async () => {
-                 vi.mocked(authMiddleware).mockImplementationOnce(() => {
+                 (authMiddleware as any).mockImplementationOnce(() => {
                          throw new UnauthorizedError('Token requerido');
                  });
 
@@ -301,7 +301,7 @@ describe('PATCH /incidentes/:id', () => {
     });
 
            it('retorna 403 cuando usuario CIUDADANO intenta actualizar', async () => {
-                 vi.mocked(authMiddleware).mockImplementationOnce((req: any, _reply: any, done: any) => {
+                 (authMiddleware as any).mockImplementationOnce((req: any, _reply: any, done: any) => {
                          req.user = { id: 'user-ciu', email: 'ciudadano@test.com', rol: 'CIUDADANO', municipio_id: undefined };
                          done?.();
                  });
