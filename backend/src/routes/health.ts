@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { supabaseAdmin } from '../lib/supabase.js';
+import { logger } from '../utils/logger.js';
 import * as ideam from '../services/ideam.service.js';
 import * as sgc from '../services/sgc.service.js';
 
@@ -21,13 +22,18 @@ export async function healthRoutes(app: FastifyInstance): Promise<void> {
       overallStatus = 'down';
     }
 
-    // Verificar Storage (listar buckets)
+    // Verificar Storage (listar buckets) — no afecta overallStatus
     try {
-      const { error } = await supabaseAdmin.storage.listBuckets();
-      services.storage = error ? 'degraded' : 'ok';
-    } catch {
+      const { data, error } = await supabaseAdmin.storage.listBuckets();
+      if (error) {
+        logger.warn({ err: error.message }, 'health: storage degraded');
+        services.storage = 'degraded';
+      } else {
+        services.storage = `ok (${data?.length ?? 0} buckets)`;
+      }
+    } catch (e) {
+      logger.warn({ err: e }, 'health: storage exception');
       services.storage = 'degraded';
-      if (overallStatus === 'ok') overallStatus = 'degraded';
     }
 
     // Redis — verificar via variable de entorno
@@ -67,10 +73,9 @@ export async function healthRoutes(app: FastifyInstance): Promise<void> {
       // no bloquear health check
     }
 
+    // Solo db afecta el estado global — storage/redis/fcm son informativos
     if (services.db === 'down') overallStatus = 'down';
-    else if (Object.values(services).some((s) => s === 'degraded') && overallStatus === 'ok') {
-      overallStatus = 'degraded';
-    }
+    else if (services.db === 'degraded') overallStatus = 'degraded';
 
     return reply.status(overallStatus === 'down' ? 503 : 200).send({
       status: overallStatus,

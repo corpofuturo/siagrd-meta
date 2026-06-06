@@ -88,7 +88,7 @@ describe('GET /incidentes', () => {
     });
 
     const mockFrom = supabaseAdmin.from as any;
-    const chain = mockFrom.mock.results[0]?.value ?? { select: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnThis(), order: vi.fn().mockResolvedValue({ data: [], error: null }) };
+    const _chain = mockFrom.mock.results[0]?.value ?? { select: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnThis(), order: vi.fn().mockResolvedValue({ data: [], error: null }) };
 
     const app = await buildApp();
     const response = await app.inject({
