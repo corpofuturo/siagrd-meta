@@ -5,7 +5,7 @@ import { ForbiddenError } from '../utils/errors.js';
 import type { RolUsuario } from '../types/domain.js';
 
 const ROLES_LECTURA: RolUsuario[] = ['CDGRD', 'CMGRD', 'SOCORRO', 'ADMIN'];
-h
+
 export async function reportesRoutes(app: FastifyInstance): Promise<void> {
   // GET /reportes-ciudadanos — solo CDGRD/CMGRD/SOCORRO
   app.get(
