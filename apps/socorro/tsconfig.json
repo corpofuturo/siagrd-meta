@@ -1,16 +1,16 @@
 {
-    "extends": "expo/tsconfig.base",
-    "compilerOptions": {
-          "strict": true,
-          "experimentalDecorators": true,
-          "emitDecoratorMetadata": true,
-          "baseUrl": ".",
-          "paths": {
-                  "@siagrd/ui": ["../../packages/ui/src/index.ts"],
-                  "@siagrd/ui/*": ["../../packages/ui/src/*"],
-                  "@/*": ["./src/*"]
-          }
-    },
-    "include": ["src", "*.ts", "*.tsx"],
-    "exclude": ["node_modules"]
+      "extends": "expo/tsconfig.base",
+      "compilerOptions": {
+              "strict": true,
+              "experimentalDecorators": true,
+              "emitDecoratorMetadata": true,
+              "baseUrl": ".",
+              "paths": {
+                        "@siagrd/ui": ["../../packages/ui/src/index.ts"],
+                        "@siagrd/ui/*": ["../../packages/ui/src/*"],
+                        "@/*": ["./src/*"]
+              }
+      },
+      "include": ["src", "*.ts", "*.tsx"],
+      "exclude": ["node_modules", "src/tests", "src/**/*.test.ts", "src/**/*.test.tsx"]
 }
