@@ -14,8 +14,7 @@ export async function healthRoutes(app: FastifyInstance): Promise<void> {
       const { error } = await supabaseAdmin
         .from('municipios')
         .select('id')
-        .limit(1)
-        .single();
+        .limit(1);
       services.db = error ? 'degraded' : 'ok';
     } catch {
       services.db = 'down';
