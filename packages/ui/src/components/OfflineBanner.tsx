@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, TouchableOpacity, Text, StyleSheet, View } from 'react-native';
+import { Animated, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { colors, typography, spacing, animation } from '../tokens';
 
 interface OfflineBannerProps {
