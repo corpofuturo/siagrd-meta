@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, View, Text, StyleSheet } from 'react-native';
+import { Animated, Text, StyleSheet } from 'react-native';
 import { colors, typography, spacing, radius } from '../tokens';
 import type { NivelAlerta } from '../types';
 
