@@ -5,7 +5,7 @@ import { ForbiddenError } from '../utils/errors.js';
 import type { RolUsuario } from '../types/domain.js';
 
 const ROLES_LECTURA: RolUsuario[] = ['CDGRD', 'CMGRD', 'SOCORRO', 'ADMIN'];
-
+h
 export async function reportesRoutes(app: FastifyInstance): Promise<void> {
   // GET /reportes-ciudadanos — solo CDGRD/CMGRD/SOCORRO
   app.get(
@@ -61,7 +61,7 @@ export async function reportesRoutes(app: FastifyInstance): Promise<void> {
       // Intentar identificar al usuario si viene token
       const header = request.headers.authorization;
       if (header?.startsWith('Bearer ')) {
-        const token = header.slice(7);
+        const _token = header.slice(7);
         try {
           await authMiddleware(request, reply);
           payload['reportante_id'] = request.user?.id ?? null;
