@@ -79,9 +79,9 @@ describe('distanciaKm', () => {
     expect(d1).toBeCloseTo(d2, 5);
   });
 
-  it('distancia Bogotá-Medellín aproximadamente 240-260 km', () => {
+  it('distancia Bogotá-Medellín aproximadamente 230-250 km (línea recta Haversine)', () => {
     const dist = distanciaKm(4.711, -74.0721, 6.2518, -75.5636);
-    expect(dist).toBeGreaterThan(240);
-    expect(dist).toBeLessThan(260);
+    expect(dist).toBeGreaterThan(230);
+    expect(dist).toBeLessThan(250);
   });
 });

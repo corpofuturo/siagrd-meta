@@ -29,6 +29,7 @@ vi.mock('../middleware/auth.js', () => ({
 import Fastify from 'fastify';
 import { alertasRoutes } from '../routes/alertas.js';
 import { supabaseAdmin } from '../lib/supabase.js';
+import { authMiddleware } from '../middleware/auth.js';
 
 async function buildApp() {
   const app = Fastify({ logger: false });
@@ -104,16 +105,14 @@ describe('GET /alertas', () => {
 
 describe('POST /alertas', () => {
   beforeEach(() => {
-    const { authMiddleware } = require('../middleware/auth.js');
-    authMiddleware.mockImplementation((req: any, _reply: any, done: any) => {
+    (authMiddleware as any).mockImplementation((req: any, _reply: any, done: any) => {
       req.user = { id: 'user-cdgrd', email: 'cdgrd@test.com', rol: 'CDGRD', municipio_id: undefined };
       done?.();
     });
   });
 
   it('retorna 403 cuando usuario es CIUDADANO', async () => {
-    const { authMiddleware } = require('../middleware/auth.js');
-    authMiddleware.mockImplementationOnce((req: any, _reply: any, done: any) => {
+    (authMiddleware as any).mockImplementationOnce((req: any, _reply: any, done: any) => {
       req.user = { id: 'user-ciu', email: 'ciudadano@test.com', rol: 'CIUDADANO', municipio_id: undefined };
       done?.();
     });
@@ -154,8 +153,7 @@ describe('POST /alertas', () => {
   });
 
   it('retorna 403 cuando usuario es CMGRD', async () => {
-    const { authMiddleware } = require('../middleware/auth.js');
-    authMiddleware.mockImplementationOnce((req: any, _reply: any, done: any) => {
+    (authMiddleware as any).mockImplementationOnce((req: any, _reply: any, done: any) => {
       req.user = { id: 'user-cmgrd', email: 'cmgrd@test.com', rol: 'CMGRD', municipio_id: '50001' };
       done?.();
     });
@@ -209,8 +207,7 @@ describe('POST /alertas/:id/emitir', () => {
   });
 
   it('retorna 403 cuando usuario SOCORRO intenta emitir', async () => {
-    const { authMiddleware } = require('../middleware/auth.js');
-    authMiddleware.mockImplementationOnce((req: any, _reply: any, done: any) => {
+    (authMiddleware as any).mockImplementationOnce((req: any, _reply: any, done: any) => {
       req.user = { id: 'user-socorro', email: 'socorro@test.com', rol: 'SOCORRO', municipio_id: '50001' };
       done?.();
     });

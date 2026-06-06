@@ -1,15 +1,25 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('../lib/supabase.js', () => {
-  const countChain = {
+// Chain thenable: todos los métodos retornan this, await devuelve { data, error, count }
+const makeChain = (data: any[] = [], count = 0) => {
+  const chain: any = {
     select: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockResolvedValue({ data: null, error: null, count: 0 }),
-    order: vi.fn().mockResolvedValue({ data: [], error: null }),
+    eq:     vi.fn().mockReturnThis(),
+    neq:    vi.fn().mockReturnThis(),
+    gt:     vi.fn().mockReturnThis(),
+    order:  vi.fn().mockReturnThis(),
+    limit:  vi.fn().mockReturnThis(),
+    single: vi.fn().mockResolvedValue({ data: null, error: null }),
+    maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
   };
-  return {
-    supabaseAdmin: { from: vi.fn().mockReturnValue(countChain) },
-  };
-});
+  // Hacer el chain awaitable
+  chain.then = (resolve: any) => Promise.resolve({ data, error: null, count }).then(resolve);
+  return chain;
+};
+
+vi.mock('../lib/supabase.js', () => ({
+  supabaseAdmin: { from: vi.fn().mockImplementation(() => makeChain()) },
+}));
 
 vi.mock('../middleware/auth.js', () => ({
   authMiddleware: vi.fn().mockImplementation((req: any, _reply: any, done: any) => {
@@ -21,6 +31,8 @@ vi.mock('../middleware/auth.js', () => ({
 import Fastify from 'fastify';
 import { dashboardRoutes } from '../routes/dashboard.js';
 import { supabaseAdmin } from '../lib/supabase.js';
+import { authMiddleware } from '../middleware/auth.js';
+import { UnauthorizedError } from '../utils/errors.js';
 
 async function buildApp() {
   const app = Fastify({ logger: false });
@@ -38,29 +50,15 @@ async function buildApp() {
 
 describe('GET /dashboard/stats', () => {
   beforeEach(() => {
-    const { authMiddleware } = require('../middleware/auth.js');
-    authMiddleware.mockImplementation((req: any, _reply: any, done: any) => {
+    (authMiddleware as any).mockImplementation((req: any, _reply: any, done: any) => {
       req.user = { id: 'user-cdgrd', email: 'cdgrd@test.com', rol: 'CDGRD', municipio_id: undefined };
       done?.();
     });
+    // Resetear el from mock para que makeChain() se aplique fresco en cada test
+    (supabaseAdmin.from as any).mockImplementation(() => makeChain());
   });
 
-  it('retorna 200 con las 6 métricas cuando usuario es CDGRD', async () => {
-    const mockFrom = supabaseAdmin.from as any;
-    const makeCountChain = (count: number) => ({
-      select: vi.fn().mockResolvedValue({ data: null, error: null, count }),
-      eq: vi.fn().mockReturnThis(),
-    });
-
-    // 6 llamadas — una por cada métrica
-    mockFrom
-      .mockReturnValueOnce(makeCountChain(5))  // incidentes
-      .mockReturnValueOnce(makeCountChain(2))  // alertas activas
-      .mockReturnValueOnce(makeCountChain(10)) // reportes
-      .mockReturnValueOnce(makeCountChain(3))  // damnificados
-      .mockReturnValueOnce(makeCountChain(8))  // recursos
-      .mockReturnValueOnce(makeCountChain(1)); // sync_events
-
+  it('retorna 200 con métricas cuando usuario es CDGRD', async () => {
     const app = await buildApp();
     const response = await app.inject({
       method: 'GET',
@@ -70,17 +68,18 @@ describe('GET /dashboard/stats', () => {
 
     expect(response.statusCode).toBe(200);
     const body = response.json();
+    // Campos que devuelve la ruta real
     expect(body).toHaveProperty('incidentes_activos');
     expect(body).toHaveProperty('alertas_activas');
-    expect(body).toHaveProperty('reportes_ciudadanos');
-    expect(body).toHaveProperty('damnificados_registrados');
+    expect(body).toHaveProperty('reportes_pendientes');
+    expect(body).toHaveProperty('damnificados_total');
     expect(body).toHaveProperty('recursos_disponibles');
-    expect(body).toHaveProperty('eventos_sync_pendientes');
+    expect(body).toHaveProperty('por_nivel_alerta');
+    expect(body).toHaveProperty('timestamp');
   });
 
   it('retorna 403 cuando usuario es CMGRD', async () => {
-    const { authMiddleware } = require('../middleware/auth.js');
-    authMiddleware.mockImplementationOnce((req: any, _reply: any, done: any) => {
+    (authMiddleware as any).mockImplementationOnce((req: any, _reply: any, done: any) => {
       req.user = { id: 'user-cmgrd', email: 'cmgrd@test.com', rol: 'CMGRD', municipio_id: '50001' };
       done?.();
     });
@@ -96,9 +95,7 @@ describe('GET /dashboard/stats', () => {
   });
 
   it('retorna 401 sin token de autorización', async () => {
-    const { authMiddleware } = require('../middleware/auth.js');
-    const { UnauthorizedError } = require('../utils/errors.js');
-    authMiddleware.mockImplementationOnce(() => {
+    (authMiddleware as any).mockImplementationOnce(() => {
       throw new UnauthorizedError('Token requerido');
     });
 
@@ -112,8 +109,7 @@ describe('GET /dashboard/stats', () => {
   });
 
   it('retorna 403 cuando usuario es CIUDADANO', async () => {
-    const { authMiddleware } = require('../middleware/auth.js');
-    authMiddleware.mockImplementationOnce((req: any, _reply: any, done: any) => {
+    (authMiddleware as any).mockImplementationOnce((req: any, _reply: any, done: any) => {
       req.user = { id: 'user-ciu', email: 'ciu@test.com', rol: 'CIUDADANO', municipio_id: undefined };
       done?.();
     });
@@ -130,26 +126,14 @@ describe('GET /dashboard/stats', () => {
 
 describe('GET /dashboard/mapa-datos', () => {
   beforeEach(() => {
-    const { authMiddleware } = require('../middleware/auth.js');
-    authMiddleware.mockImplementation((req: any, _reply: any, done: any) => {
+    (authMiddleware as any).mockImplementation((req: any, _reply: any, done: any) => {
       req.user = { id: 'user-cdgrd', email: 'cdgrd@test.com', rol: 'CDGRD', municipio_id: undefined };
       done?.();
     });
+    (supabaseAdmin.from as any).mockImplementation(() => makeChain());
   });
 
   it('retorna 200 con incidentes, alertas y reportes cuando usuario es CDGRD', async () => {
-    const mockFrom = supabaseAdmin.from as any;
-    const makeDataChain = (data: any[]) => ({
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      order: vi.fn().mockResolvedValue({ data, error: null }),
-    });
-
-    mockFrom
-      .mockReturnValueOnce(makeDataChain([{ id: 'inc-1' }]))    // incidentes
-      .mockReturnValueOnce(makeDataChain([{ id: 'alerta-1' }])) // alertas
-      .mockReturnValueOnce(makeDataChain([{ id: 'rep-1' }]));   // reportes
-
     const app = await buildApp();
     const response = await app.inject({
       method: 'GET',
@@ -168,8 +152,7 @@ describe('GET /dashboard/mapa-datos', () => {
   });
 
   it('retorna 403 cuando usuario es CMGRD', async () => {
-    const { authMiddleware } = require('../middleware/auth.js');
-    authMiddleware.mockImplementationOnce((req: any, _reply: any, done: any) => {
+    (authMiddleware as any).mockImplementationOnce((req: any, _reply: any, done: any) => {
       req.user = { id: 'user-cmgrd', email: 'cmgrd@test.com', rol: 'CMGRD', municipio_id: '50001' };
       done?.();
     });
@@ -185,9 +168,7 @@ describe('GET /dashboard/mapa-datos', () => {
   });
 
   it('retorna 401 sin token', async () => {
-    const { authMiddleware } = require('../middleware/auth.js');
-    const { UnauthorizedError } = require('../utils/errors.js');
-    authMiddleware.mockImplementationOnce(() => {
+    (authMiddleware as any).mockImplementationOnce(() => {
       throw new UnauthorizedError('Token requerido');
     });
 

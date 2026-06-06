@@ -1,27 +1,31 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('../lib/supabase.js', () => {
-    const terminal = {
-          maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
-          single: vi.fn().mockResolvedValue({ data: null, error: null }),
-    };
-    const chain = {
-          select: vi.fn().mockReturnThis(),
-          insert: vi.fn().mockReturnThis(),
-          update: vi.fn().mockReturnThis(),
-          delete: vi.fn().mockReturnThis(),
-          eq: vi.fn().mockReturnThis(),
-          gt: vi.fn().mockReturnThis(),
-          in: vi.fn().mockReturnThis(),
-          order: vi.fn().mockResolvedValue({ data: [], error: null }),
-          limit: vi.fn().mockResolvedValue({ data: [], error: null, count: 0 }),
-          ...terminal,
+    // Chain thenable: order/limit retornan this para ser chainables,
+    // y el chain completo se puede awaitar devolviendo { data, error, count }
+    const makeChain = () => {
+        const c: any = {
+            select: vi.fn().mockReturnThis(),
+            insert: vi.fn().mockReturnThis(),
+            update: vi.fn().mockReturnThis(),
+            delete: vi.fn().mockReturnThis(),
+            eq:     vi.fn().mockReturnThis(),
+            neq:    vi.fn().mockReturnThis(),
+            gt:     vi.fn().mockReturnThis(),
+            in:     vi.fn().mockReturnThis(),
+            order:  vi.fn().mockReturnThis(),
+            limit:  vi.fn().mockReturnThis(),
+            maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+            single:      vi.fn().mockResolvedValue({ data: null, error: null }),
+        };
+        c.then = (resolve: any) => Promise.resolve({ data: [], error: null, count: 0 }).then(resolve);
+        return c;
     };
     return {
-          supabaseAdmin: {
-                  from: vi.fn().mockReturnValue(chain),
-                  rpc: vi.fn().mockResolvedValue({ data: [], error: null }),
-          },
+        supabaseAdmin: {
+            from: vi.fn().mockImplementation(() => makeChain()),
+            rpc: vi.fn().mockResolvedValue({ data: [], error: null }),
+        },
     };
 });
 
