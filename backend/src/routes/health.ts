@@ -16,8 +16,15 @@ export async function healthRoutes(app: FastifyInstance): Promise<void> {
         .from('municipios')
         .select('id')
         .limit(1);
-      services.db = error ? 'degraded' : 'ok';
-    } catch {
+      if (error) {
+        logger.warn({ err: error.message, code: error.code }, 'health: db degraded');
+        services.db = `degraded (${error.code ?? error.message})`;
+      } else {
+        services.db = 'ok';
+      }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      logger.error({ err: msg }, 'health: db down');
       services.db = 'down';
       overallStatus = 'down';
     }
