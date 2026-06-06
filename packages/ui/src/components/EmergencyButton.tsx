@@ -1,5 +1,5 @@
+import React from 'react';
 import { TouchableOpacity, Text, ActivityIndicator, StyleSheet } from 'react-native';
-import { TouchableOpacity, Text, ActivityIndicator, StyleSheet, View } from 'react-native';
 import { colors, typography, touch, radius } from '../tokens';
 
 interface EmergencyButtonProps {
