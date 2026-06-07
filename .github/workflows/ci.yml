@@ -132,9 +132,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint-typecheck, test, security-audit, build-check]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    # Railway project token must be a project-level token (not user API token).
-    # Generate at: Railway dashboard → project → Settings → Tokens → New Token
-    # Then update RAILWAY_TOKEN secret in GitHub with the new project token.
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
