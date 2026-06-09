@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '../lib/supabase.js';
+import { db } from '../lib/db.js';
 import { logger } from '../utils/logger.js';
 import type { NivelAlerta } from '../types/domain.js';
 
@@ -50,20 +50,22 @@ export async function enviarAlertaPush(
   }
 
   // Obtener tokens de dispositivos activos en los municipios afectados
-  const { data: profiles, error } = await supabaseAdmin
-    .from('profiles')
-    .select('device_token')
-    .in('municipio_id', municipiosIds)
-    .not('device_token', 'is', null)
-    .eq('activo', true);
-
-  if (error) {
-    logger.error({ error, alerta_id: alertaId }, 'Error obteniendo device_tokens');
+  let profiles: { device_token: string | null }[] = [];
+  try {
+    profiles = await db`
+      SELECT device_token
+      FROM profiles
+      WHERE municipio_id = ANY(${db.array(municipiosIds)})
+        AND device_token IS NOT NULL
+        AND activo = true
+    `;
+  } catch (err) {
+    logger.error({ err, alerta_id: alertaId }, 'Error obteniendo device_tokens');
     return;
   }
 
-  const tokens: string[] = (profiles ?? [])
-    .map((p: { device_token: string | null }) => p.device_token)
+  const tokens: string[] = profiles
+    .map((p) => p.device_token)
     .filter((t): t is string => Boolean(t));
 
   if (tokens.length === 0) {
@@ -100,16 +102,11 @@ export async function enviarAlertaPush(
   }
 
   // Registrar en tabla notificaciones
-  await supabaseAdmin.from('notificaciones').insert({
-    alerta_id: alertaId,
-    nivel,
-    titulo,
-    municipios_ids: municipiosIds,
-    total_tokens: tokens.length,
-    enviados: totalEnviados,
-    fallidos: totalFallidos,
-    estado: totalFallidos === tokens.length ? 'error' : totalEnviados > 0 ? 'ok' : 'sin_tokens',
-  });
+  const estado = totalFallidos === tokens.length ? 'error' : totalEnviados > 0 ? 'ok' : 'sin_tokens';
+  await db`
+    INSERT INTO notificaciones (alerta_id, nivel, titulo, municipios_ids, total_tokens, enviados, fallidos, estado)
+    VALUES (${alertaId}, ${nivel}, ${titulo}, ${db.array(municipiosIds)}, ${tokens.length}, ${totalEnviados}, ${totalFallidos}, ${estado})
+  `.catch((err: unknown) => logger.error({ err, alerta_id: alertaId }, 'Error registrando notificacion'));
 
   logger.info(
     { alerta_id: alertaId, nivel, enviados: totalEnviados, fallidos: totalFallidos },

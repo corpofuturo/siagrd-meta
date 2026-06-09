@@ -48,7 +48,7 @@ async function fetchJson<T>(url: string): Promise<T | null> {
     });
     if (!res.ok) return null;
     const json = await res.json();
-    return Array.isArray(json) ? json : (json.results ?? json);
+    return (Array.isArray(json) ? json : (json.results ?? json)) as T;
   } catch {
     return null;
   }
