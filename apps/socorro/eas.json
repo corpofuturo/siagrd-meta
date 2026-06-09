@@ -3,7 +3,6 @@
     "version": ">= 10.0.0",
     "appVersionSource": "remote"
   },
-  "account": "corpofuturo",
   "build": {
     "development": {
       "developmentClient": true,
