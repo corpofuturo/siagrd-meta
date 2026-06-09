@@ -1,33 +1,39 @@
 import { describe, it, expect, vi } from 'vitest';
 
-const mockProfile = { id: 'user-1', nombre: 'Test', apellido: 'User', email: 'test@test.com', rol: 'CDGRD', municipio_id: null, organismo_id: null, foto_url: null, activo: true };
+const mockProfile = {
+  id: 'user-1',
+  nombre: 'Test',
+  apellido: 'User',
+  email: 'test@test.com',
+  rol: 'CDGRD',
+  municipio_id: null,
+  organismo_id: null,
+  foto_url: null,
+  activo: true,
+  password_hash: '$2b$12$fakehashvalue',
+};
 
-vi.mock('../lib/supabase.js', () => {
-  const makeAdminChain = (data: any = null) => ({
-    select: vi.fn().mockReturnThis(),
-    eq:     vi.fn().mockReturnThis(),
-    single: vi.fn().mockResolvedValue({ data, error: null }),
-  });
+vi.mock('../lib/db.js', () => ({
+  db: vi.fn().mockResolvedValue([]),
+}));
 
-  return {
-    supabaseAnon: {
-      auth: {
-        signInWithPassword: vi.fn(),
-        refreshSession: vi.fn(),
-        signOut: vi.fn().mockResolvedValue({ error: null }),
-        getUser: vi.fn(),
-      },
-      from: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnThis(),
-        eq:     vi.fn().mockReturnThis(),
-        single: vi.fn().mockResolvedValue({ data: null, error: null }),
-      }),
-    },
-    supabaseAdmin: {
-      from: vi.fn().mockImplementation(() => makeAdminChain(mockProfile)),
-    },
-  };
-});
+vi.mock('bcryptjs', () => ({
+  default: {
+    compare: vi.fn().mockResolvedValue(true),
+    hash: vi.fn().mockResolvedValue('$2b$12$fakehashvalue'),
+  },
+  compare: vi.fn().mockResolvedValue(true),
+  hash: vi.fn().mockResolvedValue('$2b$12$fakehashvalue'),
+}));
+
+vi.mock('jsonwebtoken', () => ({
+  default: {
+    sign: vi.fn().mockReturnValue('mock-jwt-token'),
+    verify: vi.fn().mockReturnValue({ sub: 'user-1', email: 'test@test.com', type: 'refresh' }),
+  },
+  sign: vi.fn().mockReturnValue('mock-jwt-token'),
+  verify: vi.fn().mockReturnValue({ sub: 'user-1', email: 'test@test.com', type: 'refresh' }),
+}));
 
 vi.mock('../middleware/auth.js', () => ({
   authMiddleware: vi.fn().mockImplementation((req: any, _reply: any, done: any) => {
@@ -38,7 +44,7 @@ vi.mock('../middleware/auth.js', () => ({
 
 import Fastify from 'fastify';
 import { authRoutes } from '../routes/auth.js';
-import { supabaseAnon } from '../lib/supabase.js';
+import { db } from '../lib/db.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { UnauthorizedError } from '../utils/errors.js';
 
@@ -58,29 +64,22 @@ async function buildApp() {
 
 describe('POST /auth/login', () => {
   it('retorna 200 con access_token cuando credenciales son válidas', async () => {
-    const mockAuth = supabaseAnon.auth as any;
-    mockAuth.signInWithPassword.mockResolvedValueOnce({
-      data: {
-        user: { id: 'user-1', email: 'user@test.com' },
-        session: { access_token: 'mock-access-token', refresh_token: 'mock-refresh-token', expires_in: 3600 },
-      },
-      error: null,
-    });
+    (db as any).mockResolvedValueOnce([mockProfile]);
 
     const app = await buildApp();
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/auth/login',
-      payload: { email: 'user@test.com', password: 'secret123', tipo_login: 'password' },
+      payload: { email: 'test@test.com', password: 'secret123' },
     });
 
     expect(response.statusCode).toBe(200);
     const body = response.json();
-    expect(body.access_token).toBe('mock-access-token');
-    expect(body.refresh_token).toBe('mock-refresh-token');
+    expect(body.access_token).toBeDefined();
+    expect(body.refresh_token).toBeDefined();
   });
 
-  it('retorna 400 cuando falta tipo_login y password', async () => {
+  it('retorna 400 cuando falta email', async () => {
     const app = await buildApp();
     const response = await app.inject({
       method: 'POST',
@@ -91,29 +90,25 @@ describe('POST /auth/login', () => {
     expect(response.statusCode).toBe(400);
   });
 
-  it('retorna 401 cuando las credenciales son inválidas', async () => {
-    const mockAuth = supabaseAnon.auth as any;
-    mockAuth.signInWithPassword.mockResolvedValueOnce({
-      data: { session: null, user: null },
-      error: { message: 'Invalid login credentials' },
-    });
+  it('retorna 401 cuando las credenciales son inválidas (usuario no encontrado)', async () => {
+    (db as any).mockResolvedValueOnce([]);
 
     const app = await buildApp();
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/auth/login',
-      payload: { email: 'user@test.com', password: 'wrong', tipo_login: 'password' },
+      payload: { email: 'user@test.com', password: 'wrong' },
     });
 
     expect(response.statusCode).toBe(401);
   });
 
-  it('retorna 400 cuando falta password con tipo_login password', async () => {
+  it('retorna 400 cuando falta password', async () => {
     const app = await buildApp();
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/auth/login',
-      payload: { email: 'user@test.com', tipo_login: 'password' },
+      payload: { email: 'user@test.com' },
     });
 
     expect(response.statusCode).toBe(400);
@@ -122,24 +117,18 @@ describe('POST /auth/login', () => {
 
 describe('POST /auth/refresh', () => {
   it('retorna 200 con nuevo access_token cuando refresh_token es válido', async () => {
-    const mockAuth = supabaseAnon.auth as any;
-    mockAuth.refreshSession.mockResolvedValueOnce({
-      data: {
-        session: { access_token: 'new-access-token', refresh_token: 'new-refresh-token', expires_in: 3600 },
-      },
-      error: null,
-    });
+    (db as any).mockResolvedValueOnce([{ id: 'user-1', email: 'test@test.com' }]);
 
     const app = await buildApp();
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/auth/refresh',
-      payload: { refresh_token: 'old-refresh-token' },
+      payload: { refresh_token: 'mock-refresh-token' },
     });
 
     expect(response.statusCode).toBe(200);
     const body = response.json();
-    expect(body.access_token).toBe('new-access-token');
+    expect(body.access_token).toBeDefined();
   });
 
   it('retorna 400 cuando no se envía refresh_token', async () => {
@@ -154,11 +143,8 @@ describe('POST /auth/refresh', () => {
   });
 
   it('retorna 401 cuando el refresh_token es inválido', async () => {
-    const mockAuth = supabaseAnon.auth as any;
-    mockAuth.refreshSession.mockResolvedValueOnce({
-      data: { session: null },
-      error: { message: 'Invalid refresh token' },
-    });
+    const jwt = await import('jsonwebtoken');
+    (jwt.default.verify as any).mockImplementationOnce(() => { throw new Error('invalid token'); });
 
     const app = await buildApp();
     const response = await app.inject({
@@ -173,9 +159,6 @@ describe('POST /auth/refresh', () => {
 
 describe('POST /auth/logout', () => {
   it('retorna 200 con message', async () => {
-    const mockAuth = supabaseAnon.auth as any;
-    mockAuth.signOut.mockResolvedValueOnce({ error: null });
-
     const app = await buildApp();
     const response = await app.inject({
       method: 'POST',
@@ -205,6 +188,8 @@ describe('GET /auth/me', () => {
   });
 
   it('retorna 200 con datos del usuario autenticado', async () => {
+    (db as any).mockResolvedValueOnce([mockProfile]);
+
     const app = await buildApp();
     const response = await app.inject({
       method: 'GET',
@@ -214,7 +199,6 @@ describe('GET /auth/me', () => {
 
     expect(response.statusCode).toBe(200);
     const body = response.json();
-    // La ruta retorna { data: profile }
     expect(body.data).toBeDefined();
     expect(body.data.id).toBe('user-1');
     expect(body.data.rol).toBe('CDGRD');

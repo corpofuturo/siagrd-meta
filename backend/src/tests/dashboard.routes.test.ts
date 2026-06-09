@@ -1,24 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Chain thenable: todos los métodos retornan this, await devuelve { data, error, count }
-const makeChain = (data: any[] = [], count = 0) => {
-  const chain: any = {
-    select: vi.fn().mockReturnThis(),
-    eq:     vi.fn().mockReturnThis(),
-    neq:    vi.fn().mockReturnThis(),
-    gt:     vi.fn().mockReturnThis(),
-    order:  vi.fn().mockReturnThis(),
-    limit:  vi.fn().mockReturnThis(),
-    single: vi.fn().mockResolvedValue({ data: null, error: null }),
-    maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
-  };
-  // Hacer el chain awaitable
-  chain.then = (resolve: any) => Promise.resolve({ data, error: null, count }).then(resolve);
-  return chain;
-};
-
-vi.mock('../lib/supabase.js', () => ({
-  supabaseAdmin: { from: vi.fn().mockImplementation(() => makeChain()) },
+vi.mock('../lib/db.js', () => ({
+  db: vi.fn().mockResolvedValue([{ n: 0, total: 0 }]),
 }));
 
 vi.mock('../middleware/auth.js', () => ({
@@ -30,7 +13,7 @@ vi.mock('../middleware/auth.js', () => ({
 
 import Fastify from 'fastify';
 import { dashboardRoutes } from '../routes/dashboard.js';
-import { supabaseAdmin } from '../lib/supabase.js';
+import { db } from '../lib/db.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { UnauthorizedError } from '../utils/errors.js';
 
@@ -54,8 +37,7 @@ describe('GET /dashboard/stats', () => {
       req.user = { id: 'user-cdgrd', email: 'cdgrd@test.com', rol: 'CDGRD', municipio_id: undefined };
       done?.();
     });
-    // Resetear el from mock para que makeChain() se aplique fresco en cada test
-    (supabaseAdmin.from as any).mockImplementation(() => makeChain());
+    (db as any).mockResolvedValue([{ n: 0, total: 0, nivel_alerta: 'ROJO', count: 0 }]);
   });
 
   it('retorna 200 con métricas cuando usuario es CDGRD', async () => {
@@ -68,7 +50,6 @@ describe('GET /dashboard/stats', () => {
 
     expect(response.statusCode).toBe(200);
     const body = response.json();
-    // Campos que devuelve la ruta real
     expect(body).toHaveProperty('incidentes_activos');
     expect(body).toHaveProperty('alertas_activas');
     expect(body).toHaveProperty('reportes_pendientes');
@@ -130,7 +111,7 @@ describe('GET /dashboard/mapa-datos', () => {
       req.user = { id: 'user-cdgrd', email: 'cdgrd@test.com', rol: 'CDGRD', municipio_id: undefined };
       done?.();
     });
-    (supabaseAdmin.from as any).mockImplementation(() => makeChain());
+    (db as any).mockResolvedValue([]);
   });
 
   it('retorna 200 con incidentes, alertas y reportes cuando usuario es CDGRD', async () => {
