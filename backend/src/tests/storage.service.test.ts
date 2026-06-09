@@ -1,20 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
 
-vi.mock('../lib/supabase.js', () => ({
-  supabaseAdmin: {
-    storage: {
-      from: vi.fn().mockReturnValue({
-        upload: vi.fn().mockResolvedValue({ data: { path: 'test/path.jpg' }, error: null }),
-        getPublicUrl: vi.fn().mockReturnValue({ data: { publicUrl: 'https://example.com/test.jpg' } }),
-      }),
-    },
-    from: vi.fn().mockReturnValue({
-      insert: vi.fn().mockResolvedValue({ data: null, error: null }),
-    }),
-  },
+vi.mock('../lib/db.js', () => ({
+  db: vi.fn().mockResolvedValue([]),
 }));
 
-// Mock de sharp — no disponible en entorno test sin binarios nativos
+// Mock de sharp — binarios nativos no disponibles en test
 vi.mock('sharp', () => ({
   default: vi.fn().mockReturnValue({
     resize: vi.fn().mockReturnThis(),
@@ -23,7 +13,6 @@ vi.mock('sharp', () => ({
   }),
 }));
 
-// Mock de file-type
 vi.mock('file-type', () => ({
   fromBuffer: vi.fn().mockResolvedValue({ mime: 'image/jpeg', ext: 'jpg' }),
 }));

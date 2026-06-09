@@ -1,15 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 
-vi.mock('../lib/supabase.js', () => ({
-  supabaseAdmin: {
-    from: vi.fn().mockReturnValue({
-      select: vi.fn().mockReturnThis(),
-      in: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      insert: vi.fn().mockResolvedValue({ data: null, error: null }),
-      limit: vi.fn().mockResolvedValue({ data: [], error: null }),
-    }),
-  },
+vi.mock('../lib/db.js', () => ({
+  db: vi.fn().mockResolvedValue([]),
 }));
 
 describe('notifications.service', () => {

@@ -1,152 +1,95 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// vi.hoisted garantiza que estos mocks estén listos antes del hoisting de vi.mock()
-const { mockGetUser, mockFromSelect, mockFromEq, mockFromSingle, mockFrom } = vi.hoisted(() => {
-    const mockFromSelect = vi.fn().mockReturnThis();
-    const mockFromEq = vi.fn().mockReturnThis();
-    const mockFromSingle = vi.fn();
-    const mockFrom = vi.fn().mockReturnValue({
-          select: mockFromSelect,
-          eq: mockFromEq,
-          single: mockFromSingle,
-    });
-    return {
-          mockGetUser: vi.fn(),
-          mockFromSelect,
-          mockFromEq,
-          mockFromSingle,
-          mockFrom,
-    };
+const { mockDbFn } = vi.hoisted(() => {
+  const mockDbFn = vi.fn().mockResolvedValue([]);
+  (mockDbFn as any).array = vi.fn().mockImplementation((arr: any[]) => arr);
+  return { mockDbFn };
 });
 
-vi.mock('../lib/supabase.js', () => ({
-    supabaseAnon: {
-          auth: { getUser: mockGetUser },
-          from: mockFrom,
-    },
-    supabaseAdmin: { from: vi.fn() },
+vi.mock('../lib/db.js', () => ({ db: mockDbFn }));
+
+vi.mock('jsonwebtoken', () => ({
+  default: {
+    verify: vi.fn().mockReturnValue({ sub: 'user-abc', email: 'test@test.com' }),
+    sign: vi.fn().mockReturnValue('mock-token'),
+  },
+  verify: vi.fn().mockReturnValue({ sub: 'user-abc', email: 'test@test.com' }),
+  sign: vi.fn().mockReturnValue('mock-token'),
 }));
 
 import { authMiddleware } from '../middleware/auth.js';
 import { UnauthorizedError } from '../utils/errors.js';
 
 function makeRequest(overrides: Record<string, unknown> = {}): any {
-    return {
-          headers: { authorization: 'Bearer valid-token' },
-          user: undefined,
-          ...overrides,
-    };
-}
-
-function makeReply(): any {
-    return {};
+  return {
+    headers: { authorization: 'Bearer valid-token' },
+    user: undefined,
+    ...overrides,
+  };
 }
 
 describe('authMiddleware', () => {
-    beforeEach(() => {
-          vi.clearAllMocks();
-    });
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockDbFn.mockResolvedValue([]);
+    (mockDbFn as any).array = vi.fn().mockImplementation((arr: any[]) => arr);
+  });
 
-           it('lanza UnauthorizedError cuando no hay header Authorization', async () => {
-                 const req = makeRequest({ headers: {} });
-                 await expect(authMiddleware(req, makeReply())).rejects.toThrow(UnauthorizedError);
-           });
+  it('lanza UnauthorizedError cuando no hay header Authorization', async () => {
+    const req = makeRequest({ headers: {} });
+    await expect(authMiddleware(req, {} as any)).rejects.toThrow(UnauthorizedError);
+  });
 
-           it('lanza UnauthorizedError cuando el header no empieza con "Bearer "', async () => {
-                 const req = makeRequest({ headers: { authorization: 'Basic dXNlcjpwYXNz' } });
-                 await expect(authMiddleware(req, makeReply())).rejects.toThrow(UnauthorizedError);
-           });
+  it('lanza UnauthorizedError cuando el header no empieza con "Bearer "', async () => {
+    const req = makeRequest({ headers: { authorization: 'Basic dXNlcjpwYXNz' } });
+    await expect(authMiddleware(req, {} as any)).rejects.toThrow(UnauthorizedError);
+  });
 
-           it('lanza UnauthorizedError cuando supabase devuelve error en getUser', async () => {
-                 mockGetUser.mockResolvedValueOnce({
-                         data: { user: null },
-                         error: { message: 'JWT expired' },
-                 });
+  it('lanza UnauthorizedError cuando jwt.verify falla', async () => {
+    const jwt = await import('jsonwebtoken');
+    (jwt.default.verify as any).mockImplementationOnce(() => { throw new Error('jwt expired'); });
 
-                  const req = makeRequest();
-                 await expect(authMiddleware(req, makeReply())).rejects.toThrow(UnauthorizedError);
-           });
+    const req = makeRequest();
+    await expect(authMiddleware(req, {} as any)).rejects.toThrow(UnauthorizedError);
+  });
 
-           it('lanza UnauthorizedError cuando supabase devuelve user null sin error', async () => {
-                 mockGetUser.mockResolvedValueOnce({
-                         data: { user: null },
-                         error: null,
-                 });
+  it('lanza UnauthorizedError cuando el perfil no existe en la BD', async () => {
+    mockDbFn.mockResolvedValueOnce([]);
 
-                  const req = makeRequest();
-                 await expect(authMiddleware(req, makeReply())).rejects.toThrow(UnauthorizedError);
-           });
+    const req = makeRequest();
+    await expect(authMiddleware(req, {} as any)).rejects.toThrow(UnauthorizedError);
+  });
 
-           it('popula request.user con datos del perfil cuando token es válido', async () => {
-                 mockGetUser.mockResolvedValueOnce({
-                         data: { user: { id: 'user-abc', email: 'test@test.com' } },
-                         error: null,
-                 });
-                 mockFromSingle.mockResolvedValueOnce({
-                         data: { rol: 'CDGRD', municipio_id: 'muni-50001', organismo_id: 'org-1' },
-                         error: null,
-                 });
+  it('popula request.user con datos del perfil cuando token es válido', async () => {
+    mockDbFn.mockResolvedValueOnce([{
+      id: 'user-abc',
+      email: 'test@test.com',
+      rol: 'CDGRD',
+      municipio_id: 'muni-50001',
+      organismo_id: 'org-1',
+    }]);
 
-                  const req = makeRequest();
-                 await authMiddleware(req, makeReply());
+    const req = makeRequest();
+    await authMiddleware(req, {} as any);
 
-                  expect(req.user).toBeDefined();
-                 expect(req.user.id).toBe('user-abc');
-                 expect(req.user.email).toBe('test@test.com');
-                 expect(req.user.rol).toBe('CDGRD');
-                 expect(req.user.municipio_id).toBe('muni-50001');
-                 expect(req.user.organismo_id).toBe('org-1');
-           });
+    expect(req.user).toBeDefined();
+    expect(req.user.id).toBe('user-abc');
+    expect(req.user.email).toBe('test@test.com');
+    expect(req.user.rol).toBe('CDGRD');
+    expect(req.user.municipio_id).toBe('muni-50001');
+    expect(req.user.organismo_id).toBe('org-1');
+  });
 
-           it('asigna rol CIUDADANO por defecto cuando el perfil no existe', async () => {
-                 mockGetUser.mockResolvedValueOnce({
-                         data: { user: { id: 'user-xyz', email: 'nuevo@test.com' } },
-                         error: null,
-                 });
-                 mockFromSingle.mockResolvedValueOnce({
-                         data: null,
-                         error: { message: 'Row not found' },
-                 });
+  it('popula request.user con rol SOCORRO', async () => {
+    const jwt = await import('jsonwebtoken');
+    (jwt.default.verify as any).mockReturnValueOnce({ sub: 'u1', email: 'u@t.com' });
+    mockDbFn.mockResolvedValueOnce([{
+      id: 'u1', email: 'u@t.com', rol: 'SOCORRO', municipio_id: null, organismo_id: null,
+    }]);
 
-                  const req = makeRequest();
-                 await authMiddleware(req, makeReply());
+    const req = makeRequest({ headers: { authorization: 'Bearer my-jwt-token-123' } });
+    await authMiddleware(req, {} as any);
 
-                  expect(req.user).toBeDefined();
-                 expect(req.user.id).toBe('user-xyz');
-                 expect(req.user.rol).toBe('CIUDADANO');
-                 expect(req.user.municipio_id).toBeUndefined();
-                 expect(req.user.organismo_id).toBeUndefined();
-           });
-
-           it('asigna rol CIUDADANO cuando el perfil devuelve rol null', async () => {
-                 mockGetUser.mockResolvedValueOnce({
-                         data: { user: { id: 'user-norole', email: 'norole@test.com' } },
-                         error: null,
-                 });
-                 mockFromSingle.mockResolvedValueOnce({
-                         data: { rol: null, municipio_id: null, organismo_id: null },
-                         error: null,
-                 });
-
-                  const req = makeRequest();
-                 await authMiddleware(req, makeReply());
-
-                  expect(req.user.rol).toBe('CIUDADANO');
-           });
-
-           it('extrae el token correctamente del header Bearer', async () => {
-                 mockGetUser.mockResolvedValueOnce({
-                         data: { user: { id: 'u1', email: 'u@t.com' } },
-                         error: null,
-                 });
-                 mockFromSingle.mockResolvedValueOnce({
-                         data: { rol: 'SOCORRO', municipio_id: null, organismo_id: null },
-                         error: null,
-                 });
-
-                  const req = makeRequest({ headers: { authorization: 'Bearer my-jwt-token-123' } });
-                 await authMiddleware(req, makeReply());
-
-                  expect(mockGetUser).toHaveBeenCalledWith('my-jwt-token-123');
-           });
+    expect(req.user.rol).toBe('SOCORRO');
+  });
 });

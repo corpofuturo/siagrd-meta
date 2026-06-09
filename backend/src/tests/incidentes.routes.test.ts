@@ -1,8 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('../lib/db.js', () => ({
-  db: vi.fn().mockResolvedValue([]),
-}));
+const { mockDb } = vi.hoisted(() => {
+  const mockDb = vi.fn().mockResolvedValue([]);
+  (mockDb as any).array = vi.fn().mockImplementation((arr: any[]) => arr);
+  return { mockDb };
+});
+
+vi.mock('../lib/db.js', () => ({ db: mockDb }));
 
 const mockUser = {
   id: 'user-cdgrd',
@@ -20,7 +24,6 @@ vi.mock('../middleware/auth.js', () => ({
 
 import Fastify from 'fastify';
 import { incidentesRoutes } from '../routes/incidentes.js';
-import { db } from '../lib/db.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { UnauthorizedError } from '../utils/errors.js';
 
@@ -44,7 +47,7 @@ describe('GET /incidentes', () => {
       req.user = mockUser;
       done?.();
     });
-    (db as any).mockResolvedValue([]);
+    (mockDb as any).mockResolvedValue([]);
   });
 
   it('usuario CDGRD recibe todos los incidentes sin filtro de municipio', async () => {
@@ -97,7 +100,7 @@ describe('GET /incidentes/cercanos', () => {
       req.user = mockUser;
       done?.();
     });
-    (db as any).mockResolvedValue([]);
+    (mockDb as any).mockResolvedValue([]);
   });
 
   it('retorna 400 sin lat/lng', async () => {
@@ -145,7 +148,7 @@ describe('GET /incidentes/:id', () => {
       req.user = { id: 'user-cmgrd', email: 'cmgrd@test.com', rol: 'CMGRD', municipio_id: 'muni-50001' };
       done?.();
     });
-    (db as any).mockResolvedValueOnce([{ id: 'inc-1', municipio_id: 'muni-99999' }]);
+    (mockDb as any).mockResolvedValueOnce([{ id: 'inc-1', municipio_id: 'muni-99999' }]);
 
     const app = await buildApp();
     const response = await app.inject({
@@ -158,7 +161,7 @@ describe('GET /incidentes/:id', () => {
   });
 
   it('retorna 404 cuando el incidente no existe', async () => {
-    (db as any).mockResolvedValueOnce([]);
+    (mockDb as any).mockResolvedValueOnce([]);
 
     const app = await buildApp();
     const response = await app.inject({
@@ -194,7 +197,7 @@ describe('POST /incidentes', () => {
       req.user = { id: 'user-socorro', email: 'socorro@test.com', rol: 'SOCORRO', municipio_id: 'muni-50001' };
       done?.();
     });
-    (db as any).mockResolvedValueOnce([{ id: 'inc-nuevo', tipo_amenaza: 'INUNDACION' }]);
+    (mockDb as any).mockResolvedValueOnce([{ id: 'inc-nuevo', tipo_amenaza: 'INUNDACION' }]);
 
     const app = await buildApp();
     const response = await app.inject({
@@ -226,9 +229,9 @@ describe('POST /incidentes', () => {
 describe('PATCH /incidentes/:id', () => {
   it('retorna 200 cuando usuario CDGRD actualiza un incidente', async () => {
     // Primera query: obtener incidente
-    (db as any).mockResolvedValueOnce([{ municipio_id: 'muni-50001', reportado_por: 'other-user' }]);
+    (mockDb as any).mockResolvedValueOnce([{ municipio_id: 'muni-50001', reportado_por: 'other-user' }]);
     // Segunda query: actualizar
-    (db as any).mockResolvedValueOnce([{ id: 'inc-1', estado: 'ATENDIDO' }]);
+    (mockDb as any).mockResolvedValueOnce([{ id: 'inc-1', estado: 'ATENDIDO' }]);
 
     const app = await buildApp();
     const response = await app.inject({
@@ -246,6 +249,7 @@ describe('PATCH /incidentes/:id', () => {
       req.user = { id: 'user-ciu', email: 'ciudadano@test.com', rol: 'CIUDADANO', municipio_id: undefined };
       done?.();
     });
+    (mockDb as any).mockResolvedValueOnce([{ municipio_id: 'muni-50001', reportado_por: 'other-user' }]);
 
     const app = await buildApp();
     const response = await app.inject({

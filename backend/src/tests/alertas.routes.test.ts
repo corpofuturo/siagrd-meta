@@ -1,8 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-vi.mock('../lib/db.js', () => ({
-  db: vi.fn().mockResolvedValue([]),
-}));
+const { mockDb } = vi.hoisted(() => {
+  const mockDb = vi.fn().mockResolvedValue([]);
+  (mockDb as any).array = vi.fn().mockImplementation((arr: any[]) => arr);
+  return { mockDb };
+});
+
+vi.mock('../lib/db.js', () => ({ db: mockDb }));
 
 vi.mock('../services/notifications.service.js', () => ({
   enviarAlertaPush: vi.fn().mockResolvedValue(undefined),
@@ -18,7 +22,6 @@ vi.mock('../middleware/auth.js', () => ({
 
 import Fastify from 'fastify';
 import { alertasRoutes } from '../routes/alertas.js';
-import { db } from '../lib/db.js';
 import { authMiddleware } from '../middleware/auth.js';
 
 async function buildApp() {
@@ -37,7 +40,7 @@ async function buildApp() {
 
 describe('GET /alertas', () => {
   it('retorna 200 con lista de alertas activas (público)', async () => {
-    (db as any).mockResolvedValueOnce([
+    (mockDb as any).mockResolvedValueOnce([
       { id: 'alerta-1', titulo: 'Alerta Inundación', nivel: 'ROJO', activa: true },
       { id: 'alerta-2', titulo: 'Alerta Sismo', nivel: 'NARANJA', activa: true },
     ]);
@@ -55,7 +58,7 @@ describe('GET /alertas', () => {
   });
 
   it('retorna 200 con lista vacía cuando no hay alertas', async () => {
-    (db as any).mockResolvedValueOnce([]);
+    (mockDb as any).mockResolvedValueOnce([]);
 
     const app = await buildApp();
     const response = await app.inject({
@@ -70,7 +73,7 @@ describe('GET /alertas', () => {
   });
 
   it('retorna 200 filtrado (parámetro activa=true)', async () => {
-    (db as any).mockResolvedValueOnce([]);
+    (mockDb as any).mockResolvedValueOnce([]);
 
     const app = await buildApp();
     const response = await app.inject({
@@ -108,7 +111,7 @@ describe('POST /alertas', () => {
   });
 
   it('retorna 201 cuando usuario es CDGRD', async () => {
-    (db as any).mockResolvedValueOnce([
+    (mockDb as any).mockResolvedValueOnce([
       { id: 'alerta-nueva', titulo: 'Alerta Inundación', nivel: 'ROJO', activa: false },
     ]);
 
@@ -146,7 +149,7 @@ describe('POST /alertas', () => {
 describe('POST /alertas/:id/emitir', () => {
   it('retorna 200 cuando usuario CDGRD emite una alerta existente', async () => {
     // Primera query: buscar alerta
-    (db as any).mockResolvedValueOnce([{
+    (mockDb as any).mockResolvedValueOnce([{
       id: 'alerta-1',
       nivel: 'ROJO',
       titulo: 'Inundación severa',
@@ -154,7 +157,7 @@ describe('POST /alertas/:id/emitir', () => {
       activa: false,
     }]);
     // Segunda query: actualizar
-    (db as any).mockResolvedValueOnce([]);
+    (mockDb as any).mockResolvedValueOnce([]);
 
     const app = await buildApp();
     const response = await app.inject({
@@ -185,7 +188,7 @@ describe('POST /alertas/:id/emitir', () => {
   });
 
   it('retorna 404 cuando la alerta no existe', async () => {
-    (db as any).mockResolvedValueOnce([]);
+    (mockDb as any).mockResolvedValueOnce([]);
 
     const app = await buildApp();
     const response = await app.inject({
