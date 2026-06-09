@@ -1,5 +1,5 @@
 [build]
-command = "cd ../.. && pnpm install --frozen-lockfile && pnpm build:panel-web"
+command = "pnpm install --frozen-lockfile && pnpm build:panel-web"
 publish = "apps/panel-web/.next"
 
 [build.environment]
