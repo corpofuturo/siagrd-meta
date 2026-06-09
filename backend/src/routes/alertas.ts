@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { supabaseAdmin } from '../lib/supabase.js';
+import { db } from '../lib/db.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { ForbiddenError, NotFoundError } from '../utils/errors.js';
 import { enviarAlertaPush } from '../services/notifications.service.js';
@@ -8,17 +8,17 @@ import type { RolUsuario } from '../types/domain.js';
 const ROLES_GESTION: RolUsuario[] = ['ADMIN', 'CDGRD'];
 
 export async function alertasRoutes(app: FastifyInstance): Promise<void> {
-  // GET /alertas — público, solo activas
-  app.get('/alertas', async (_request, reply) => {
-    const { data, error } = await supabaseAdmin
-      .from('alertas')
-      .select('*')
-      .eq('activa', true)
-      .order('created_at', { ascending: false });
+  // GET /alertas — público, filtro opcional por activa
+  app.get('/alertas', async (request, reply) => {
+    const { activa } = request.query as { activa?: string };
 
-    if (error) throw new Error(error.message);
+    const soloActivas = activa === undefined || activa === 'true';
 
-    return reply.send({ data: data ?? [], total: (data ?? []).length });
+    const rows = soloActivas
+      ? await db`SELECT * FROM alertas WHERE activa = true ORDER BY created_at DESC`
+      : await db`SELECT * FROM alertas ORDER BY created_at DESC`;
+
+    return reply.send({ data: rows, total: rows.length });
   });
 
   // POST /alertas — solo ADMIN/CDGRD
@@ -31,20 +31,41 @@ export async function alertasRoutes(app: FastifyInstance): Promise<void> {
         throw new ForbiddenError('Solo ADMIN y CDGRD pueden crear alertas');
       }
 
-      const body = request.body as Record<string, unknown>;
-      const { data, error } = await supabaseAdmin
-        .from('alertas')
-        .insert({ ...body, creado_por: user.id })
-        .select()
-        .single();
+      const {
+        tipo,
+        nivel,
+        titulo,
+        descripcion,
+        instrucciones_ciudadano,
+        municipios_afectados,
+      } = request.body as {
+        tipo: string;
+        nivel: string;
+        titulo: string;
+        descripcion?: string;
+        instrucciones_ciudadano?: string;
+        municipios_afectados?: string[];
+      };
 
-      if (error) throw new Error(error.message);
+      const munis = municipios_afectados ?? [];
 
-      return reply.status(201).send(data);
+      const [row] = await db`
+        INSERT INTO alertas (
+          tipo, nivel, titulo, descripcion, instrucciones_ciudadano,
+          municipios_afectados, creado_por, activa, created_at, updated_at
+        )
+        VALUES (
+          ${tipo}, ${nivel}, ${titulo}, ${descripcion ?? null}, ${instrucciones_ciudadano ?? null},
+          ${db.array(munis)}, ${user.id}, false, NOW(), NOW()
+        )
+        RETURNING *
+      `;
+
+      return reply.status(201).send(row);
     },
   );
 
-  // POST /alertas/:id/emitir — emitir push notifications
+  // POST /alertas/:id/emitir
   app.post(
     '/alertas/:id/emitir',
     { config: { rateLimit: { max: 10, timeWindow: '1 hour' } }, preHandler: authMiddleware },
@@ -56,13 +77,8 @@ export async function alertasRoutes(app: FastifyInstance): Promise<void> {
 
       const { id } = request.params as { id: string };
 
-      const { data: alerta, error } = await supabaseAdmin
-        .from('alertas')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (error || !alerta) throw new NotFoundError('Alerta');
+      const [alerta] = await db`SELECT * FROM alertas WHERE id = ${id}`;
+      if (!alerta) throw new NotFoundError('Alerta');
 
       await enviarAlertaPush(
         alerta.id,
@@ -71,11 +87,11 @@ export async function alertasRoutes(app: FastifyInstance): Promise<void> {
         alerta.municipios_afectados ?? [],
       );
 
-      // Marcar como activa si no lo estaba
-      await supabaseAdmin
-        .from('alertas')
-        .update({ activa: true, emitida_at: new Date().toISOString() })
-        .eq('id', id);
+      await db`
+        UPDATE alertas
+        SET activa = true, emitida_at = NOW(), updated_at = NOW()
+        WHERE id = ${id}
+      `;
 
       return reply.send({ ok: true, mensaje: 'Alerta emitida y notificaciones enviadas' });
     },

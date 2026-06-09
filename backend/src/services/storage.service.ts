@@ -1,10 +1,13 @@
+import path from 'node:path';
+import fs from 'node:fs/promises';
 import sharp from 'sharp';
 import { fromBuffer as fileTypeFromBuffer } from 'file-type';
-import { supabaseAdmin } from '../lib/supabase.js';
+import { db } from '../lib/db.js';
 import { logger } from '../utils/logger.js';
 import { ValidationError } from '../utils/errors.js';
 
-const BUCKET = 'incidentes';
+const UPLOADS_DIR = process.env.UPLOADS_DIR ?? '/app/uploads';
+const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL ?? '';
 const MIME_PERMITIDOS = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/heic']);
 
 export interface FotoUploadResult {
@@ -16,6 +19,7 @@ export interface FotoUploadResult {
 /**
  * Sube una foto optimizada para redes 2G.
  * Valida MIME real (no extensión), comprime con sharp y genera miniatura.
+ * Guarda en sistema de archivos local (Railway volume en /app/uploads).
  */
 export async function uploadFoto(
   buffer: Buffer,
@@ -56,49 +60,38 @@ export async function uploadFoto(
     'Foto comprimida',
   );
 
-  // Paths en Supabase Storage
-  const pathPrincipal = `incidentes/${incidente_id}/${ts}.jpg`;
-  const pathMiniatura = `incidentes/${incidente_id}/${ts}_thumb.jpg`;
+  // Crear directorio si no existe
+  const dirIncidente = path.join(UPLOADS_DIR, 'incidentes', incidente_id);
+  await fs.mkdir(dirIncidente, { recursive: true });
 
-  // Subir imagen principal
-  const { error: errPrincipal } = await supabaseAdmin.storage
-    .from(BUCKET)
-    .upload(pathPrincipal, comprimida, {
-      contentType: 'image/jpeg',
-      upsert: false,
-    });
-  if (errPrincipal) throw new Error(`Error subiendo foto: ${errPrincipal.message}`);
+  const nombrePrincipal = `${ts}.jpg`;
+  const nombreMiniatura = `${ts}_thumb.jpg`;
+  const pathPrincipal = path.join(dirIncidente, nombrePrincipal);
+  const pathMiniatura = path.join(dirIncidente, nombreMiniatura);
 
-  // Subir miniatura
-  const { error: errMiniatura } = await supabaseAdmin.storage
-    .from(BUCKET)
-    .upload(pathMiniatura, miniatura, {
-      contentType: 'image/jpeg',
-      upsert: false,
-    });
-  if (errMiniatura) throw new Error(`Error subiendo miniatura: ${errMiniatura.message}`);
+  await fs.writeFile(pathPrincipal, comprimida);
+  await fs.writeFile(pathMiniatura, miniatura);
 
-  // Obtener URLs públicas
-  const { data: urlData } = supabaseAdmin.storage.from(BUCKET).getPublicUrl(pathPrincipal);
-  const { data: urlMiniData } = supabaseAdmin.storage.from(BUCKET).getPublicUrl(pathMiniatura);
+  // URLs públicas relativas al endpoint estático
+  const urlBase = `${PUBLIC_BASE_URL}/api/v1/archivos/static`;
+  const url = `${urlBase}/incidentes/${incidente_id}/${nombrePrincipal}`;
+  const miniatura_url = `${urlBase}/incidentes/${incidente_id}/${nombreMiniatura}`;
 
   // Registrar en tabla archivos
-  await supabaseAdmin.from('archivos').insert({
-    incidente_id,
-    usuario_id,
-    url: urlData.publicUrl,
-    miniatura_url: urlMiniData.publicUrl,
-    tamano_bytes: comprimida.length,
-    tamano_original_bytes: tamano_original,
-    mime_type: 'image/jpeg',
-    lat: coordenadas?.lat ?? null,
-    lng: coordenadas?.lng ?? null,
-    storage_path: pathPrincipal,
-  });
+  await db`
+    INSERT INTO archivos (
+      incidente_id, usuario_id, url, miniatura_url,
+      tamano_bytes, tamano_original_bytes, mime_type,
+      lat, lng, storage_path, created_at
+    )
+    VALUES (
+      ${incidente_id}, ${usuario_id}, ${url}, ${miniatura_url},
+      ${comprimida.length}, ${tamano_original}, 'image/jpeg',
+      ${coordenadas?.lat ?? null}, ${coordenadas?.lng ?? null},
+      ${`incidentes/${incidente_id}/${nombrePrincipal}`},
+      NOW()
+    )
+  `;
 
-  return {
-    url: urlData.publicUrl,
-    miniatura_url: urlMiniData.publicUrl,
-    tamano_bytes: comprimida.length,
-  };
+  return { url, miniatura_url, tamano_bytes: comprimida.length };
 }

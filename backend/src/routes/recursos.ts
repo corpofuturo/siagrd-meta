@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { supabaseAdmin } from '../lib/supabase.js';
+import { db } from '../lib/db.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { ForbiddenError, NotFoundError } from '../utils/errors.js';
 import type { RolUsuario } from '../types/domain.js';
@@ -7,7 +7,7 @@ import type { RolUsuario } from '../types/domain.js';
 const ROLES_ADMIN: RolUsuario[] = ['CDGRD', 'ADMIN'];
 
 export async function recursosRoutes(app: FastifyInstance): Promise<void> {
-  // GET /recursos — publico, todos ven disponibilidad de recursos
+  // GET /recursos — público
   app.get('/recursos', async (request, reply) => {
     const { tipo, municipio, disponible } = request.query as {
       tipo?: string;
@@ -15,22 +15,20 @@ export async function recursosRoutes(app: FastifyInstance): Promise<void> {
       disponible?: string;
     };
 
-    let query = supabaseAdmin
-      .from('recursos')
-      .select('id, nombre, tipo, disponible, cantidad, municipio_id, organismo_id, updated_at')
-      .order('nombre', { ascending: true });
+    const rows = await db`
+      SELECT id, nombre, tipo, disponible, cantidad, municipio_id, organismo_id, updated_at
+      FROM recursos
+      WHERE TRUE
+        ${tipo ? db`AND tipo = ${tipo}` : db``}
+        ${municipio ? db`AND municipio_id = ${municipio}` : db``}
+        ${disponible !== undefined ? db`AND disponible = ${disponible === 'true'}` : db``}
+      ORDER BY nombre ASC
+    `;
 
-    if (tipo) query = query.eq('tipo', tipo);
-    if (municipio) query = query.eq('municipio_id', municipio);
-    if (disponible !== undefined) query = query.eq('disponible', disponible === 'true');
-
-    const { data, error } = await query;
-    if (error) throw new Error(error.message);
-
-    return reply.send({ data: data ?? [], total: (data ?? []).length });
+    return reply.send({ data: rows, total: rows.length });
   });
 
-  // PATCH /recursos/:id — solo miembros del organismo dueno o CDGRD/ADMIN
+  // PATCH /recursos/:id
   app.patch(
     '/recursos/:id',
     { preHandler: authMiddleware },
@@ -38,16 +36,11 @@ export async function recursosRoutes(app: FastifyInstance): Promise<void> {
       const user = request.user!;
       const { id } = request.params as { id: string };
 
-      // Obtener el recurso para verificar duenio
-      const { data: recurso, error: fetchError } = await supabaseAdmin
-        .from('recursos')
-        .select('id, organismo_id')
-        .eq('id', id)
-        .single();
+      const [recurso] = await db`
+        SELECT id, organismo_id FROM recursos WHERE id = ${id}
+      `;
+      if (!recurso) throw new NotFoundError('Recurso no encontrado');
 
-      if (fetchError || !recurso) throw new NotFoundError('Recurso no encontrado');
-
-      // Verificar autorizacion: CDGRD/ADMIN pueden todo; otros solo si son del organismo dueno
       const esSuOrganismo =
         user.organismo_id != null && user.organismo_id === recurso.organismo_id;
       const esAdmin = ROLES_ADMIN.includes(user.rol);
@@ -57,18 +50,26 @@ export async function recursosRoutes(app: FastifyInstance): Promise<void> {
       }
 
       const body = request.body as Record<string, unknown>;
-      body['updated_at'] = new Date().toISOString();
+      const fields = Object.entries(body).filter(([k]) => k !== 'id');
 
-      const { data, error } = await supabaseAdmin
-        .from('recursos')
-        .update(body)
-        .eq('id', id)
-        .select()
-        .single();
+      if (fields.length === 0) {
+        const [current] = await db`SELECT * FROM recursos WHERE id = ${id}`;
+        return reply.send({ data: current });
+      }
 
-      if (error) throw new Error(error.message);
+      const setClauses = fields.map(([k, v]) => db`${db(k)} = ${v as string}`);
+      const setFragment = setClauses.reduce((acc, clause, i) =>
+        i === 0 ? clause : db`${acc}, ${clause}`,
+      );
 
-      return reply.send({ data });
+      const [updated] = await db`
+        UPDATE recursos
+        SET ${setFragment}, updated_at = NOW()
+        WHERE id = ${id}
+        RETURNING *
+      `;
+
+      return reply.send({ data: updated });
     },
   );
 }

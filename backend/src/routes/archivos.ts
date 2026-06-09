@@ -1,9 +1,30 @@
+import path from 'node:path';
 import type { FastifyInstance } from 'fastify';
 import { authMiddleware } from '../middleware/auth.js';
 import { uploadFoto } from '../services/storage.service.js';
 import { ValidationError } from '../utils/errors.js';
 
+const UPLOADS_DIR = process.env.UPLOADS_DIR ?? '/app/uploads';
+
 export async function archivosRoutes(app: FastifyInstance): Promise<void> {
+  // GET /archivos/static/* — servir archivos subidos
+  app.get(
+    '/archivos/static/*',
+    async (request, reply) => {
+      const wildcard = (request.params as { '*': string })['*'];
+      // Prevenir path traversal
+      const safePath = path.normalize(wildcard).replace(/^(\.\.(\/|\\|$))+/, '');
+      const filePath = path.join(UPLOADS_DIR, safePath);
+
+      try {
+        const stream = await import('node:fs').then((m) => m.createReadStream(filePath));
+        return reply.send(stream);
+      } catch {
+        return reply.status(404).send({ error: 'Archivo no encontrado' });
+      }
+    },
+  );
+
   // POST /archivos/upload — subir foto de incidente
   app.post(
     '/archivos/upload',

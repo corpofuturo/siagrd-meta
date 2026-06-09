@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { supabaseAdmin } from '../lib/supabase.js';
+import { db } from '../lib/db.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { ForbiddenError, NotFoundError } from '../utils/errors.js';
 import type { RolUsuario } from '../types/domain.js';
@@ -8,7 +8,7 @@ const ROLES_PERMITIDOS: RolUsuario[] = ['CDGRD', 'CMGRD', 'SOCORRO', 'ADMIN'];
 const ROLES_ADMIN: RolUsuario[] = ['CDGRD', 'ADMIN'];
 
 export async function damnificadosRoutes(app: FastifyInstance): Promise<void> {
-  // GET /damnificados — solo CDGRD/CMGRD/SOCORRO, filtrado por municipio si CMGRD/SOCORRO
+  // GET /damnificados
   app.get(
     '/damnificados',
     { preHandler: authMiddleware },
@@ -24,29 +24,32 @@ export async function damnificadosRoutes(app: FastifyInstance): Promise<void> {
         limit?: string;
       };
 
-      let query = supabaseAdmin
-        .from('damnificados')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const limitNum = limit ? parseInt(limit, 10) : 100;
 
       // CMGRD y SOCORRO solo ven su municipio
-      if (!ROLES_ADMIN.includes(user.rol) && user.municipio_id) {
-        query = query.eq('municipio_id', user.municipio_id);
-      } else if (municipio) {
-        query = query.eq('municipio_id', municipio);
-      }
+      const municipioFiltro =
+        !ROLES_ADMIN.includes(user.rol) && user.municipio_id
+          ? user.municipio_id
+          : municipio ?? null;
 
-      const limitNum = limit ? parseInt(limit, 10) : 100;
-      query = query.limit(limitNum);
+      const rows = municipioFiltro
+        ? await db`
+            SELECT * FROM damnificados
+            WHERE municipio_id = ${municipioFiltro}
+            ORDER BY created_at DESC
+            LIMIT ${limitNum}
+          `
+        : await db`
+            SELECT * FROM damnificados
+            ORDER BY created_at DESC
+            LIMIT ${limitNum}
+          `;
 
-      const { data, error } = await query;
-      if (error) throw new Error(error.message);
-
-      return reply.send({ data: data ?? [], total: (data ?? []).length });
+      return reply.send({ data: rows, total: rows.length });
     },
   );
 
-  // GET /damnificados/:id — solo CDGRD/CMGRD/SOCORRO
+  // GET /damnificados/:id
   app.get(
     '/damnificados/:id',
     { preHandler: authMiddleware },
@@ -58,24 +61,22 @@ export async function damnificadosRoutes(app: FastifyInstance): Promise<void> {
         throw new ForbiddenError('Sin acceso al registro de damnificados');
       }
 
-      let query = supabaseAdmin
-        .from('damnificados')
-        .select('*')
-        .eq('id', id);
+      const restrictMunicipio = !ROLES_ADMIN.includes(user.rol) && user.municipio_id;
 
-      // CMGRD y SOCORRO solo ven su municipio
-      if (!ROLES_ADMIN.includes(user.rol) && user.municipio_id) {
-        query = query.eq('municipio_id', user.municipio_id);
-      }
+      const rows = restrictMunicipio
+        ? await db`
+            SELECT * FROM damnificados
+            WHERE id = ${id} AND municipio_id = ${user.municipio_id!}
+          `
+        : await db`SELECT * FROM damnificados WHERE id = ${id}`;
 
-      const { data, error } = await query.single();
-      if (error || !data) throw new NotFoundError('Damnificado no encontrado');
+      if (!rows[0]) throw new NotFoundError('Damnificado no encontrado');
 
-      return reply.send({ data });
+      return reply.send({ data: rows[0] });
     },
   );
 
-  // POST /damnificados — CDGRD/CMGRD/SOCORRO
+  // POST /damnificados
   app.post(
     '/damnificados',
     { preHandler: authMiddleware },
@@ -93,22 +94,36 @@ export async function damnificadosRoutes(app: FastifyInstance): Promise<void> {
         body['municipio_id'] = user.municipio_id;
       }
 
-      body['registrado_por'] = user.id;
-      body['created_at'] = new Date().toISOString();
+      const municipio_id = body['municipio_id'] as string;
+      const nombre = body['nombre'] as string;
+      const documento = (body['documento'] ?? null) as string | null;
+      const incidente_id = (body['incidente_id'] ?? null) as string | null;
+      const telefono = (body['telefono'] ?? null) as string | null;
+      const direccion = (body['direccion'] ?? null) as string | null;
+      const condicion = (body['condicion'] ?? null) as string | null;
+      const extra = { ...body } as Record<string, unknown>;
+      // Quitar campos ya extraídos
+      for (const k of ['municipio_id', 'nombre', 'documento', 'incidente_id', 'telefono', 'direccion', 'condicion']) {
+        delete extra[k];
+      }
 
-      const { data, error } = await supabaseAdmin
-        .from('damnificados')
-        .insert(body)
-        .select()
-        .single();
+      const [row] = await db`
+        INSERT INTO damnificados (
+          municipio_id, nombre, documento, incidente_id, telefono, direccion, condicion,
+          registrado_por, created_at, updated_at
+        )
+        VALUES (
+          ${municipio_id}, ${nombre}, ${documento}, ${incidente_id}, ${telefono},
+          ${direccion}, ${condicion}, ${user.id}, NOW(), NOW()
+        )
+        RETURNING *
+      `;
 
-      if (error) throw new Error(error.message);
-
-      return reply.status(201).send({ data });
+      return reply.status(201).send({ data: row });
     },
   );
 
-  // PATCH /damnificados/:id — CDGRD/CMGRD/SOCORRO
+  // PATCH /damnificados/:id
   app.patch(
     '/damnificados/:id',
     { preHandler: authMiddleware },
@@ -120,32 +135,39 @@ export async function damnificadosRoutes(app: FastifyInstance): Promise<void> {
         throw new ForbiddenError('Sin permiso para actualizar damnificados');
       }
 
-      // Verificar que el registro existe y el usuario tiene acceso a ese municipio
-      let checkQuery = supabaseAdmin
-        .from('damnificados')
-        .select('id, municipio_id')
-        .eq('id', id);
+      const restrictMunicipio = !ROLES_ADMIN.includes(user.rol) && user.municipio_id;
 
-      if (!ROLES_ADMIN.includes(user.rol) && user.municipio_id) {
-        checkQuery = checkQuery.eq('municipio_id', user.municipio_id);
-      }
+      const existing = restrictMunicipio
+        ? await db`
+            SELECT id FROM damnificados
+            WHERE id = ${id} AND municipio_id = ${user.municipio_id!}
+          `
+        : await db`SELECT id FROM damnificados WHERE id = ${id}`;
 
-      const { data: existing, error: checkError } = await checkQuery.single();
-      if (checkError || !existing) throw new NotFoundError('Damnificado no encontrado');
+      if (!existing[0]) throw new NotFoundError('Damnificado no encontrado');
 
       const body = request.body as Record<string, unknown>;
-      body['updated_at'] = new Date().toISOString();
+      const fields = Object.entries(body).filter(([k]) => k !== 'id');
 
-      const { data, error } = await supabaseAdmin
-        .from('damnificados')
-        .update(body)
-        .eq('id', id)
-        .select()
-        .single();
+      if (fields.length === 0) {
+        const [current] = await db`SELECT * FROM damnificados WHERE id = ${id}`;
+        return reply.send({ data: current });
+      }
 
-      if (error) throw new Error(error.message);
+      // Construir SET dinámico usando postgres.js
+      const setClauses = fields.map(([k, v]) => db`${db(k)} = ${v as string}`);
+      const setFragment = setClauses.reduce((acc, clause, i) =>
+        i === 0 ? clause : db`${acc}, ${clause}`,
+      );
 
-      return reply.send({ data });
+      const [updated] = await db`
+        UPDATE damnificados
+        SET ${setFragment}, updated_at = NOW()
+        WHERE id = ${id}
+        RETURNING *
+      `;
+
+      return reply.send({ data: updated });
     },
   );
 }
