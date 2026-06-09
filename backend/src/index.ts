@@ -24,7 +24,11 @@ import { municipiosRoutes } from './routes/municipios.js';
 const IS_DEV = process.env.NODE_ENV !== 'production';
 const PORT = parseInt(process.env.PORT ?? '3000', 10);
 
-const GOV_CO_ORIGINS = /^https:\/\/.*\.gov\.co$/;
+const ALLOWED_ORIGINS = [
+  /^https:\/\/.*\.gov\.co$/,
+  /^https:\/\/.*\.netlify\.app$/,
+  'https://siagrd-panel-web.netlify.app',
+];
 
 async function bootstrap(): Promise<void> {
   const app = Fastify({
@@ -45,7 +49,7 @@ async function bootstrap(): Promise<void> {
 
   // CORS — solo dominios gov.co en producción
   await app.register(cors, {
-    origin: IS_DEV ? true : GOV_CO_ORIGINS,
+    origin: IS_DEV ? true : ALLOWED_ORIGINS,
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
