@@ -12,9 +12,12 @@ interface Recurso {
   estado: 'disponible' | 'ocupado' | 'fuera_servicio';
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://backend-production-60016.up.railway.app';
+
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem('supabase_token') || localStorage.getItem('sb-access-token') || null;
+  const match = document.cookie.match(/siagrd_token=([^;]+)/);
+  return match ? match[1] : null;
 }
 
 const ESTADO_COLORS: Record<string, string> = {
@@ -42,7 +45,7 @@ export default function RecursosPage() {
     setError(null);
     try {
       const token = getToken();
-      const res = await fetch('/api/v1/recursos', {
+      const res = await fetch(`${API_URL}/api/v1/recursos`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       if (!res.ok) throw new Error(`Error ${res.status}`);
@@ -59,7 +62,7 @@ export default function RecursosPage() {
     const token = getToken();
     setActualizandoId(id);
     try {
-      await fetch(`/api/v1/recursos/${id}`, {
+      await fetch(`${API_URL}/api/v1/recursos/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

@@ -2,10 +2,10 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase';
 import type { IncidenteMapData } from '@/hooks/useRealtimeIncidentes';
 
 const PAGE_SIZE = 50;
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://backend-production-60016.up.railway.app';
 
 const MUNICIPIOS_META = [
   'Villavicencio', 'Acacías', 'Barranca de Upía', 'Cabuyaro',
@@ -29,6 +29,12 @@ const NIVEL_BADGE: Record<string, string> = {
   ROJO: 'bg-[#DC2626] text-white',
 };
 
+function getToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  const match = document.cookie.match(/siagrd_token=([^;]+)/);
+  return match ? match[1] : null;
+}
+
 export default function IncidentesPage() {
   const router = useRouter();
   const [incidentes, setIncidentes] = useState<IncidenteMapData[]>([]);
@@ -43,24 +49,30 @@ export default function IncidentesPage() {
 
   const fetchIncidentes = useCallback(async () => {
     setLoading(true);
-    let query = createClient()
-      .from('incidentes')
-      .select('id, codigo, titulo, tipo_amenaza, nivel_alerta, estado, lat, lng, municipio_id, fecha_inicio', {
-        count: 'exact',
-      })
-      .order('fecha_inicio', { ascending: false })
-      .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+    try {
+      const params = new URLSearchParams({
+        ordering: '-fecha_inicio',
+        limit: String(PAGE_SIZE),
+        offset: String(page * PAGE_SIZE),
+      });
+      if (filtroEstado) params.set('estado', filtroEstado);
+      if (filtroTipo) params.set('tipo_amenaza', filtroTipo);
+      if (filtroMunicipio) params.set('municipio_id', filtroMunicipio);
 
-    if (filtroEstado) query = query.eq('estado', filtroEstado);
-    if (filtroTipo) query = query.eq('tipo_amenaza', filtroTipo);
-    if (filtroMunicipio) query = query.eq('municipio_id', filtroMunicipio);
-
-    const { data, count, error } = await query;
-    if (!error && data) {
-      setIncidentes(data as IncidenteMapData[]);
-      setTotal(count ?? 0);
+      const token = getToken();
+      const res = await fetch(`${API_URL}/api/v1/incidentes?${params}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      const json = await res.json();
+      const data: IncidenteMapData[] = Array.isArray(json) ? json : (json.results ?? []);
+      const count: number = Array.isArray(json) ? json.length : (json.count ?? data.length);
+      setIncidentes(data);
+      setTotal(count);
+    } catch {
+      // mantener estado anterior
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [page, filtroEstado, filtroTipo, filtroMunicipio]);
 
   useEffect(() => {

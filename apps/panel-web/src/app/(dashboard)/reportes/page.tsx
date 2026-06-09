@@ -1,7 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://backend-production-60016.up.railway.app';
 
 interface ReporteCiudadano {
   id: string;
@@ -16,6 +17,12 @@ interface ReporteCiudadano {
   created_at: string;
 }
 
+function getToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  const match = document.cookie.match(/siagrd_token=([^;]+)/);
+  return match ? match[1] : null;
+}
+
 export default function ReportesPage() {
   const [reportes, setReportes] = useState<ReporteCiudadano[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,15 +30,21 @@ export default function ReportesPage() {
 
   const fetchReportes = useCallback(async () => {
     setLoading(true);
-    const { data } = await createClient()
-      .from('reportes_ciudadanos')
-      .select('*')
-      .eq('estado', 'PENDIENTE')
-      .order('created_at', { ascending: false })
-      .limit(100);
-
-    setReportes((data as ReporteCiudadano[]) ?? []);
-    setLoading(false);
+    try {
+      const token = getToken();
+      const res = await fetch(
+        `${API_URL}/api/v1/reportes-ciudadanos?estado=PENDIENTE&ordering=-created_at&limit=100`,
+        { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+      );
+      if (res.ok) {
+        const json = await res.json();
+        setReportes(Array.isArray(json) ? json : (json.results ?? []));
+      }
+    } catch {
+      // mantener estado anterior
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -40,12 +53,20 @@ export default function ReportesPage() {
 
   async function descartar(id: string) {
     setAccionando(id);
-    await createClient()
-      .from('reportes_ciudadanos')
-      .update({ estado: 'DESCARTADO' })
-      .eq('id', id);
-    setReportes((prev) => prev.filter((r) => r.id !== id));
-    setAccionando(null);
+    try {
+      const token = getToken();
+      await fetch(`${API_URL}/api/v1/reportes-ciudadanos/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ estado: 'DESCARTADO' }),
+      });
+      setReportes((prev) => prev.filter((r) => r.id !== id));
+    } finally {
+      setAccionando(null);
+    }
   }
 
   function tiempoRelativo(fecha: string): string {
@@ -133,7 +154,6 @@ export default function ReportesPage() {
                   <button
                     disabled={accionando === reporte.id}
                     onClick={() => {
-                      // Redirigir a crear incidente pre-llenado con datos del reporte
                       window.location.href = `/incidentes/nuevo?reporte_id=${reporte.id}`;
                     }}
                     className="px-3 py-1.5 bg-[#16A34A] hover:bg-[#15803D] text-white rounded text-xs font-bold transition-colors disabled:opacity-40"

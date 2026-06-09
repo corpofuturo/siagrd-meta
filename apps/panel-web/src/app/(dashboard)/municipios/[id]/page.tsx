@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://backend-production-60016.up.railway.app';
 
 interface Municipio {
   id: string;
@@ -33,6 +34,26 @@ interface Organismo {
   activo: boolean;
 }
 
+function getToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  const match = document.cookie.match(/siagrd_token=([^;]+)/);
+  return match ? match[1] : null;
+}
+
+async function fetchJson<T>(url: string): Promise<T | null> {
+  try {
+    const token = getToken();
+    const res = await fetch(url, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return Array.isArray(json) ? json : (json.results ?? json);
+  } catch {
+    return null;
+  }
+}
+
 function BarraRiesgo({ nivel, label }: { nivel: number; label: string }) {
   const colors = ['', 'bg-[#16A34A]', 'bg-[#D97706]', 'bg-[#EA580C]', 'bg-[#DC2626]'];
   return (
@@ -60,32 +81,19 @@ export default function MunicipioDetallePage() {
 
   useEffect(() => {
     if (!id) return;
-    const supabase = createClient();
 
     Promise.all([
-      supabase
-        .from('municipios')
-        .select('id, nombre, codigo_dane, nivel_riesgo_inundacion, nivel_riesgo_remocion, nivel_riesgo_sismica, poblacion, area_km2')
-        .eq('id', id)
-        .single(),
-      supabase
-        .from('incidentes')
-        .select('id, codigo, titulo, tipo_amenaza, nivel_alerta, estado, fecha_inicio')
-        .eq('municipio_id', id)
-        .order('fecha_inicio', { ascending: false })
-        .limit(10),
-      supabase
-        .from('organismos')
-        .select('id, nombre, tipo, telefono, activo')
-        .eq('municipio_id', id),
-    ]).then(([mRes, iRes, oRes]) => {
-      if (mRes.error || !mRes.data) {
+      fetchJson<Municipio>(`${API_URL}/api/v1/municipios/${id}`),
+      fetchJson<IncidenteResumen[]>(`${API_URL}/api/v1/incidentes?municipio_id=${id}&ordering=-fecha_inicio&limit=10`),
+      fetchJson<Organismo[]>(`${API_URL}/api/v1/organismos?municipio_id=${id}`),
+    ]).then(([mData, iData, oData]) => {
+      if (!mData) {
         setError('Municipio no encontrado');
       } else {
-        setMunicipio(mRes.data as Municipio);
+        setMunicipio(Array.isArray(mData) ? (mData[0] ?? null) : mData);
       }
-      setIncidentes((iRes.data as IncidenteResumen[]) ?? []);
-      setOrganismos((oRes.data as Organismo[]) ?? []);
+      setIncidentes(Array.isArray(iData) ? iData : []);
+      setOrganismos(Array.isArray(oData) ? oData : []);
       setLoading(false);
     });
   }, [id]);

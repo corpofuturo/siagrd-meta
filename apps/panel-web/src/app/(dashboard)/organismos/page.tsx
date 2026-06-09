@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://backend-production-60016.up.railway.app';
 
 interface Organismo {
   id: string;
@@ -10,7 +11,7 @@ interface Organismo {
   municipio_id: string;
   telefono?: string;
   activo: boolean;
-  municipios?: { nombre: string };
+  municipio_nombre?: string;
 }
 
 const TIPO_STYLES: Record<string, string> = {
@@ -28,19 +29,33 @@ function tipoBadge(tipo: string) {
   );
 }
 
+function getToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  const match = document.cookie.match(/siagrd_token=([^;]+)/);
+  return match ? match[1] : null;
+}
+
 export default function OrganismosPage() {
   const [organismos, setOrganismos] = useState<Organismo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    createClient()
-      .from('organismos')
-      .select('*, municipios(nombre)')
-      .order('municipio_id')
-      .then(({ data, error: err }) => {
-        if (err) setError(err.message);
-        else setOrganismos((data as Organismo[]) ?? []);
+    const token = getToken();
+    fetch(`${API_URL}/api/v1/organismos?ordering=municipio_id`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error(`Error ${r.status}`);
+        return r.json();
+      })
+      .then((json) => {
+        const data: Organismo[] = Array.isArray(json) ? json : (json.results ?? []);
+        setOrganismos(data);
+        setLoading(false);
+      })
+      .catch((e) => {
+        setError(e instanceof Error ? e.message : 'Error al cargar');
         setLoading(false);
       });
   }, []);
@@ -48,7 +63,7 @@ export default function OrganismosPage() {
   // Agrupar por municipio
   const porMunicipio = organismos.reduce<Record<string, { nombre: string; organismos: Organismo[] }>>(
     (acc, org) => {
-      const municipioNombre = org.municipios?.nombre ?? org.municipio_id;
+      const municipioNombre = org.municipio_nombre ?? org.municipio_id;
       if (!acc[org.municipio_id]) {
         acc[org.municipio_id] = { nombre: municipioNombre, organismos: [] };
       }

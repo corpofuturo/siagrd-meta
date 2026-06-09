@@ -1,4 +1,6 @@
-import { createServerSupabase } from '@/lib/supabase-server';
+import { cookies } from 'next/headers';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://backend-production-60016.up.railway.app';
 
 interface MunicipioStats {
   nombre: string;
@@ -32,27 +34,49 @@ const RIESGO_BADGE: Record<number, string> = {
   5: 'bg-[#DC2626] text-white',
 };
 
+async function fetchJson<T>(url: string, token?: string): Promise<T | null> {
+  try {
+    const res = await fetch(url, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
+
 export default async function MunicipiosPage() {
-  const supabase = await createServerSupabase();
+  const cookieStore = await cookies();
+  const token = cookieStore.get('siagrd_token')?.value;
 
-  // Obtener datos de municipios con incidentes activos
-  const { data: incidentesPorMunicipio } = await supabase
-    .from('incidentes')
-    .select('municipio_id')
-    .in('estado', ['ABIERTO', 'EN_ATENCION']);
+  const [incidentesData, municipiosData] = await Promise.all([
+    fetchJson<{ municipio_id: string }[]>(
+      `${API_URL}/api/v1/incidentes?estado=ABIERTO,EN_ATENCION&limit=1000`,
+      token
+    ),
+    fetchJson<{ nombre: string; nivel_riesgo: number }[]>(
+      `${API_URL}/api/v1/municipios`,
+      token
+    ),
+  ]);
 
-  const { data: municipiosData } = await supabase
-    .from('municipios')
-    .select('nombre, nivel_riesgo');
+  const incidentesPorMunicipio = Array.isArray(incidentesData)
+    ? incidentesData
+    : ((incidentesData as { results?: { municipio_id: string }[] } | null)?.results ?? []);
 
-  // Contar incidentes por municipio
+  const municipiosArr = Array.isArray(municipiosData)
+    ? municipiosData
+    : ((municipiosData as { results?: { nombre: string; nivel_riesgo: number }[] } | null)?.results ?? []);
+
   const conteoMap: Record<string, number> = {};
-  (incidentesPorMunicipio ?? []).forEach((inc: { municipio_id: string }) => {
+  incidentesPorMunicipio.forEach((inc) => {
     conteoMap[inc.municipio_id] = (conteoMap[inc.municipio_id] ?? 0) + 1;
   });
 
   const riesgoMap: Record<string, number> = {};
-  (municipiosData ?? []).forEach((m: { nombre: string; nivel_riesgo: number }) => {
+  municipiosArr.forEach((m) => {
     riesgoMap[m.nombre] = m.nivel_riesgo;
   });
 

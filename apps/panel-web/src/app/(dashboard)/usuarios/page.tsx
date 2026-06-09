@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://backend-production-60016.up.railway.app';
 
 type Rol = 'ADMIN' | 'CDGRD' | 'CMGRD' | 'SOCORRO' | 'CIUDADANO';
 
@@ -36,6 +37,12 @@ function Toast({ mensaje, onClose }: { mensaje: string; onClose: () => void }) {
   );
 }
 
+function getToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  const match = document.cookie.match(/siagrd_token=([^;]+)/);
+  return match ? match[1] : null;
+}
+
 export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,13 +52,21 @@ export default function UsuariosPage() {
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
-    createClient()
-      .from('profiles')
-      .select('id, full_name, email, rol, municipio, organismo, activo')
-      .order('created_at', { ascending: false })
-      .then(({ data, error: err }) => {
-        if (err) setError(err.message);
-        else setUsuarios((data as Usuario[]) ?? []);
+    const token = getToken();
+    fetch(`${API_URL}/api/v1/usuarios?ordering=-created_at`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error(`Error ${r.status}`);
+        return r.json();
+      })
+      .then((json) => {
+        const data: Usuario[] = Array.isArray(json) ? json : (json.results ?? []);
+        setUsuarios(data);
+        setLoading(false);
+      })
+      .catch((e) => {
+        setError(e instanceof Error ? e.message : 'Error al cargar');
         setLoading(false);
       });
   }, []);

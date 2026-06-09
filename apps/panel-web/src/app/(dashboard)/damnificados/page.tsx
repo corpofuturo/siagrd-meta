@@ -13,9 +13,12 @@ interface Damnificado {
   cedula?: string;
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://backend-production-60016.up.railway.app';
+
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem('supabase_token') || localStorage.getItem('sb-access-token') || null;
+  const match = document.cookie.match(/siagrd_token=([^;]+)/);
+  return match ? match[1] : null;
 }
 
 const ESTADO_STYLES: Record<string, string> = {
@@ -35,7 +38,7 @@ export default function DamnificadosPage() {
 
   useEffect(() => {
     const token = getToken();
-    fetch('/api/v1/damnificados', {
+    fetch(`${API_URL}/api/v1/damnificados`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
       .then((r) => {

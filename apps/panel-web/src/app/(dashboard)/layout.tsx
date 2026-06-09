@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { createServerSupabase } from '@/lib/supabase-server';
 import TopBar from '@/components/TopBar';
 
 export default async function DashboardLayout({
@@ -9,12 +9,10 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createServerSupabase();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  const cookieStore = await cookies();
+  const token = cookieStore.get('siagrd_token')?.value;
 
-  if (!session) {
+  if (!token) {
     redirect('/login');
   }
 

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { createClient } from '@/lib/supabase';
 
 function generateCSV(headers: string[], rows: string[][]): string {
   const escape = (v: string) => `"${v.replace(/"/g, '""')}"`;
@@ -20,14 +19,18 @@ function downloadCSV(csv: string, filename: string) {
   URL.revokeObjectURL(url);
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://backend-production-60016.up.railway.app';
+
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem('supabase_token') || localStorage.getItem('sb-access-token') || null;
+  const match = document.cookie.match(/siagrd_token=([^;]+)/);
+  return match ? match[1] : null;
 }
 
 async function fetchWithAuth(path: string) {
   const token = getToken();
-  const res = await fetch(path, {
+  const url = path.startsWith('http') ? path : `${API_URL}/api/v1${path}`;
+  const res = await fetch(url, {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
   if (!res.ok) throw new Error(`Error ${res.status}`);
@@ -47,7 +50,7 @@ export default function ExportacionesPage() {
   const [error, setError] = useState<string | null>(null);
 
   async function exportarIncidentes() {
-    const data = await fetchWithAuth('/api/v1/incidentes?limit=10000');
+    const data = await fetchWithAuth('/incidentes?limit=10000');
     const rows = (data as Record<string, unknown>[]).map((i) => [
       String(i['codigo'] ?? ''),
       String(i['titulo'] ?? ''),
@@ -64,7 +67,7 @@ export default function ExportacionesPage() {
   }
 
   async function exportarDamnificados() {
-    const data = await fetchWithAuth('/api/v1/damnificados?limit=10000');
+    const data = await fetchWithAuth('/damnificados?limit=10000');
     const rows = (data as Record<string, unknown>[]).map((d) => [
       String(d['nombre_jefe_hogar'] ?? ''),
       String(d['municipio'] ?? ''),
@@ -79,11 +82,9 @@ export default function ExportacionesPage() {
   }
 
   async function exportarAlertas() {
-    const { data } = await createClient()
-      .from('alertas')
-      .select('codigo, tipo, nivel, municipios, fecha_emision, fin_estimado, activa, created_by')
-      .order('created_at', { ascending: false });
-    const rows = ((data ?? []) as Record<string, unknown>[]).map((a) => [
+    const json = await fetchWithAuth('/alertas?ordering=-created_at&limit=10000');
+    const data: Record<string, unknown>[] = Array.isArray(json) ? json : (json.results ?? []);
+    const rows = data.map((a) => [
       String(a['codigo'] ?? ''),
       String(a['tipo'] ?? ''),
       String(a['nivel'] ?? ''),
@@ -99,7 +100,7 @@ export default function ExportacionesPage() {
   }
 
   async function exportarRecursos() {
-    const data = await fetchWithAuth('/api/v1/recursos?limit=10000');
+    const data = await fetchWithAuth('/recursos?limit=10000');
     const rows = (data as Record<string, unknown>[]).map((r) => [
       String(r['nombre'] ?? ''),
       String(r['tipo'] ?? ''),

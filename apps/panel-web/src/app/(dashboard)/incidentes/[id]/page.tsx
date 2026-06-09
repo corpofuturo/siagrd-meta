@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation';
-import { createServerSupabase } from '@/lib/supabase-server';
+import { cookies } from 'next/headers';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://backend-production-60016.up.railway.app';
 
 interface Actualizacion {
   id: string;
@@ -30,43 +32,46 @@ interface PageProps {
   searchParams: Promise<{ tab?: string }>;
 }
 
+async function apiFetchServer<T>(path: string, token?: string): Promise<T | null> {
+  try {
+    const res = await fetch(`${API_URL}/api/v1${path}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
+
 export default async function IncidenteDetallePage({ params, searchParams }: PageProps) {
   const { id } = await params;
   const { tab = 'timeline' } = await searchParams;
 
-  const supabase = await createServerSupabase();
+  const cookieStore = await cookies();
+  const token = cookieStore.get('siagrd_token')?.value;
 
-  const { data: incidente, error } = await supabase
-    .from('incidentes')
-    .select('*')
-    .eq('id', id)
-    .single();
+  const incidente = await apiFetchServer<Record<string, unknown>>(`/incidentes/${id}`, token);
+  if (!incidente) notFound();
 
-  if (error || !incidente) notFound();
+  const [actualizaciones, fotos, damnificados] = await Promise.all([
+    apiFetchServer<Actualizacion[]>(`/incidentes/${id}/actualizaciones?ordering=-created_at`, token),
+    apiFetchServer<Foto[]>(`/incidentes/${id}/fotos?ordering=-created_at`, token),
+    apiFetchServer<Damnificado[]>(`/incidentes/${id}/damnificados?ordering=-created_at`, token),
+  ]);
 
-  const [{ data: actualizaciones }, { data: fotos }, { data: damnificados }] =
-    await Promise.all([
-      supabase
-        .from('actualizaciones_incidente')
-        .select('id, descripcion, tipo, created_at, usuario_nombre')
-        .eq('incidente_id', id)
-        .order('created_at', { ascending: false }),
-      supabase
-        .from('fotos_incidente')
-        .select('id, url, descripcion, created_at')
-        .eq('incidente_id', id)
-        .order('created_at', { ascending: false }),
-      supabase
-        .from('damnificados')
-        .select('id, nombre, documento, tipo_afectacion, municipio, created_at')
-        .eq('incidente_id', id)
-        .order('created_at', { ascending: false }),
-    ]);
+  const actList = actualizaciones ?? [];
+  const fotoList = fotos ?? [];
+  const damnList = damnificados ?? [];
 
   const TABS = [
     { key: 'timeline', label: 'Timeline' },
-    { key: 'fotos', label: `Fotos (${fotos?.length ?? 0})` },
-    { key: 'damnificados', label: `Damnificados (${damnificados?.length ?? 0})` },
+    { key: 'fotos', label: `Fotos (${fotoList.length})` },
+    { key: 'damnificados', label: `Damnificados (${damnList.length})` },
   ];
 
   return (
@@ -75,7 +80,7 @@ export default async function IncidenteDetallePage({ params, searchParams }: Pag
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-2">
-            <span className="font-mono text-xs text-[#8B9CC8]">{incidente.codigo}</span>
+            <span className="font-mono text-xs text-[#8B9CC8]">{String(incidente.codigo ?? '')}</span>
             <span
               className={`px-2 py-0.5 rounded text-[10px] font-bold font-display ${
                 incidente.nivel_alerta === 'ROJO'
@@ -87,20 +92,22 @@ export default async function IncidenteDetallePage({ params, searchParams }: Pag
                   : 'bg-[#16A34A] text-white'
               }`}
             >
-              {incidente.nivel_alerta}
+              {String(incidente.nivel_alerta ?? '')}
             </span>
             <span className="text-xs text-[#8B9CC8] border border-[#2D3748] rounded px-1.5 py-0.5">
-              {incidente.estado}
+              {String(incidente.estado ?? '')}
             </span>
           </div>
           <h1 className="font-display text-2xl font-bold text-[#F0F4FF]">
-            {incidente.titulo}
+            {String(incidente.titulo ?? '')}
           </h1>
           <p className="text-[#8B9CC8] text-sm mt-1">
-            {incidente.tipo_amenaza} · {incidente.municipio_id} ·{' '}
-            {new Date(incidente.fecha_inicio).toLocaleString('es-CO', {
-              timeZone: 'America/Bogota',
-            })}
+            {String(incidente.tipo_amenaza ?? '')} · {String(incidente.municipio_id ?? '')} ·{' '}
+            {incidente.fecha_inicio
+              ? new Date(String(incidente.fecha_inicio)).toLocaleString('es-CO', {
+                  timeZone: 'America/Bogota',
+                })
+              : '—'}
           </p>
         </div>
 
@@ -124,10 +131,10 @@ export default async function IncidenteDetallePage({ params, searchParams }: Pag
         {/* Tab: Timeline */}
         {tab === 'timeline' && (
           <div className="space-y-3">
-            {(!actualizaciones || actualizaciones.length === 0) && (
+            {actList.length === 0 && (
               <p className="text-[#8B9CC8] text-sm py-4">Sin actualizaciones registradas.</p>
             )}
-            {(actualizaciones as Actualizacion[] ?? []).map((act) => (
+            {actList.map((act) => (
               <div
                 key={act.id}
                 className="flex gap-4 bg-[#111827] border border-[#2D3748] rounded-lg p-4"
@@ -160,11 +167,11 @@ export default async function IncidenteDetallePage({ params, searchParams }: Pag
         {/* Tab: Fotos */}
         {tab === 'fotos' && (
           <div>
-            {(!fotos || fotos.length === 0) && (
+            {fotoList.length === 0 && (
               <p className="text-[#8B9CC8] text-sm py-4">Sin fotografías registradas.</p>
             )}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {(fotos as Foto[] ?? []).map((foto) => (
+              {fotoList.map((foto) => (
                 <div
                   key={foto.id}
                   className="bg-[#111827] border border-[#2D3748] rounded-lg overflow-hidden"
@@ -187,10 +194,10 @@ export default async function IncidenteDetallePage({ params, searchParams }: Pag
         {/* Tab: Damnificados */}
         {tab === 'damnificados' && (
           <div>
-            {(!damnificados || damnificados.length === 0) && (
+            {damnList.length === 0 && (
               <p className="text-[#8B9CC8] text-sm py-4">Sin damnificados registrados.</p>
             )}
-            {damnificados && damnificados.length > 0 && (
+            {damnList.length > 0 && (
               <div className="bg-[#111827] border border-[#2D3748] rounded-lg overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
@@ -202,7 +209,7 @@ export default async function IncidenteDetallePage({ params, searchParams }: Pag
                     </tr>
                   </thead>
                   <tbody>
-                    {(damnificados as Damnificado[]).map((d, idx) => (
+                    {damnList.map((d, idx) => (
                       <tr
                         key={d.id}
                         className={`border-b border-[#2D3748] ${idx % 2 === 0 ? '' : 'bg-[#0D1220]'}`}

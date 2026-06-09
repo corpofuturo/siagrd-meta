@@ -3,11 +3,14 @@
 export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase';
+import { apiFetch } from '@/lib/api';
+
+interface LoginResponse {
+  access_token: string;
+  refresh_token: string;
+}
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -19,23 +22,24 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const { data, error: authError } = await createClient().auth.signInWithPassword({
-        email,
-        password,
+      const data = await apiFetch<LoginResponse>('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
       });
 
-      if (authError) {
-        setError(authError.message === 'Invalid login credentials'
-          ? 'Correo o contraseña incorrectos'
-          : authError.message);
-        return;
-      }
+      // Guardar tokens en cookies
+      const maxAge = 60 * 60 * 24 * 7; // 7 días
+      document.cookie = `siagrd_token=${data.access_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
+      document.cookie = `siagrd_refresh=${data.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
 
-      if (data.session) {
-        window.location.href = '/';
-      }
+      window.location.href = '/';
     } catch (err) {
-      setError('No se pudo conectar con el servidor de autenticación');
+      const msg = err instanceof Error ? err.message : 'Error desconocido';
+      setError(
+        msg === 'Invalid login credentials' || msg.toLowerCase().includes('credencial')
+          ? 'Correo o contraseña incorrectos'
+          : msg
+      );
     } finally {
       setLoading(false);
     }

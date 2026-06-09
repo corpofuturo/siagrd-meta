@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase';
 
 export interface IncidenteMapData {
   id: string;
@@ -16,84 +15,42 @@ export interface IncidenteMapData {
   fecha_inicio: string;
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://backend-production-60016.up.railway.app';
+
+function getToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  const match = document.cookie.match(/siagrd_token=([^;]+)/);
+  return match ? match[1] : null;
+}
+
 export function useRealtimeIncidentes() {
   const [incidentes, setIncidentes] = useState<IncidenteMapData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Carga inicial
     async function fetchIncidentes() {
       setLoading(true);
-      const { data, error } = await createClient()
-        .from('incidentes')
-        .select(
-          'id, codigo, titulo, tipo_amenaza, nivel_alerta, estado, lat, lng, municipio_id, fecha_inicio'
-        )
-        .in('estado', ['ABIERTO', 'EN_ATENCION'])
-        .limit(200);
-
-      if (!error && data) {
-        setIncidentes(data as IncidenteMapData[]);
+      try {
+        const token = getToken();
+        const res = await fetch(
+          `${API_URL}/api/v1/incidentes?estado=ABIERTO,EN_ATENCION&limit=200`,
+          { headers: token ? { Authorization: `Bearer ${token}` } : {} }
+        );
+        if (res.ok) {
+          const data = await res.json();
+          setIncidentes(Array.isArray(data) ? data : (data.results ?? []));
+        }
+      } catch {
+        // mantener estado anterior
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
 
     fetchIncidentes();
-
-    // Suscripción realtime
-    const channel = createClient()
-      .channel('incidentes-realtime')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'incidentes',
-        },
-        (payload) => {
-          const nuevo = payload.new as IncidenteMapData;
-          if (['ABIERTO', 'EN_ATENCION'].includes(nuevo.estado)) {
-            setIncidentes((prev) => [nuevo, ...prev]);
-          }
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'incidentes',
-        },
-        (payload) => {
-          const actualizado = payload.new as IncidenteMapData;
-          setIncidentes((prev) => {
-            if (!['ABIERTO', 'EN_ATENCION'].includes(actualizado.estado)) {
-              // Remover si ya no está activo
-              return prev.filter((i) => i.id !== actualizado.id);
-            }
-            return prev.map((i) =>
-              i.id === actualizado.id ? actualizado : i
-            );
-          });
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'DELETE',
-          schema: 'public',
-          table: 'incidentes',
-        },
-        (payload) => {
-          const eliminado = payload.old as { id: string };
-          setIncidentes((prev) => prev.filter((i) => i.id !== eliminado.id));
-        }
-      )
-      .subscribe();
-
-    return () => {
-      createClient().removeChannel(channel);
-    };
+    // Polling cada 30s — realtime con SSE se puede agregar después
+    const interval = setInterval(fetchIncidentes, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   return { incidentes, loading };

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase';
+import { apiFetch } from '@/lib/api';
 
 type Nivel = 'VERDE' | 'AMARILLO' | 'NARANJA' | 'ROJO';
 
@@ -36,6 +36,12 @@ const NIVEL_STYLES: Record<Nivel, string> = {
 
 const PASOS = ['Tipo y Nivel', 'Municipios', 'Instrucciones', 'Vista Previa', 'Confirmación'];
 
+function getToken(): string | undefined {
+  if (typeof window === 'undefined') return undefined;
+  const match = document.cookie.match(/siagrd_token=([^;]+)/);
+  return match ? match[1] : undefined;
+}
+
 export default function AlertaNuevaPage() {
   const router = useRouter();
   const [paso, setPaso] = useState(1);
@@ -59,30 +65,21 @@ export default function AlertaNuevaPage() {
     setLoading(true);
     setError(null);
     try {
-      // 1. Crear alerta
-      const { data: alerta, error: errCreate } = await createClient()
-        .from('alertas')
-        .insert({
+      const token = getToken();
+      await apiFetch('/alertas', {
+        method: 'POST',
+        token,
+        body: JSON.stringify({
           tipo,
           nivel,
           municipios: municipiosSeleccionados,
           instrucciones_ciudadanos: instruccionesCiudadanos,
           instrucciones_socorro: instruccionesSocorro,
           motivo_rojo: nivel === 'ROJO' ? motivoRojo : null,
-          estado: 'BORRADOR',
-        })
-        .select()
-        .single();
-
-      if (errCreate || !alerta) throw new Error(errCreate?.message ?? 'Error al crear alerta');
-
-      // 2. Emitir alerta
-      const { error: errEmitir } = await createClient()
-        .from('alertas')
-        .update({ estado: 'ACTIVA', fecha_emision: new Date().toISOString() })
-        .eq('id', alerta.id);
-
-      if (errEmitir) throw new Error(errEmitir.message);
+          estado: 'ACTIVA',
+          fecha_emision: new Date().toISOString(),
+        }),
+      });
 
       router.push('/');
     } catch (err) {

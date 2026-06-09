@@ -22,13 +22,12 @@ const SERVICIOS_DEFAULT: ServicioSalud[] = [
   { nombre: 'SGC', estado: 'degraded' },
 ];
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://backend-production-60016.up.railway.app';
+
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
-  return (
-    localStorage.getItem('supabase_token') ||
-    localStorage.getItem('sb-access-token') ||
-    null
-  );
+  const match = document.cookie.match(/siagrd_token=([^;]+)/);
+  return match ? match[1] : null;
 }
 
 function EstadoIcon({ estado }: { estado: ServicioSalud['estado'] }) {
@@ -45,7 +44,7 @@ export default function SistemasSalud() {
   const fetchHealth = useCallback(async () => {
     try {
       const token = getToken();
-      const res = await fetch('/api/v1/health', {
+      const res = await fetch(`${API_URL}/api/v1/health`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 

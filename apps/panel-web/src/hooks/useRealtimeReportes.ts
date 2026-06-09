@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase';
 
 export interface ReporteCiudadano {
   id: string;
@@ -10,43 +9,41 @@ export interface ReporteCiudadano {
   anonimo: boolean;
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://backend-production-60016.up.railway.app';
+
+function getToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  const match = document.cookie.match(/siagrd_token=([^;]+)/);
+  return match ? match[1] : null;
+}
+
 export function useRealtimeReportes() {
   const [reportes, setReportes] = useState<ReporteCiudadano[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const supabase = createClient();
-
-    supabase
-      .from('reportes_ciudadanos')
-      .select('id, tipo, estado, created_at, municipio_id, anonimo')
-      .eq('estado', 'PENDIENTE')
-      .order('created_at', { ascending: false })
-      .then(({ data }) => {
-        setReportes((data as ReporteCiudadano[]) ?? []);
-        setLoading(false);
+  async function fetchReportes() {
+    try {
+      const token = getToken();
+      const res = await fetch(`${API_URL}/api/v1/reportes-ciudadanos?estado=PENDIENTE&ordering=-created_at`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
+      if (res.ok) {
+        const data = await res.json();
+        setReportes(Array.isArray(data) ? data : (data.results ?? []));
+      }
+    } catch {
+      // mantener estado anterior
+    } finally {
+      setLoading(false);
+    }
+  }
 
-    const channel = supabase
-      .channel('reportes-realtime')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'reportes_ciudadanos' },
-        () => {
-          supabase
-            .from('reportes_ciudadanos')
-            .select('id, tipo, estado, created_at, municipio_id, anonimo')
-            .eq('estado', 'PENDIENTE')
-            .order('created_at', { ascending: false })
-            .then(({ data }) => setReportes((data as ReporteCiudadano[]) ?? []));
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
+  useEffect(() => {
+    fetchReportes();
+    // Polling cada 30s — realtime con SSE se puede agregar después
+    const interval = setInterval(fetchReportes, 30000);
+    return () => clearInterval(interval);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return { reportes, loading, total_pendientes: reportes.length };
 }

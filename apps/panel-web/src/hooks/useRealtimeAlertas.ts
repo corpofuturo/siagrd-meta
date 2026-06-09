@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase';
 
 export interface AlertaActiva {
   id: string;
@@ -29,66 +28,41 @@ function calcularNivelMaximo(
   ).nivel;
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://backend-production-60016.up.railway.app';
+
+function getToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  const match = document.cookie.match(/siagrd_token=([^;]+)/);
+  return match ? match[1] : null;
+}
+
 export function useRealtimeAlertas() {
   const [alertas, setAlertas] = useState<AlertaActiva[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchAlertas = useCallback(async () => {
     setLoading(true);
-    const { data, error } = await createClient()
-      .from('alertas')
-      .select('id, codigo, tipo, nivel, estado, municipios, fecha_emision')
-      .eq('estado', 'ACTIVA');
-
-    if (!error && data) {
-      setAlertas(data as AlertaActiva[]);
+    try {
+      const token = getToken();
+      const res = await fetch(`${API_URL}/api/v1/alertas?estado=ACTIVA`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAlertas(Array.isArray(data) ? data : (data.results ?? []));
+      }
+    } catch {
+      // mantener estado anterior
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   useEffect(() => {
     fetchAlertas();
-
-    const channel = createClient()
-      .channel('alertas-realtime')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'alertas' },
-        (payload) => {
-          const nueva = payload.new as AlertaActiva;
-          if (nueva.estado === 'ACTIVA') {
-            setAlertas((prev) => [nueva, ...prev]);
-          }
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'alertas' },
-        (payload) => {
-          const actualizada = payload.new as AlertaActiva;
-          setAlertas((prev) => {
-            if (actualizada.estado !== 'ACTIVA') {
-              return prev.filter((a) => a.id !== actualizada.id);
-            }
-            return prev.map((a) =>
-              a.id === actualizada.id ? actualizada : a
-            );
-          });
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: 'DELETE', schema: 'public', table: 'alertas' },
-        (payload) => {
-          const eliminada = payload.old as { id: string };
-          setAlertas((prev) => prev.filter((a) => a.id !== eliminada.id));
-        }
-      )
-      .subscribe();
-
-    return () => {
-      createClient().removeChannel(channel);
-    };
+    // Polling cada 30s en lugar de realtime (SSE se puede agregar después)
+    const interval = setInterval(fetchAlertas, 30000);
+    return () => clearInterval(interval);
   }, [fetchAlertas]);
 
   const nivelMaximo = calcularNivelMaximo(alertas);

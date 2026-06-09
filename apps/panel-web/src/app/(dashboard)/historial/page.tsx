@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { createClient } from '@/lib/supabase';
 
 type Nivel = 'VERDE' | 'AMARILLO' | 'NARANJA' | 'ROJO';
 
@@ -26,6 +25,13 @@ const NIVEL_STYLES: Record<Nivel, string> = {
 };
 
 const PAGE_SIZE = 20;
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://backend-production-60016.up.railway.app';
+
+function getToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  const match = document.cookie.match(/siagrd_token=([^;]+)/);
+  return match ? match[1] : null;
+}
 
 export default function HistorialPage() {
   const [alertas, setAlertas] = useState<AlertaHistorial[]>([]);
@@ -43,30 +49,38 @@ export default function HistorialPage() {
     if (reset) setLoading(true);
     else setLoadingMore(true);
 
-    let query = createClient()
-      .from('alertas')
-      .select('id, codigo, tipo, nivel, municipios, fecha_emision, fin_estimado, created_by, activa, estado')
-      .order('created_at', { ascending: false })
-      .range(currentOffset, currentOffset + PAGE_SIZE - 1);
+    try {
+      const params = new URLSearchParams({
+        ordering: '-created_at',
+        limit: String(PAGE_SIZE),
+        offset: String(currentOffset),
+      });
+      if (filtroNivel) params.set('nivel', filtroNivel);
+      if (filtroTipo) params.set('tipo', filtroTipo);
+      if (fechaDesde) params.set('fecha_emision_desde', fechaDesde);
+      if (fechaHasta) params.set('fecha_emision_hasta', fechaHasta + 'T23:59:59');
 
-    if (filtroNivel) query = query.eq('nivel', filtroNivel);
-    if (filtroTipo) query = query.eq('tipo', filtroTipo);
-    if (fechaDesde) query = query.gte('fecha_emision', fechaDesde);
-    if (fechaHasta) query = query.lte('fecha_emision', fechaHasta + 'T23:59:59');
+      const token = getToken();
+      const res = await fetch(`${API_URL}/api/v1/alertas?${params}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      const json = await res.json();
+      const nuevas: AlertaHistorial[] = Array.isArray(json) ? json : (json.results ?? []);
 
-    const { data } = await query;
-    const nuevas = (data as AlertaHistorial[]) ?? [];
-
-    if (reset) {
-      setAlertas(nuevas);
-      setOffset(nuevas.length);
-    } else {
-      setAlertas((prev) => [...prev, ...nuevas]);
-      setOffset((prev) => prev + nuevas.length);
+      if (reset) {
+        setAlertas(nuevas);
+        setOffset(nuevas.length);
+      } else {
+        setAlertas((prev) => [...prev, ...nuevas]);
+        setOffset((prev) => prev + nuevas.length);
+      }
+      setHasMore(nuevas.length === PAGE_SIZE);
+    } catch {
+      // mantener estado anterior
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
     }
-    setHasMore(nuevas.length === PAGE_SIZE);
-    setLoading(false);
-    setLoadingMore(false);
   }, [offset, filtroNivel, filtroTipo, fechaDesde, fechaHasta]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {

@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://backend-production-60016.up.railway.app';
 
 interface Actualizacion {
   id: string;
@@ -39,22 +40,29 @@ function SkeletonItem() {
   );
 }
 
+function getToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  const match = document.cookie.match(/siagrd_token=([^;]+)/);
+  return match ? match[1] : null;
+}
+
 export default function IncidenteTimeline({ incidente_id }: IncidenteTimelineProps) {
   const [actualizaciones, setActualizaciones] = useState<Actualizacion[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const supabase = createClient();
-
-    supabase
-      .from('actualizaciones_incidente')
-      .select('id, incidente_id, descripcion, created_at, autor')
-      .eq('incidente_id', incidente_id)
-      .order('created_at', { ascending: false })
-      .then(({ data }) => {
-        setActualizaciones((data as Actualizacion[]) ?? []);
+    const token = getToken();
+    fetch(`${API_URL}/api/v1/incidentes/${incidente_id}/actualizaciones?ordering=-created_at`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+      .then((r) => r.ok ? r.json() : null)
+      .then((json) => {
+        if (json) {
+          setActualizaciones(Array.isArray(json) ? json : (json.results ?? []));
+        }
         setLoading(false);
-      });
+      })
+      .catch(() => setLoading(false));
   }, [incidente_id]);
 
   if (loading) {
