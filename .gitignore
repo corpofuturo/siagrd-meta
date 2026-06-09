@@ -38,3 +38,4 @@ web-build/
 # Firebase — clave privada del servidor (NUNCA en git)
 *-firebase-adminsdk-*.json
 siagrd-meta-*.json
+docs/google-services*.json
