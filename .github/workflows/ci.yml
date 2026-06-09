@@ -123,8 +123,6 @@ jobs:
       - name: Build panel-web
         run: pnpm build:panel-web
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           NEXT_PUBLIC_API_URL: https://backend-production-60016.up.railway.app
 
   # deploy-backend: Railway hace autodeploy directo desde GitHub — no se necesita este job.
@@ -153,8 +151,6 @@ jobs:
       - name: Build panel-web
         run: pnpm build:panel-web
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           NEXT_PUBLIC_API_URL: https://backend-production-60016.up.railway.app
 
       - name: Deploy to Netlify
