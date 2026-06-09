@@ -1,11 +1,11 @@
 [build]
-base = "apps/panel-web"
-command = "cd ../.. && pnpm install --frozen-lockfile && pnpm build:panel-web"
-publish = ".next"
+command = "npm install -g pnpm@9 && pnpm install --frozen-lockfile && pnpm build:panel-web"
+publish = "apps/panel-web/.next"
 
 [build.environment]
 NODE_VERSION = "20"
-PNPM_VERSION = "9"
+NEXT_TELEMETRY_DISABLED = "1"
+NEXT_PUBLIC_API_URL = "https://backend-production-60016.up.railway.app"
 
 [[plugins]]
 package = "@netlify/plugin-nextjs"

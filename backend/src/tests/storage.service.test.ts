@@ -1,4 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
+import os from 'os';
+
+// Redirigir UPLOADS_DIR a /tmp antes de cualquier import del servicio
+process.env.UPLOADS_DIR = os.tmpdir();
+process.env.PUBLIC_BASE_URL = 'https://example.com';
 
 vi.mock('../lib/db.js', () => ({
   db: vi.fn().mockResolvedValue([]),
