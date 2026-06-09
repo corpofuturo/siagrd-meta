@@ -1,79 +1,84 @@
 {
-  "expo": {
-    "name": "SIAGRD Meta",
-    "slug": "siagrd-ciudadano",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "userInterfaceStyle": "dark",
-    "icon": "./assets/icon.png",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#0F1117"
-    },
-    "assetBundlePatterns": ["**/*"],
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "org.corpofuturo.siagrd.ciudadano",
-      "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "SIAGRD necesita tu ubicación para mostrar alertas de riesgo cercanas y facilitar reportes de emergencia.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "SIAGRD necesita tu ubicación en segundo plano para alertarte de emergencias en tu zona.",
-        "NSCameraUsageDescription": "Necesitamos acceso a la cámara para que puedas adjuntar fotos a tus reportes de emergencia.",
-        "NSPhotoLibraryUsageDescription": "Necesitamos acceso a tu galería para adjuntar fotos a reportes de emergencia."
-      }
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0F1117"
-      },
-      "package": "org.corpofuturo.siagrd.ciudadano",
-      "permissions": [
-        "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION",
-        "ACCESS_BACKGROUND_LOCATION",
-        "CAMERA",
-        "READ_EXTERNAL_STORAGE",
-        "RECEIVE_BOOT_COMPLETED",
-        "VIBRATE",
-        "POST_NOTIFICATIONS"
-      ]
-    },
-    "web": {
-      "bundler": "metro",
-      "output": "static",
-      "favicon": "./assets/favicon.png",
-      "name": "SIAGRD Meta",
-      "shortName": "SIAGRD",
-      "description": "Sistema de Alertas y Gestión de Riesgo de Desastres del Meta",
-      "themeColor": "#0F1117",
-      "backgroundColor": "#0F1117"
-    },
-    "plugins": [
-      "expo-router",
-      [
-        "expo-location",
-        {
-          "locationAlwaysAndWhenInUsePermission": "SIAGRD necesita tu ubicación para alertas de riesgo."
-        }
-      ],
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "Necesitamos la cámara para adjuntar fotos a reportes de emergencia."
-        }
-      ],
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/notification-icon.png",
-          "color": "#C0392B"
-        }
-      ]
-    ],
-    "scheme": "siagrd",
-    "experiments": {
-      "typedRoutes": true
+    "expo": {
+          "name": "SIAGRD Meta",
+          "slug": "siagrd-ciudadano",
+          "version": "1.0.0",
+          "orientation": "portrait",
+          "userInterfaceStyle": "dark",
+          "icon": "./assets/icon.png",
+          "splash": {
+                  "image": "./assets/splash.png",
+                  "resizeMode": "contain",
+                  "backgroundColor": "#0F1117"
+          },
+          "assetBundlePatterns": ["**/*"],
+          "ios": {
+                  "supportsTablet": true,
+                  "bundleIdentifier": "org.corpofuturo.siagrd.ciudadano",
+                  "infoPlist": {
+                            "NSLocationWhenInUseUsageDescription": "SIAGRD necesita tu ubicación para mostrar alertas de riesgo cercanas y facilitar reportes de emergencia.",
+                            "NSLocationAlwaysAndWhenInUseUsageDescription": "SIAGRD necesita tu ubicación en segundo plano para alertarte de emergencias en tu zona.",
+                            "NSCameraUsageDescription": "Necesitamos acceso a la cámara para que puedas adjuntar fotos a tus reportes de emergencia.",
+                            "NSPhotoLibraryUsageDescription": "Necesitamos acceso a tu galería para adjuntar fotos a reportes de emergencia."
+                  }
+          },
+          "android": {
+                  "adaptiveIcon": {
+                            "foregroundImage": "./assets/adaptive-icon.png",
+                            "backgroundColor": "#0F1117"
+                  },
+                  "package": "org.corpofuturo.siagrd.ciudadano",
+                  "permissions": [
+                            "ACCESS_FINE_LOCATION",
+                            "ACCESS_COARSE_LOCATION",
+                            "ACCESS_BACKGROUND_LOCATION",
+                            "CAMERA",
+                            "READ_EXTERNAL_STORAGE",
+                            "RECEIVE_BOOT_COMPLETED",
+                            "VIBRATE",
+                            "POST_NOTIFICATIONS"
+                  ]
+          },
+          "web": {
+                  "bundler": "metro",
+                  "output": "static",
+                  "favicon": "./assets/favicon.png",
+                  "name": "SIAGRD Meta",
+                  "shortName": "SIAGRD",
+                  "description": "Sistema de Alertas y Gestión de Riesgo de Desastres del Meta",
+                  "themeColor": "#0F1117",
+                  "backgroundColor": "#0F1117"
+          },
+          "plugins": [
+                  "expo-router",
+                  [
+                            "expo-location",
+                            {
+                                        "locationAlwaysAndWhenInUsePermission": "SIAGRD necesita tu ubicación para alertas de riesgo."
+                            }
+                  ],
+                  [
+                            "expo-camera",
+                            {
+                                        "cameraPermission": "Necesitamos la cámara para adjuntar fotos a reportes de emergencia."
+                            }
+                  ],
+                  [
+                            "expo-notifications",
+                            {
+                                        "icon": "./assets/notification-icon.png",
+                                        "color": "#C0392B"
+                            }
+                  ]
+          ],
+          "scheme": "siagrd",
+          "experiments": {
+                  "typedRoutes": true
+          },
+          "extra": {
+                  "eas": {
+                            "projectId": "e76d1407-9433-4cb3-bb86-cbb0d4eab41b"
+                  }
+          }
     }
-  }
 }
