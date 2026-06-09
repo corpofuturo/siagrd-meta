@@ -80,6 +80,45 @@ export async function incidentesRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  // GET /cerca — incidentes cercanos activos con PostGIS
+  app.get(
+    '/cerca',
+    { preHandler: authMiddleware },
+    async (request, reply) => {
+      const { lat, lng, radio_km } = request.query as {
+        lat?: string;
+        lng?: string;
+        radio_km?: string;
+      };
+
+      if (!lat || !lng) throw new ValidationError('lat y lng son requeridos');
+
+      const latNum = parseFloat(lat);
+      const lngNum = parseFloat(lng);
+      let radioNum = radio_km ? parseFloat(radio_km) : 50;
+
+      if (isNaN(latNum) || isNaN(lngNum)) {
+        throw new ValidationError('lat y lng deben ser números válidos');
+      }
+      if (isNaN(radioNum) || radioNum <= 0) throw new ValidationError('radio_km debe ser un número positivo');
+      if (radioNum > 200) radioNum = 200;
+
+      const radioMetros = radioNum * 1000;
+
+      const rows = await db`
+        SELECT i.*,
+          ST_Distance(i.ubicacion::geography, ST_MakePoint(${lngNum}, ${latNum})::geography) / 1000 AS distancia_km
+        FROM incidentes i
+        WHERE ST_DWithin(i.ubicacion::geography, ST_MakePoint(${lngNum}, ${latNum})::geography, ${radioMetros})
+          AND i.estado NOT IN ('CERRADO', 'FALSA_ALARMA')
+        ORDER BY distancia_km ASC
+        LIMIT 50
+      `;
+
+      return reply.send({ data: rows, total: rows.length, radio_km: radioNum });
+    },
+  );
+
   // GET /incidentes/:id — detalle
   app.get(
     '/incidentes/:id',

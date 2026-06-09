@@ -95,4 +95,85 @@ export async function dashboardRoutes(app: FastifyInstance): Promise<void> {
       });
     },
   );
+
+  // GET /dashboard/analytics
+  app.get(
+    '/dashboard/analytics',
+    { preHandler: authMiddleware },
+    async (request, reply) => {
+      const user = request.user!;
+      if (!ROLES_DASHBOARD.includes(user.rol)) {
+        throw new ForbiddenError('Solo roles ADMIN y CDGRD pueden acceder al dashboard');
+      }
+
+      const now = new Date();
+      const defaultDesde = new Date(now);
+      defaultDesde.setDate(defaultDesde.getDate() - 30);
+
+      const query = request.query as { desde?: string; hasta?: string; agrupacion?: string };
+      const desde = query.desde ?? defaultDesde.toISOString().slice(0, 10);
+      const hasta = query.hasta ?? now.toISOString().slice(0, 10);
+      const agrupacion = (query.agrupacion ?? 'dia') as 'dia' | 'semana' | 'mes';
+
+      const truncMap: Record<'dia' | 'semana' | 'mes', string> = {
+        dia: 'day',
+        semana: 'week',
+        mes: 'month',
+      };
+      const trunc = truncMap[agrupacion] ?? 'day';
+
+      const [incidentesPorTipo, alertasPorNivel, reportesCiudadanos, damnificadosAcumulados] =
+        await Promise.all([
+          db`
+            SELECT
+              DATE_TRUNC(${trunc}, fecha_inicio)::date AS fecha,
+              tipo_amenaza AS tipo,
+              COUNT(*)::int AS cantidad
+            FROM incidentes
+            WHERE fecha_inicio >= ${desde}::date
+              AND fecha_inicio <= ${hasta}::date
+            GROUP BY 1, 2
+            ORDER BY 1, 2
+          `,
+          db`
+            SELECT
+              DATE_TRUNC(${trunc}, fecha_emision)::date AS fecha,
+              nivel,
+              COUNT(*)::int AS cantidad
+            FROM alertas
+            WHERE fecha_emision >= ${desde}::date
+              AND fecha_emision <= ${hasta}::date
+            GROUP BY 1, 2
+            ORDER BY 1, 2
+          `,
+          db`
+            SELECT
+              DATE_TRUNC(${trunc}, fecha_reporte)::date AS fecha,
+              COUNT(*)::int AS cantidad
+            FROM reportes_ciudadanos
+            WHERE fecha_reporte >= ${desde}::date
+              AND fecha_reporte <= ${hasta}::date
+            GROUP BY 1
+            ORDER BY 1
+          `,
+          db`
+            SELECT
+              DATE_TRUNC(${trunc}, fecha_registro)::date AS fecha,
+              COUNT(*)::int AS total
+            FROM damnificados
+            WHERE fecha_registro >= ${desde}::date
+              AND fecha_registro <= ${hasta}::date
+            GROUP BY 1
+            ORDER BY 1
+          `,
+        ]);
+
+      return reply.send({
+        incidentes_por_tipo: incidentesPorTipo,
+        alertas_por_nivel: alertasPorNivel,
+        reportes_ciudadanos: reportesCiudadanos,
+        damnificados_acumulados: damnificadosAcumulados,
+      });
+    },
+  );
 }

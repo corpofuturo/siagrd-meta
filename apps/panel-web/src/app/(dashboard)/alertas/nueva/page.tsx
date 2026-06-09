@@ -1,8 +1,14 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { apiFetch } from '@/lib/api';
+
+const MapaAlertaDibujo = dynamic(
+  () => import('@/components/MapaAlertaDibujo'),
+  { ssr: false, loading: () => <div className="h-[360px] bg-[#111827] border border-[#2D3748] rounded flex items-center justify-center text-[#8B9CC8] text-sm">Cargando mapa…</div> }
+);
 
 type Nivel = 'VERDE' | 'AMARILLO' | 'NARANJA' | 'ROJO';
 
@@ -34,7 +40,7 @@ const NIVEL_STYLES: Record<Nivel, string> = {
   ROJO: 'border-[#DC2626] bg-[#DC2626]/10 text-[#DC2626]',
 };
 
-const PASOS = ['Tipo y Nivel', 'Municipios', 'Instrucciones', 'Vista Previa', 'Confirmación'];
+const PASOS = ['Tipo y Nivel', 'Municipios', 'Instrucciones', 'Área Geográfica', 'Vista Previa', 'Confirmación'];
 
 function getToken(): string | undefined {
   if (typeof window === 'undefined') return undefined;
@@ -51,6 +57,7 @@ export default function AlertaNuevaPage() {
   const [instruccionesCiudadanos, setInstruccionesCiudadanos] = useState('');
   const [instruccionesSocorro, setInstruccionesSocorro] = useState('');
   const [motivoRojo, setMotivoRojo] = useState('');
+  const [areaGeojson, setAreaGeojson] = useState<object | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
@@ -76,6 +83,7 @@ export default function AlertaNuevaPage() {
           instrucciones_ciudadanos: instruccionesCiudadanos,
           instrucciones_socorro: instruccionesSocorro,
           motivo_rojo: nivel === 'ROJO' ? motivoRojo : null,
+          area_geojson: areaGeojson,
           estado: 'ACTIVA',
           fecha_emision: new Date().toISOString(),
         }),
@@ -304,14 +312,54 @@ export default function AlertaNuevaPage() {
                 onClick={() => setPaso(4)}
                 className="flex-1 py-2.5 bg-[#DC2626] hover:bg-[#B91C1C] disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded font-display tracking-wider uppercase text-sm transition-colors"
               >
+                Siguiente →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Paso 4 — Área geográfica personalizada */}
+        {paso === 4 && (
+          <div className="space-y-6">
+            <div>
+              <label className="block text-xs text-[#8B9CC8] uppercase tracking-wider mb-1">
+                Área geográfica personalizada{' '}
+                <span className="text-[#8B9CC8] font-normal normal-case">(opcional)</span>
+              </label>
+              <p className="text-xs text-[#8B9CC8] mb-3">
+                Dibuja un polígono sobre el mapa para delimitar el área afectada. Haz clic para
+                agregar vértices y clic sobre el primer vértice para cerrar el polígono.
+              </p>
+              <MapaAlertaDibujo
+                onAreaChange={setAreaGeojson}
+                municipiosSeleccionados={municipiosSeleccionados}
+              />
+              {areaGeojson && (
+                <p className="text-xs text-[#16A34A] mt-2">
+                  Área definida — se incluirá en la alerta.
+                </p>
+              )}
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setPaso(3)}
+                className="flex-1 py-2.5 bg-[#1E2535] hover:bg-[#2D3748] border border-[#2D3748] text-[#F0F4FF] font-bold rounded text-sm transition-colors"
+              >
+                ← Anterior
+              </button>
+              <button
+                onClick={() => setPaso(5)}
+                className="flex-1 py-2.5 bg-[#DC2626] hover:bg-[#B91C1C] text-white font-bold rounded font-display tracking-wider uppercase text-sm transition-colors"
+              >
                 Vista Previa →
               </button>
             </div>
           </div>
         )}
 
-        {/* Paso 4 — Vista previa notificación push */}
-        {paso === 4 && (
+        {/* Paso 5 — Vista previa notificación push */}
+        {paso === 5 && (
           <div className="space-y-6">
             <div className="border border-[#2D3748] rounded-lg overflow-hidden">
               <div className="bg-[#1E2535] px-4 py-2 border-b border-[#2D3748]">
@@ -377,13 +425,13 @@ export default function AlertaNuevaPage() {
 
             <div className="flex gap-3">
               <button
-                onClick={() => setPaso(3)}
+                onClick={() => setPaso(4)}
                 className="flex-1 py-2.5 bg-[#1E2535] hover:bg-[#2D3748] border border-[#2D3748] text-[#F0F4FF] font-bold rounded text-sm transition-colors"
               >
                 ← Anterior
               </button>
               <button
-                onClick={() => setPaso(5)}
+                onClick={() => setPaso(6)}
                 className="flex-1 py-2.5 bg-[#DC2626] hover:bg-[#B91C1C] text-white font-bold rounded font-display tracking-wider uppercase text-sm transition-colors"
               >
                 Confirmar →
@@ -392,8 +440,8 @@ export default function AlertaNuevaPage() {
           </div>
         )}
 
-        {/* Paso 5 — Confirmación */}
-        {paso === 5 && (
+        {/* Paso 6 — Confirmación */}
+        {paso === 6 && (
           <div className="space-y-6">
             <div
               className={`border-2 rounded-lg p-5 ${
@@ -454,7 +502,7 @@ export default function AlertaNuevaPage() {
 
             <div className="flex gap-3">
               <button
-                onClick={() => setPaso(4)}
+                onClick={() => setPaso(5)}
                 className="flex-1 py-2.5 bg-[#1E2535] hover:bg-[#2D3748] border border-[#2D3748] text-[#F0F4FF] font-bold rounded text-sm transition-colors"
               >
                 ← Anterior

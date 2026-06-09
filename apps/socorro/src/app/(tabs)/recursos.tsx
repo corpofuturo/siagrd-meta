@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,10 @@ import {
   TouchableOpacity,
   StyleSheet,
   Switch,
+  RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
+import * as SecureStore from 'expo-secure-store';
 
 // ─── Tipos ───────────────────────────────────────────────────────────────────
 type TipoRecurso = 'VEHICULO' | 'PERSONAL' | 'EQUIPO' | 'TODOS';
@@ -18,18 +21,42 @@ interface Recurso {
   placa?: string;
   disponible: boolean;
   descripcion: string;
+  municipio_id?: string;
+  organismo_id?: string;
 }
 
-// Datos mock — en producción vendrían de WatermelonDB / API
-const RECURSOS_MOCK: Recurso[] = [
-  { id: '1', nombre: 'Camión Cisterna 01', tipo: 'VEHICULO', placa: 'ABC-123', disponible: true, descripcion: 'Capacidad 5000L' },
-  { id: '2', nombre: 'Ambulancia 02', tipo: 'VEHICULO', placa: 'DEF-456', disponible: false, descripcion: 'BASIC + paramédico' },
-  { id: '3', nombre: 'Brigada Alpha', tipo: 'PERSONAL', disponible: true, descripcion: '6 personas certificadas búsqueda y rescate' },
-  { id: '4', nombre: 'Brigada Beta', tipo: 'PERSONAL', disponible: false, descripcion: '4 personas en turno descanso' },
-  { id: '5', nombre: 'Motosierra Industrial', tipo: 'EQUIPO', disponible: true, descripcion: 'Stihl MS 661' },
-  { id: '6', nombre: 'Generador 15kVA', tipo: 'EQUIPO', disponible: true, descripcion: 'Honda, 72h autonomía' },
-  { id: '7', nombre: 'Bote de rescate', tipo: 'EQUIPO', disponible: false, descripcion: 'En mantenimiento' },
-];
+const API_BASE = 'https://backend-production-60016.up.railway.app/api/v1';
+
+// ─── API ──────────────────────────────────────────────────────────────────────
+async function fetchRecursos(filtros: { tipo?: TipoRecurso }): Promise<Recurso[]> {
+  const token = await SecureStore.getItemAsync('auth_token');
+  const params = new URLSearchParams();
+  if (filtros.tipo && filtros.tipo !== 'TODOS') {
+    params.set('tipo', filtros.tipo);
+  }
+  const url = `${API_BASE}/recursos${params.toString() ? `?${params}` : ''}`;
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+  if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
+  return res.json();
+}
+
+async function patchRecursoDisponible(id: string, disponible: boolean): Promise<void> {
+  const token = await SecureStore.getItemAsync('auth_token');
+  const res = await fetch(`${API_BASE}/recursos/${id}`, {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ disponible }),
+  });
+  if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
+}
 
 const TIPO_ICONOS: Record<TipoRecurso | 'TODOS', string> = {
   TODOS: '📋',
@@ -112,47 +139,91 @@ function RecursoItem({
 // ─── Pantalla Recursos ─────────────────────────────────────────────────────
 /**
  * Lista de recursos del organismo.
- * Toggle disponible/ocupado.
- * Filtros por tipo.
- * En producción los datos provienen de WatermelonDB / API.
+ * Toggle disponible/ocupado (PATCH al backend).
+ * Filtros por tipo aplicados como query params.
+ * Pull-to-refresh.
  */
 export default function RecursosScreen() {
-  const [recursos, setRecursos] = useState<Recurso[]>(RECURSOS_MOCK);
+  const [recursos, setRecursos] = useState<Recurso[]>([]);
   const [filtro, setFiltro] = useState<TipoRecurso | 'TODOS'>('TODOS');
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleToggle = (id: string, disponible: boolean) => {
+  const cargar = useCallback(async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true);
+    else setLoading(true);
+    setError(null);
+    try {
+      const data = await fetchRecursos({ tipo: filtro });
+      setRecursos(data);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Error al cargar recursos');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [filtro]);
+
+  useEffect(() => {
+    cargar();
+  }, [cargar]);
+
+  const handleToggle = async (id: string, disponible: boolean) => {
+    // Optimistic update
     setRecursos((prev) =>
       prev.map((r) => (r.id === id ? { ...r, disponible } : r)),
     );
+    try {
+      await patchRecursoDisponible(id, disponible);
+    } catch {
+      // Revert on error
+      setRecursos((prev) =>
+        prev.map((r) => (r.id === id ? { ...r, disponible: !disponible } : r)),
+      );
+    }
   };
 
-  const recursosFiltrados =
-    filtro === 'TODOS' ? recursos : recursos.filter((r) => r.tipo === filtro);
-
-  const disponibles = recursosFiltrados.filter((r) => r.disponible).length;
-  const total = recursosFiltrados.length;
+  const disponibles = recursos.filter((r) => r.disponible).length;
+  const total = recursos.length;
 
   return (
     <View style={styles.container}>
       <FiltroTipo activo={filtro} onCambiar={setFiltro} />
 
       <View style={styles.resumen}>
-        <Text style={styles.resumenText}>
-          <Text style={styles.resumenNum}>{disponibles}</Text>
-          <Text style={styles.resumenSep}> / {total}</Text>
-          {'  '}disponibles
-        </Text>
+        {error ? (
+          <Text style={styles.errorText}>{error}</Text>
+        ) : (
+          <Text style={styles.resumenText}>
+            <Text style={styles.resumenNum}>{disponibles}</Text>
+            <Text style={styles.resumenSep}> / {total}</Text>
+            {'  '}disponibles
+          </Text>
+        )}
       </View>
 
-      <FlatList
-        data={recursosFiltrados}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <RecursoItem recurso={item} onToggle={handleToggle} />}
-        contentContainerStyle={styles.lista}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>Sin recursos para este filtro.</Text>
-        }
-      />
+      {loading ? (
+        <ActivityIndicator color="#3B82F6" style={{ marginTop: 40 }} />
+      ) : (
+        <FlatList
+          data={recursos}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <RecursoItem recurso={item} onToggle={handleToggle} />}
+          contentContainerStyle={styles.lista}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => cargar(true)}
+              tintColor="#3B82F6"
+              colors={['#3B82F6']}
+            />
+          }
+          ListEmptyComponent={
+            <Text style={styles.emptyText}>Sin recursos para este filtro.</Text>
+          }
+        />
+      )}
     </View>
   );
 }
@@ -179,6 +250,7 @@ const styles = StyleSheet.create({
   resumenText: { color: '#718096', fontSize: 13 },
   resumenNum: { color: '#16A34A', fontWeight: '700', fontSize: 16 },
   resumenSep: { color: '#4A5568' },
+  errorText: { color: '#EF4444', fontSize: 13 },
   lista: { paddingHorizontal: 16, paddingBottom: 20 },
   recursoItem: {
     backgroundColor: '#111827',
