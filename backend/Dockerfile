@@ -22,6 +22,9 @@ COPY backend/tsconfig.json ./backend/tsconfig.json
 
 RUN pnpm --filter backend run build
 
+# Mover dist a /app/dist para que coincida con el start command de Railway
+RUN cp -r backend/dist dist
+
 EXPOSE 3000
 ENV NODE_ENV=production
-CMD ["node", "backend/dist/index.js"]
+CMD ["node", "dist/index.js"]
