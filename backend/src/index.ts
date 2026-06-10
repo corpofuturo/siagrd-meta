@@ -145,12 +145,12 @@ async function bootstrap(): Promise<void> {
   // Inicializar FCM (modo graceful si no configurado)
   initFCM();
 
-  // Seed usuarios demo si no existen
-  await seedDemoUsers();
-
-  // Arrancar servidor
+  // Arrancar servidor primero — seed en background para no bloquear el startup
   await app.listen({ port: PORT, host: '0.0.0.0' });
   logger.info({ port: PORT, env: process.env.NODE_ENV ?? 'development' }, 'SIAGRD API iniciada');
+
+  // Seed usuarios demo si no existen (no bloquea el startup)
+  seedDemoUsers().catch((err) => logger.warn({ err }, 'seedDemoUsers falló — continuando sin seed'));
 }
 
 bootstrap().catch((err) => {
