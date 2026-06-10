@@ -23,6 +23,19 @@ export interface Session {
   user: SessionUser;
 }
 
+async function fetchWithTimeout(url: string, options: RequestInit, ms = 10000): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (err: any) {
+    if (err?.name === 'AbortError') throw new Error('El servidor no responde. Intente de nuevo.');
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function handleAuthResponse(response: Response): Promise<Session> {
   if (!response.ok) {
     const body = await response.json().catch(() => ({})) as any;
@@ -36,7 +49,7 @@ async function handleAuthResponse(response: Response): Promise<Session> {
 
 export async function signIn(email: string, password: string): Promise<Session> {
   return handleAuthResponse(
-    await fetch(`${BACKEND}/auth/login`, {
+    await fetchWithTimeout(`${BACKEND}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -71,7 +84,7 @@ export async function register(
   apellido: string,
 ): Promise<Session> {
   return handleAuthResponse(
-    await fetch(`${BACKEND}/auth/register`, {
+    await fetchWithTimeout(`${BACKEND}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password, nombre, apellido }),
