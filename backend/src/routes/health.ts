@@ -33,7 +33,9 @@ export async function healthRoutes(app: FastifyInstance): Promise<void> {
       syncPendientes = row?.n ?? 0;
     } catch { /* no bloquear */ }
 
-    return reply.status(overallStatus === 'down' ? 503 : 200).send({
+    // Siempre 200 — Railway usa este endpoint para el healthcheck de deploy
+    // El estado real de servicios está en el body
+    return reply.status(200).send({
       status: overallStatus,
       services,
       sync_queue: { pendientes: syncPendientes },
