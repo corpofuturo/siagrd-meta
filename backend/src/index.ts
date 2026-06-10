@@ -44,8 +44,8 @@ const ALLOWED_ORIGINS = [
 
 async function seedDemoUsers(): Promise<void> {
   const seeds = [
-    { email: 'admin',   password: 'admin',   nombre: 'Administrador', apellido: 'SATAM', rol: 'admin'    },
-    { email: 'bombero', password: 'bombero', nombre: 'Bombero',       apellido: 'Demo',  rol: 'operador' },
+    { email: 'admin',   password: 'admin',   nombre: 'Administrador', apellido: 'SATAM', rol: 'ADMIN'   },
+    { email: 'bombero', password: 'bombero', nombre: 'Bombero',       apellido: 'Demo',  rol: 'SOCORRO' },
   ];
   for (const u of seeds) {
     const [existing] = await db`SELECT id FROM profiles WHERE email = ${u.email}`;
