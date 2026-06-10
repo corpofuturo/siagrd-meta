@@ -1,8 +1,18 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { supabase, type Database } from '../lib/supabase';
-import { CACHE_ALERTAS_TTL_MS, type NivelAlerta } from '../constants';
+import { API_BASE, CACHE_ALERTAS_TTL_MS, type NivelAlerta } from '../constants';
 
-type Alerta = Database['public']['Tables']['alertas']['Row'];
+export interface Alerta {
+  id: string;
+  municipio_codigo: string;
+  nivel: NivelAlerta;
+  tipo_amenaza: string;
+  titulo: string;
+  descripcion: string;
+  instrucciones: string | null;
+  activa: boolean;
+  created_at: string;
+  updated_at: string;
+}
 
 const CACHE_KEY = '@siagrd:alertas_cache';
 const CACHE_TS_KEY = '@siagrd:alertas_cache_ts';
@@ -15,20 +25,15 @@ const NIVEL_PESO: Record<NivelAlerta, number> = {
 };
 
 /**
- * Obtiene alertas activas desde Supabase.
+ * Obtiene alertas activas desde el backend Railway.
  * No requiere autenticación — datos públicos.
  */
 export async function getAlertasActivas(): Promise<Alerta[]> {
-  if (!supabase) throw new Error('Error obteniendo alertas: cliente no disponible');
-
-  const { data, error } = await supabase
-    .from('alertas')
-    .select('*')
-    .eq('activa', true)
-    .order('nivel', { ascending: false });
-
-  if (error) throw new Error(`Error obteniendo alertas: ${error.message}`);
-  return (data as Alerta[]) ?? [];
+  const response = await fetch(`${API_BASE}/alertas?activa=true`);
+  if (!response.ok) throw new Error(`Error obteniendo alertas: ${response.status}`);
+  const json = await response.json();
+  const data: unknown[] = Array.isArray(json) ? json : (json?.data ?? []);
+  return data as Alerta[];
 }
 
 /**
@@ -37,14 +42,12 @@ export async function getAlertasActivas(): Promise<Alerta[]> {
 export function getNivelMaximo(alertas: Alerta[]): NivelAlerta {
   if (!alertas.length) return 'VERDE';
   return alertas.reduce<NivelAlerta>((max, alerta) => {
-    const nivel = alerta.nivel as NivelAlerta;
-    return NIVEL_PESO[nivel] > NIVEL_PESO[max] ? nivel : max;
+    return NIVEL_PESO[alerta.nivel] > NIVEL_PESO[max] ? alerta.nivel : max;
   }, 'VERDE');
 }
 
 /**
  * Lee alertas desde AsyncStorage sin verificar TTL.
- * Retorna null si no hay cache.
  */
 export async function getAlertasCached(): Promise<Alerta[] | null> {
   try {
@@ -67,17 +70,16 @@ export async function setAlertasCache(alertas: Alerta[]): Promise<void> {
 }
 
 /**
- * Retorna alertas desde cache si el TTL de 15 min no ha expirado,
- * de lo contrario hace fetch a Supabase y actualiza el cache.
- * Fallback a cache expirado si hay error de red.
+ * Retorna alertas desde cache si el TTL de 15 min no expiró,
+ * de lo contrario hace fetch al backend y actualiza el cache.
+ * Fallback a cache expirado (incluso vacío) si hay error de red.
  */
 export async function getAlertasCachedOrFetch(): Promise<Alerta[]> {
   try {
     const tsRaw = await AsyncStorage.getItem(CACHE_TS_KEY);
     const ts = tsRaw ? parseInt(tsRaw, 10) : 0;
-    const age = Date.now() - ts;
 
-    if (age < CACHE_ALERTAS_TTL_MS) {
+    if (Date.now() - ts < CACHE_ALERTAS_TTL_MS) {
       const cached = await getAlertasCached();
       if (cached) return cached;
     }
@@ -86,7 +88,6 @@ export async function getAlertasCachedOrFetch(): Promise<Alerta[]> {
     await setAlertasCache(alertas);
     return alertas;
   } catch {
-    // Sin red: retornar cache aunque esté expirado
     const cached = await getAlertasCached();
     return cached ?? [];
   }
@@ -95,9 +96,7 @@ export async function getAlertasCachedOrFetch(): Promise<Alerta[]> {
 /**
  * Retorna alertas activas filtradas por municipio.
  */
-export async function getAlertasMunicipio(
-  municipioCodigo: string
-): Promise<Alerta[]> {
+export async function getAlertasMunicipio(municipioCodigo: string): Promise<Alerta[]> {
   const alertas = await getAlertasCachedOrFetch();
   return alertas.filter((a) => a.municipio_codigo === municipioCodigo);
 }

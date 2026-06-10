@@ -24,10 +24,8 @@ config.resolver.extraNodeModules = {
   'react-native-gesture-handler':   path.resolve(MONOREPO_MODULES, 'react-native-gesture-handler'),
 };
 
-// Crítico para pnpm: evita que Metro suba por la jerarquía de symlinks del store .pnpm
 config.resolver.disableHierarchicalLookup = true;
 
-// Fuerza instancia única de React para CUALQUIER módulo, incluyendo los resueltos via symlinks pnpm
 const FORCE_SINGLE = new Set([
   'react',
   'react/jsx-runtime',

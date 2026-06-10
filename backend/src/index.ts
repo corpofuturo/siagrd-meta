@@ -22,6 +22,15 @@ import { usuariosRoutes } from './routes/usuarios.js';
 import { municipiosRoutes } from './routes/municipios.js';
 import { webhooksRoutes } from './routes/webhooks.js';
 
+// Validación temprana de variables de entorno obligatorias
+const REQUIRED_ENV = ['JWT_SECRET', 'DATABASE_URL'] as const;
+for (const key of REQUIRED_ENV) {
+  if (!process.env[key]) {
+    console.error(`[FATAL] Variable de entorno requerida no definida: ${key}`);
+    process.exit(1);
+  }
+}
+
 const IS_DEV = process.env.NODE_ENV !== 'production';
 const PORT = parseInt(process.env.PORT ?? '3000', 10);
 

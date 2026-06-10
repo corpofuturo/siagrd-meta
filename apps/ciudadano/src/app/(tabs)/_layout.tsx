@@ -50,7 +50,7 @@ export default function TabsLayout() {
 
     async function loadCount() {
       try {
-        const raw = await AsyncStorage.getItem('satam_incidente_queue');
+        const raw = await AsyncStorage.getItem('satam_reporte_queue');
         const queue = raw ? JSON.parse(raw) : [];
         setSyncCount(Array.isArray(queue) ? queue.length : 0);
       } catch {
