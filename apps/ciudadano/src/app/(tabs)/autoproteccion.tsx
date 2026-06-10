@@ -10,7 +10,7 @@ import {
   ScrollView,
   StyleSheet,
 } from 'react-native';
-import { AmenazaIcon } from '@siagrd/ui';
+import { AmenazaIcon } from '../../ui';
 
 type AmenazaId =
   | 'inundacion'

@@ -1,432 +1,191 @@
-/**
- * HomeScreen — CRITICA
- * REGLA DE ORO: Ver alerta activa = 0 toques (visible al abrir).
- *
- * - ROJO:    Pantalla completa fondo #1C0505, texto grande, 2 botones de acción.
- * - NARANJA/AMARILLO: Banner superior coloreado con instrucciones.
- * - VERDE:   Card estado normal + accesos rápidos.
- * - Siempre: Botón REPORTAR EMERGENCIA en la parte inferior.
- */
 import { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
+  FlatList,
   TouchableOpacity,
-  ScrollView,
   StyleSheet,
-  Linking,
-  RefreshControl,
   StatusBar,
+  RefreshControl,
 } from 'react-native';
-import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  getAlertasCachedOrFetch,
-  getNivelMaximo,
-} from '../../services/alertas.service';
-import type { Database } from '../../lib/supabase';
-import { NIVEL_COLORES, MUNICIPIOS_META, type NivelAlerta } from '../../constants';
+import { getToken } from '../../services/auth.service';
 
-type Alerta = Database['public']['Tables']['alertas']['Row'];
+const BACKEND = 'https://backend-production-60016.up.railway.app/api/v1';
+const CACHE_KEY = 'satam_alertas_cache';
 
-const MUNICIPIO_KEY = '@siagrd:municipio';
+const NIVEL_COLORES: Record<string, string> = {
+  ROJO: '#FF3B30',
+  NARANJA: '#FF9500',
+  AMARILLO: '#FFCC00',
+  VERDE: '#34C759',
+};
+
+interface Alerta {
+  id: number;
+  tipo: string;
+  descripcion: string;
+  municipio: string;
+  nivel: string;
+  activa: boolean;
+}
 
 export default function HomeScreen() {
-  const router = useRouter();
   const [alertas, setAlertas] = useState<Alerta[]>([]);
-  const [nivel, setNivel] = useState<NivelAlerta>('VERDE');
-  const [municipio, setMunicipio] = useState<string>('');
   const [refreshing, setRefreshing] = useState(false);
   const [offline, setOffline] = useState(false);
 
-  const cargarDatos = useCallback(async () => {
+  const cargarAlertas = useCallback(async () => {
     try {
-      const codigoMunicipio =
-        (await AsyncStorage.getItem(MUNICIPIO_KEY)) ?? '50001';
-      const mun = MUNICIPIOS_META.find((m) => m.codigo_dane === codigoMunicipio);
-      setMunicipio(mun?.nombre ?? 'Villavicencio');
+      const token = await getToken();
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
 
-      const data = await getAlertasCachedOrFetch();
+      const response = await fetch(`${BACKEND}/alertas?activa=true`, { headers });
+
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      const data: Alerta[] = await response.json();
+      await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(data));
       setAlertas(data);
-      setNivel(getNivelMaximo(data));
       setOffline(false);
     } catch {
+      const cached = await AsyncStorage.getItem(CACHE_KEY);
+      if (cached) {
+        setAlertas(JSON.parse(cached));
+      }
       setOffline(true);
     }
   }, []);
 
   useEffect(() => {
-    cargarDatos();
-  }, [cargarDatos]);
+    cargarAlertas();
+  }, [cargarAlertas]);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await cargarDatos();
+    await cargarAlertas();
     setRefreshing(false);
   };
 
-  const colores = NIVEL_COLORES[nivel];
-  const alertaActiva = alertas.find((a) => a.activa);
-
-  // ──────────────────────────────────────────────
-  // ROJO: pantalla completa de emergencia
-  // ──────────────────────────────────────────────
-  if (nivel === 'ROJO') {
+  const renderAlerta = ({ item }: { item: Alerta }) => {
+    const dotColor = NIVEL_COLORES[item.nivel] ?? '#9CA3AF';
     return (
-      <View style={styles.rojoContainer}>
-        <StatusBar barStyle="light-content" backgroundColor="#1C0505" />
-        <ScrollView
-          contentContainerStyle={styles.rojoScroll}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor="#FCA5A5"
-            />
-          }
-        >
-          <Text style={styles.rojoEmoji}>🚨</Text>
-          <Text style={styles.rojoNivel}>ALERTA ROJA</Text>
-          <Text style={styles.rojoMunicipio}>{municipio}</Text>
-
-          {alertaActiva && (
-            <>
-              <Text style={styles.rojoTitulo}>{alertaActiva.titulo}</Text>
-              <Text style={styles.rojoDescripcion}>
-                {alertaActiva.descripcion}
-              </Text>
-              {alertaActiva.instrucciones ? (
-                <View style={styles.instruccionesBox}>
-                  <Text style={styles.instruccionesLabel}>INSTRUCCIONES</Text>
-                  <Text style={styles.instruccionesTexto}>
-                    {alertaActiva.instrucciones}
-                  </Text>
-                </View>
-              ) : null}
-            </>
-          )}
-
-          <View style={styles.rojoBotones}>
-            <TouchableOpacity
-              style={styles.botonVerMapa}
-              onPress={() => router.push('/(tabs)/mapa')}
-            >
-              <Text style={styles.botonVerMapaTexto}>VER MAPA</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.botonLlamar}
-              onPress={() => Linking.openURL('tel:123')}
-            >
-              <Text style={styles.botonLlamarTexto}>📞 LLAMAR 123</Text>
-            </TouchableOpacity>
+      <View style={styles.card}>
+        <View style={styles.cardHeader}>
+          <View style={[styles.dot, { backgroundColor: dotColor }]} />
+          <Text style={styles.tipo}>{item.tipo}</Text>
+          <View style={[styles.badge, { borderColor: dotColor }]}>
+            <Text style={[styles.badgeText, { color: dotColor }]}>{item.nivel}</Text>
           </View>
-        </ScrollView>
-
-        {/* Botón reportar — siempre visible */}
-        <TouchableOpacity
-          style={styles.reportarBtn}
-          onPress={() => router.push('/reportar')}
-        >
-          <Text style={styles.reportarBtnTexto}>⚠ REPORTAR EMERGENCIA</Text>
-        </TouchableOpacity>
+        </View>
+        <Text style={styles.descripcion} numberOfLines={2}>
+          {item.descripcion}
+        </Text>
+        <Text style={styles.municipio}>{item.municipio}</Text>
       </View>
     );
-  }
-
-  // ──────────────────────────────────────────────
-  // NARANJA / AMARILLO: banner superior + contenido
-  // ──────────────────────────────────────────────
-  const tieneAlerta = nivel === 'NARANJA' || nivel === 'AMARILLO';
+  };
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#0F1117" />
 
-      {/* Banner de alerta naranja/amarilla */}
-      {tieneAlerta && (
-        <View style={[styles.banner, { backgroundColor: colores.bgLight }]}>
-          <Text style={[styles.bannerNivel, { color: colores.text }]}>
-            {nivel === 'NARANJA' ? '🟠 Alerta Naranja' : '🟡 Alerta Amarilla'}
-          </Text>
-          {alertaActiva && (
-            <Text style={[styles.bannerDescripcion, { color: colores.text }]}>
-              {alertaActiva.titulo}
-            </Text>
-          )}
+      {offline && (
+        <View style={styles.offlineBanner}>
+          <Text style={styles.offlineText}>Sin conexion — datos en cache</Text>
         </View>
       )}
 
-      <ScrollView
-        style={styles.scroll}
+      <FlatList
+        data={alertas}
+        keyExtractor={(item) => String(item.id)}
+        renderItem={renderAlerta}
+        contentContainerStyle={alertas.length === 0 ? styles.emptyContainer : styles.listContent}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#6B7280"
+          />
         }
-      >
-        {offline && (
-          <View style={styles.offlineBanner}>
-            <Text style={styles.offlineTexto}>
-              Sin conexión — datos guardados
-            </Text>
-          </View>
-        )}
-
-        {/* Card estado municipio */}
-        {!tieneAlerta && (
-          <View style={[styles.card, styles.cardVerde]}>
-            <Text style={styles.cardEmoji}>✅</Text>
-            <Text style={styles.cardTitulo}>{municipio}</Text>
-            <Text style={styles.cardSubtitulo}>Sin alertas activas</Text>
-          </View>
-        )}
-
-        {/* Accesos rápidos */}
-        <Text style={styles.seccionTitulo}>Accesos rápidos</Text>
-        <View style={styles.accesosGrid}>
-          <TouchableOpacity
-            style={styles.accesoBtn}
-            onPress={() => router.push('/(tabs)/mapa')}
-          >
-            <Text style={styles.accesoEmoji}>🗺</Text>
-            <Text style={styles.accesoLabel}>Mapa de{'\n'}Riesgos</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.accesoBtn}
-            onPress={() => router.push('/(tabs)/alertas')}
-          >
-            <Text style={styles.accesoEmoji}>🔔</Text>
-            <Text style={styles.accesoLabel}>Historial{'\n'}Alertas</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.accesoBtn}
-            onPress={() => router.push('/(tabs)/autoproteccion')}
-          >
-            <Text style={styles.accesoEmoji}>🛡</Text>
-            <Text style={styles.accesoLabel}>Guías de{'\n'}Protección</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.accesoBtn}
-            onPress={() => Linking.openURL('tel:123')}
-          >
-            <Text style={styles.accesoEmoji}>📞</Text>
-            <Text style={styles.accesoLabel}>Emergencias{'\n'}123</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.bottomSpacer} />
-      </ScrollView>
-
-      {/* Botón REPORTAR EMERGENCIA — siempre en parte inferior */}
-      <TouchableOpacity
-        style={styles.reportarBtn}
-        onPress={() => router.push('/reportar')}
-      >
-        <Text style={styles.reportarBtnTexto}>⚠ REPORTAR EMERGENCIA</Text>
-      </TouchableOpacity>
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>Sin alertas activas</Text>
+        }
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  // ── ROJO ──
-  rojoContainer: {
-    flex: 1,
-    backgroundColor: '#1C0505',
-  },
-  rojoScroll: {
-    alignItems: 'center',
-    paddingTop: 60,
-    paddingHorizontal: 24,
-    paddingBottom: 120,
-  },
-  rojoEmoji: {
-    fontSize: 64,
-    marginBottom: 16,
-  },
-  rojoNivel: {
-    fontSize: 40,
-    fontWeight: '900',
-    color: '#FCA5A5',
-    letterSpacing: 2,
-    textAlign: 'center',
-  },
-  rojoMunicipio: {
-    fontSize: 20,
-    color: '#FCA5A5',
-    opacity: 0.8,
-    marginBottom: 24,
-  },
-  rojoTitulo: {
-    fontSize: 26,
-    fontWeight: '700',
-    color: '#FEF2F2',
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  rojoDescripcion: {
-    fontSize: 16,
-    color: '#FEE2E2',
-    textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 20,
-  },
-  instruccionesBox: {
-    backgroundColor: '#7F1D1D',
-    borderRadius: 12,
-    padding: 16,
-    width: '100%',
-    marginBottom: 24,
-  },
-  instruccionesLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#FCA5A5',
-    letterSpacing: 1,
-    marginBottom: 8,
-  },
-  instruccionesTexto: {
-    fontSize: 15,
-    color: '#FEE2E2',
-    lineHeight: 22,
-  },
-  rojoBotones: {
-    width: '100%',
-    gap: 12,
-  },
-  botonVerMapa: {
-    backgroundColor: '#991B1B',
-    borderRadius: 14,
-    height: 56,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  botonVerMapaTexto: {
-    color: '#FEF2F2',
-    fontSize: 18,
-    fontWeight: '700',
-    letterSpacing: 1,
-  },
-  botonLlamar: {
-    backgroundColor: '#EF4444',
-    borderRadius: 14,
-    height: 56,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  botonLlamarTexto: {
-    color: '#FFF',
-    fontSize: 18,
-    fontWeight: '800',
-    letterSpacing: 1,
-  },
-
-  // ── NORMAL ──
   container: {
     flex: 1,
     backgroundColor: '#0F1117',
   },
-  banner: {
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    paddingTop: 54,
-  },
-  bannerNivel: {
-    fontSize: 18,
-    fontWeight: '700',
-  },
-  bannerDescripcion: {
-    fontSize: 14,
-    marginTop: 4,
-    opacity: 0.9,
-  },
-  scroll: {
-    flex: 1,
-    paddingHorizontal: 16,
-  },
   offlineBanner: {
     backgroundColor: '#374151',
-    borderRadius: 8,
-    padding: 10,
-    marginTop: 12,
+    paddingVertical: 8,
     alignItems: 'center',
   },
-  offlineTexto: {
+  offlineText: {
     color: '#D1D5DB',
     fontSize: 13,
   },
-  card: {
-    borderRadius: 16,
-    padding: 24,
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  cardVerde: {
-    backgroundColor: '#052E16',
-    borderWidth: 1,
-    borderColor: '#166534',
-  },
-  cardEmoji: {
-    fontSize: 40,
-    marginBottom: 8,
-  },
-  cardTitulo: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#86EFAC',
-  },
-  cardSubtitulo: {
-    fontSize: 14,
-    color: '#4ADE80',
-    marginTop: 4,
-  },
-  seccionTitulo: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#9CA3AF',
-    marginTop: 28,
-    marginBottom: 12,
-  },
-  accesosGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  listContent: {
+    padding: 16,
     gap: 12,
   },
-  accesoBtn: {
+  emptyContainer: {
     flex: 1,
-    minWidth: '44%',
-    backgroundColor: '#1F2937',
-    borderRadius: 14,
-    padding: 20,
+    justifyContent: 'center',
     alignItems: 'center',
+  },
+  emptyText: {
+    color: '#6B7280',
+    fontSize: 16,
+  },
+  card: {
+    backgroundColor: '#1F2937',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
     gap: 8,
   },
-  accesoEmoji: {
-    fontSize: 32,
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
-  accesoLabel: {
-    fontSize: 13,
-    color: '#D1D5DB',
-    textAlign: 'center',
+  tipo: {
+    flex: 1,
+    color: '#F9FAFB',
+    fontSize: 15,
     fontWeight: '600',
   },
-  bottomSpacer: { height: 20 },
-
-  // ── BOTON REPORTAR (siempre visible) ──
-  reportarBtn: {
-    backgroundColor: '#B45309',
-    margin: 16,
-    borderRadius: 16,
-    height: 56,
-    alignItems: 'center',
-    justifyContent: 'center',
+  badge: {
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
   },
-  reportarBtnTexto: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '800',
+  badgeText: {
+    fontSize: 11,
+    fontWeight: '700',
     letterSpacing: 0.5,
+  },
+  descripcion: {
+    color: '#9CA3AF',
+    fontSize: 13,
+    lineHeight: 19,
+    marginBottom: 6,
+  },
+  municipio: {
+    color: '#6B7280',
+    fontSize: 12,
   },
 });

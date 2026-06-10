@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "023fb21e-2573-4daf-a4df-35e207ba757e"
+      }
+    },
+    "android": {
+      "package": "com.corpofuturo.siagrdmeta"
+    }
+  }
+}

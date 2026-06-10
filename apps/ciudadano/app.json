@@ -1,6 +1,6 @@
 {
     "expo": {
-          "name": "SIAGRD Meta",
+          "name": "SATAM",
           "slug": "siagrd-ciudadano",
           "owner": "corpofuturo",
           "version": "1.0.0",
@@ -44,7 +44,7 @@
                   "bundler": "metro",
                   "output": "static",
                   "favicon": "./assets/favicon.png",
-                  "name": "SIAGRD Meta",
+                  "name": "SATAM",
                   "shortName": "SIAGRD",
                   "description": "Sistema de Alertas y Gestión de Riesgo de Desastres del Meta",
                   "themeColor": "#0F1117",
@@ -62,6 +62,12 @@
                             "expo-camera",
                             {
                                         "cameraPermission": "Necesitamos la cámara para adjuntar fotos a reportes de emergencia."
+                            }
+                  ],
+                  [
+                            "expo-image-picker",
+                            {
+                                        "photosPermission": "SATAM necesita acceso a fotos para adjuntar evidencia."
                             }
                   ],
                   [
