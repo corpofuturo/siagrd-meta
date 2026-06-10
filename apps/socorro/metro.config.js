@@ -24,8 +24,6 @@ config.resolver.extraNodeModules = {
   'react-native-gesture-handler':   path.resolve(MONOREPO_MODULES, 'react-native-gesture-handler'),
 };
 
-config.resolver.disableHierarchicalLookup = true;
-
 const FORCE_SINGLE = new Set([
   'react',
   'react/jsx-runtime',
