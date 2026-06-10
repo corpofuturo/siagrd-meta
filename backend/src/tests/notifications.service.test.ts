@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 vi.mock('../lib/db.js', () => ({
-  db: Object.assign(vi.fn().mockResolvedValue([]), { array: vi.fn((a) => a) }),
+  db: Object.assign(vi.fn().mockResolvedValue([]), { array: vi.fn((a: unknown[]) => a) }),
 }));
 
 describe('notifications.service', () => {
