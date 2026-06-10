@@ -9,6 +9,12 @@ const JWT_SECRET = process.env.JWT_SECRET ?? 'dev-secret-change-in-production';
 const JWT_EXPIRES_IN = '8h';
 const JWT_REFRESH_EXPIRES_IN = '30d';
 
+function makeTokens(userId: string, email: string) {
+  const access_token = jwt.sign({ sub: userId, email }, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
+  const refresh_token = jwt.sign({ sub: userId, type: 'refresh' }, JWT_SECRET, { expiresIn: JWT_REFRESH_EXPIRES_IN });
+  return { access_token, refresh_token };
+}
+
 export async function authRoutes(app: FastifyInstance): Promise<void> {
   // POST /auth/login
   app.post<{ Body: { email: string; password: string } }>(
@@ -19,9 +25,9 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       if (!password) throw new ValidationError('El campo password es requerido');
 
       const [user] = await db`
-        SELECT p.id, p.email, p.password_hash, p.rol, p.municipio_id, p.nombre, p.apellido, p.activo
-        FROM profiles p
-        WHERE p.email = ${email}
+        SELECT id, email, password_hash, rol, municipio_id, nombre, apellido, activo
+        FROM profiles
+        WHERE email = ${email}
       `;
 
       if (!user || !user.activo) throw new UnauthorizedError('Credenciales inválidas');
@@ -29,16 +35,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       const valid = await bcrypt.compare(password, user.password_hash as string);
       if (!valid) throw new UnauthorizedError('Credenciales inválidas');
 
-      const access_token = jwt.sign(
-        { sub: user.id, email: user.email },
-        JWT_SECRET,
-        { expiresIn: JWT_EXPIRES_IN }
-      );
-      const refresh_token = jwt.sign(
-        { sub: user.id, type: 'refresh' },
-        JWT_SECRET,
-        { expiresIn: JWT_REFRESH_EXPIRES_IN }
-      );
+      const { access_token, refresh_token } = makeTokens(String(user.id), user.email as string);
 
       return reply.send({
         access_token,
@@ -55,6 +52,67 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       });
     },
   );
+
+  // POST /auth/register
+  app.post<{ Body: { email: string; password: string; nombre: string; apellido: string } }>(
+    '/auth/register',
+    async (request, reply) => {
+      const { email, password, nombre, apellido } = request.body;
+      if (!email) throw new ValidationError('El campo email es requerido');
+      if (!password) throw new ValidationError('El campo password es requerido');
+      if (!nombre) throw new ValidationError('El campo nombre es requerido');
+      if (password.length < 6) throw new ValidationError('La contraseña debe tener al menos 6 caracteres');
+
+      const [existing] = await db`SELECT id FROM profiles WHERE email = ${email}`;
+      if (existing) throw new ValidationError('Este correo ya está registrado');
+
+      const password_hash = await bcrypt.hash(password, 10);
+      const [user] = await db`
+        INSERT INTO profiles (email, password_hash, nombre, apellido, rol, activo)
+        VALUES (${email}, ${password_hash}, ${nombre}, ${apellido ?? ''}, 'ciudadano', true)
+        RETURNING id, email, nombre, apellido, rol, municipio_id
+      `;
+
+      const { access_token, refresh_token } = makeTokens(String(user.id), user.email as string);
+
+      return reply.status(201).send({
+        access_token,
+        refresh_token,
+        expires_in: 28800,
+        user: {
+          id: user.id,
+          email: user.email,
+          nombre: user.nombre,
+          apellido: user.apellido,
+          rol: user.rol,
+          municipio_id: user.municipio_id ?? null,
+        },
+      });
+    },
+  );
+
+  // POST /auth/anonymous — sesión de ciudadano anónimo (sin DB, token local)
+  app.post('/auth/anonymous', async (_request, reply) => {
+    const anonymousId = `anon_${Date.now()}`;
+    const access_token = jwt.sign(
+      { sub: anonymousId, email: 'anonimo@satam.co', anonymous: true },
+      JWT_SECRET,
+      { expiresIn: '24h' },
+    );
+    return reply.send({
+      access_token,
+      refresh_token: '',
+      expires_in: 86400,
+      user: {
+        id: anonymousId,
+        email: 'anonimo@satam.co',
+        nombre: 'Ciudadano',
+        apellido: 'Anónimo',
+        rol: 'ciudadano',
+        municipio_id: null,
+      },
+    });
+  });
 
   // POST /auth/refresh
   app.post<{ Body: { refresh_token: string } }>(
@@ -78,7 +136,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       const access_token = jwt.sign(
         { sub: user.id, email: user.email },
         JWT_SECRET,
-        { expiresIn: JWT_EXPIRES_IN }
+        { expiresIn: JWT_EXPIRES_IN },
       );
 
       return reply.send({ access_token, refresh_token });
@@ -92,6 +150,21 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
 
   // GET /auth/me
   app.get('/auth/me', { preHandler: authMiddleware }, async (request, reply) => {
+    // Anónimos: devolver perfil desde el token mismo
+    if ((request.user as any)?.anonymous) {
+      return reply.send({
+        data: {
+          id: request.user!.id,
+          email: 'anonimo@satam.co',
+          nombre: 'Ciudadano',
+          apellido: 'Anónimo',
+          rol: 'ciudadano',
+          municipio_id: null,
+          activo: true,
+        },
+      });
+    }
+
     const [profile] = await db`
       SELECT id, email, nombre, apellido, rol, municipio_id, organismo_id, foto_url, activo
       FROM profiles

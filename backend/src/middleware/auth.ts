@@ -23,12 +23,24 @@ export async function authMiddleware(
   }
 
   const token = header.slice(7);
-  let payload: { sub: string; email: string };
+  let payload: { sub: string; email: string; anonymous?: boolean };
 
   try {
-    payload = jwt.verify(token, JWT_SECRET) as { sub: string; email: string };
+    payload = jwt.verify(token, JWT_SECRET) as { sub: string; email: string; anonymous?: boolean };
   } catch {
     throw new UnauthorizedError('Token inválido o expirado');
+  }
+
+  // Token anónimo: no requiere fila en DB
+  if (payload.anonymous) {
+    request.user = {
+      id: payload.sub,
+      email: payload.email,
+      rol: 'ciudadano',
+      municipio_id: undefined,
+      organismo_id: undefined,
+    } as any;
+    return;
   }
 
   const [profile] = await db`
