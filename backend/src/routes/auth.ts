@@ -151,15 +151,15 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     await db`
       INSERT INTO profiles (email, password_hash, nombre, apellido, rol, activo)
       VALUES
-        ('admin@satam.co',   ${hash_admin},   'Administrador', 'SATAM', 'admin',    true),
-        ('bombero@satam.co', ${hash_bombero}, 'Bombero',       'Demo',  'operador', true)
+        ('admin',   ${hash_admin},   'Administrador', 'SATAM', 'admin',    true),
+        ('bombero', ${hash_bombero}, 'Bombero',       'Demo',  'operador', true)
       ON CONFLICT (email) DO UPDATE
         SET password_hash = EXCLUDED.password_hash,
             rol           = EXCLUDED.rol,
             activo        = EXCLUDED.activo
     `;
 
-    return reply.send({ ok: true, users: ['admin@satam.co', 'bombero@satam.co'] });
+    return reply.send({ ok: true, users: ['admin', 'bombero'] });
   });
 
   // POST /auth/logout

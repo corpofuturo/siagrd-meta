@@ -45,9 +45,23 @@ export async function signIn(email: string, password: string): Promise<Session> 
 }
 
 export async function signInAnonymous(): Promise<Session> {
-  return handleAuthResponse(
-    await fetch(`${BACKEND}/auth/anonymous`, { method: 'POST' }),
-  );
+  // Sesión local sin red — el token anónimo se genera en el dispositivo
+  const anonId = `anon_${Date.now()}`;
+  const session: Session = {
+    access_token: `anon_${anonId}`,
+    refresh_token: '',
+    user: {
+      id: anonId,
+      email: '',
+      nombre: 'Ciudadano',
+      apellido: 'Anónimo',
+      rol: 'ciudadano',
+      municipio_id: null,
+    },
+  };
+  await SecureStore.setItemAsync(KEYS.access, session.access_token);
+  await SecureStore.setItemAsync(KEYS.refresh, '');
+  return session;
 }
 
 export async function register(
@@ -85,6 +99,16 @@ export async function restoreSession(): Promise<Session | null> {
   try {
     const access_token = await SecureStore.getItemAsync(KEYS.access);
     if (!access_token) return null;
+
+    // Token anónimo — reconstruir sesión localmente sin red
+    if (access_token.startsWith('anon_')) {
+      return {
+        access_token,
+        refresh_token: '',
+        user: { id: access_token, email: '', nombre: 'Ciudadano', apellido: 'Anónimo', rol: 'ciudadano', municipio_id: null },
+      };
+    }
+
     const refresh_token = (await SecureStore.getItemAsync(KEYS.refresh)) ?? '';
     const response = await fetch(`${BACKEND}/auth/me`, {
       headers: { Authorization: `Bearer ${access_token}` },

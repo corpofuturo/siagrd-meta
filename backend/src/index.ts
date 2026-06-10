@@ -8,6 +8,8 @@ import { logger } from './utils/logger.js';
 import { AppError } from './utils/errors.js';
 import { initFCM } from './services/notifications.service.js';
 
+import bcrypt from 'bcryptjs';
+import { db } from './lib/db.js';
 import { healthRoutes } from './routes/health.js';
 import { syncRoutes } from './routes/sync.js';
 import { incidentesRoutes } from './routes/incidentes.js';
@@ -39,6 +41,21 @@ const ALLOWED_ORIGINS = [
   /^https:\/\/.*\.netlify\.app$/,
   'https://siagrd-panel-web.netlify.app',
 ];
+
+async function seedDemoUsers(): Promise<void> {
+  const seeds = [
+    { email: 'admin',   password: 'admin',   nombre: 'Administrador', apellido: 'SATAM', rol: 'admin'    },
+    { email: 'bombero', password: 'bombero', nombre: 'Bombero',       apellido: 'Demo',  rol: 'operador' },
+  ];
+  for (const u of seeds) {
+    const [existing] = await db`SELECT id FROM profiles WHERE email = ${u.email}`;
+    if (!existing) {
+      const hash = await bcrypt.hash(u.password, 10);
+      await db`INSERT INTO profiles (email, password_hash, nombre, apellido, rol, activo) VALUES (${u.email}, ${hash}, ${u.nombre}, ${u.apellido}, ${u.rol}, true)`;
+      logger.info(`Usuario demo creado: ${u.email}`);
+    }
+  }
+}
 
 async function bootstrap(): Promise<void> {
   const app = Fastify({
@@ -127,6 +144,9 @@ async function bootstrap(): Promise<void> {
 
   // Inicializar FCM (modo graceful si no configurado)
   initFCM();
+
+  // Seed usuarios demo si no existen
+  await seedDemoUsers();
 
   // Arrancar servidor
   await app.listen({ port: PORT, host: '0.0.0.0' });
