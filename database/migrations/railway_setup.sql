@@ -153,7 +153,8 @@ CREATE TABLE alertas (
   inicio TIMESTAMPTZ DEFAULT NOW(),
   fin_estimado TIMESTAMPTZ,
   created_by UUID REFERENCES profiles(id),
-  created_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  emitida_at TIMESTAMPTZ
 );
 
 CREATE TABLE notificaciones (

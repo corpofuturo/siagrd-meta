@@ -52,11 +52,11 @@ export async function alertasRoutes(app: FastifyInstance): Promise<void> {
       const [row] = await db`
         INSERT INTO alertas (
           tipo, nivel, titulo, descripcion, instrucciones_ciudadano,
-          municipios_afectados, creado_por, activa, created_at, updated_at
+          municipios_afectados, created_by, activa
         )
         VALUES (
           ${tipo}, ${nivel}, ${titulo}, ${descripcion ?? null}, ${instrucciones_ciudadano ?? null},
-          ${db.array(munis)}, ${user.id}, false, NOW(), NOW()
+          ${db.array(munis)}, ${user.id}, false
         )
         RETURNING *
       `;
@@ -89,7 +89,7 @@ export async function alertasRoutes(app: FastifyInstance): Promise<void> {
 
       await db`
         UPDATE alertas
-        SET activa = true, emitida_at = NOW(), updated_at = NOW()
+        SET activa = true, emitida_at = NOW()
         WHERE id = ${id}
       `;
 
