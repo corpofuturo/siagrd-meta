@@ -143,6 +143,25 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  // POST /auth/seed — crea usuarios demo (solo primera vez, idempotente)
+  app.post('/auth/seed', async (_request, reply) => {
+    const hash_admin   = '$2a$10$e5cmIFiV3tNqzjoDfqxGruOcbABV7rtMfzlX8N4LO9Cv7ujIyq5Pq';
+    const hash_bombero = '$2a$10$../BhUnSXYzDvjA/Vwdt8ORWEqedWvRJ0jKjZTvUYIef1/euB5ZVy';
+
+    await db`
+      INSERT INTO profiles (email, password_hash, nombre, apellido, rol, activo)
+      VALUES
+        ('admin@satam.co',   ${hash_admin},   'Administrador', 'SATAM', 'admin',    true),
+        ('bombero@satam.co', ${hash_bombero}, 'Bombero',       'Demo',  'operador', true)
+      ON CONFLICT (email) DO UPDATE
+        SET password_hash = EXCLUDED.password_hash,
+            rol           = EXCLUDED.rol,
+            activo        = EXCLUDED.activo
+    `;
+
+    return reply.send({ ok: true, users: ['admin@satam.co', 'bombero@satam.co'] });
+  });
+
   // POST /auth/logout
   app.post('/auth/logout', { preHandler: authMiddleware }, async (_request, reply) => {
     return reply.send({ message: 'Sesión cerrada' });
