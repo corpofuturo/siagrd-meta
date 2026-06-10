@@ -24,6 +24,6 @@ export async function subscribeToPush(vapidPublicKey: string): Promise<PushSubsc
 
   return reg.pushManager.subscribe({
     userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+    applicationServerKey: urlBase64ToUint8Array(vapidPublicKey).buffer as ArrayBuffer,
   });
 }

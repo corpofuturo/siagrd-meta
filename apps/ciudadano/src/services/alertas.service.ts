@@ -19,6 +19,8 @@ const NIVEL_PESO: Record<NivelAlerta, number> = {
  * No requiere autenticación — datos públicos.
  */
 export async function getAlertasActivas(): Promise<Alerta[]> {
+  if (!supabase) throw new Error('Error obteniendo alertas: cliente no disponible');
+
   const { data, error } = await supabase
     .from('alertas')
     .select('*')

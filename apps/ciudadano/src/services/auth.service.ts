@@ -76,3 +76,23 @@ export async function getMe(): Promise<SessionUser | null> {
     return null;
   }
 }
+
+export async function restoreSession(): Promise<Session | null> {
+  try {
+    const access_token = await SecureStore.getItemAsync(KEYS.access);
+    if (!access_token) return null;
+
+    const refresh_token = (await SecureStore.getItemAsync(KEYS.refresh)) ?? '';
+
+    const response = await fetch(`${BACKEND}/auth/me`, {
+      headers: { Authorization: `Bearer ${access_token}` },
+    });
+
+    if (!response.ok) return null;
+
+    const user: SessionUser = await response.json();
+    return { access_token, refresh_token, user };
+  } catch {
+    return null;
+  }
+}

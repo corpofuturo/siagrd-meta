@@ -90,7 +90,7 @@ export function PhotoCapture({ onCapture, onError, disabled = false }: PhotoCapt
       }
 
       const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: 'images' as ImagePicker.MediaType,
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 0.75,
         exif: true,
         base64: false,

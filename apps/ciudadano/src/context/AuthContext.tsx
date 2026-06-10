@@ -6,7 +6,7 @@ import React, {
   type ReactNode,
 } from "react";
 import {
-  getMe,
+  restoreSession,
   signIn as authSignIn,
   signOut as authSignOut,
   type Session,
@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getMe()
+    restoreSession()
       .then((s) => setSession(s))
       .catch(() => setSession(null))
       .finally(() => setLoading(false));

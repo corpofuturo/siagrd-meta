@@ -39,7 +39,8 @@ const TIPOS: TipoOption[] = [
 type StepResult = 'ok' | 'local';
 
 export default function NuevoIncidente() {
-  const { token } = useAuth();
+  const { session } = useAuth();
+  const token = session?.access_token ?? null;
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [tipoSeleccionado, setTipoSeleccionado] = useState<TipoAmenaza | null>(null);

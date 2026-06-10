@@ -48,14 +48,16 @@ export default function AlertasScreen() {
         Date.now() - DIAS_HISTORIAL * 24 * 60 * 60 * 1000
       ).toISOString();
 
-      const { data } = await supabase
-        .from('alertas')
-        .select('*')
-        .eq('municipio_codigo', codigo)
-        .gte('created_at', hace30dias)
-        .order('created_at', { ascending: false });
+      if (supabase) {
+        const { data } = await supabase
+          .from('alertas')
+          .select('*')
+          .eq('municipio_codigo', codigo)
+          .gte('created_at', hace30dias)
+          .order('created_at', { ascending: false });
 
-      if (data) setHistorial(data as Alerta[]);
+        if (data) setHistorial(data as Alerta[]);
+      }
     } catch {
       setOffline(true);
     }

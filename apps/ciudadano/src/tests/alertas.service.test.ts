@@ -3,7 +3,7 @@
  * Verifica obtención, filtrado por municipio y comportamiento del cache local.
  */
 
-import { jest } from '@jest/globals';
+import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
@@ -76,11 +76,13 @@ function buildAlerta(overrides: Partial<{
   };
 }
 
-function buildSupabaseChain(result: { data: unknown; error: unknown }) {
+type QueryResult = { data: unknown; error: unknown };
+
+function buildSupabaseChain(result: QueryResult) {
   return {
-    select: jest.fn().mockReturnValue({
-      eq: jest.fn().mockReturnValue({
-        order: jest.fn().mockResolvedValue(result),
+    select: jest.fn<() => object>().mockReturnValue({
+      eq: jest.fn<() => object>().mockReturnValue({
+        order: jest.fn<() => Promise<QueryResult>>().mockResolvedValue(result),
       }),
     }),
   };
@@ -178,7 +180,7 @@ describe('alertas.service — cache local', () => {
     mockSupabaseSelect.from = jest.fn().mockReturnValue({
       select: jest.fn().mockReturnValue({
         eq: jest.fn().mockReturnValue({
-          order: jest.fn().mockRejectedValue(new Error('Network request failed')),
+          order: jest.fn<() => Promise<never>>().mockRejectedValue(new Error('Network request failed')),
         }),
       }),
     });
@@ -205,7 +207,7 @@ describe('alertas.service — cache local', () => {
     mockSupabaseSelect.from = jest.fn().mockReturnValue({
       select: jest.fn().mockReturnValue({
         eq: jest.fn().mockReturnValue({
-          order: jest.fn().mockRejectedValue(new Error('Network request failed')),
+          order: jest.fn<() => Promise<never>>().mockRejectedValue(new Error('Network request failed')),
         }),
       }),
     });
