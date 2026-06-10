@@ -9,6 +9,8 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY package.json ./package.json
 COPY backend/package.json ./backend/package.json
 COPY packages/ui/package.json ./packages/ui/package.json
+COPY packages/types/package.json ./packages/types/package.json
+COPY packages/config/package.json ./packages/config/package.json
 
 RUN pnpm install --frozen-lockfile --filter backend...
 
