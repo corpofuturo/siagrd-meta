@@ -18,7 +18,7 @@ function getTwilioClient(): import('twilio').Twilio | null {
   }
 
   try {
-    const twilio = (require('twilio') as typeof import('twilio')).default;
+    const twilio = require('twilio') as typeof import('twilio');
     twilioClient = twilio(accountSid, authToken);
     return twilioClient;
   } catch (err) {

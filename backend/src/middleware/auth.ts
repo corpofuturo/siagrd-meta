@@ -13,6 +13,17 @@ declare module 'fastify' {
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) throw new Error('JWT_SECRET env var is required');
 
+export function requireRole(roles: string[]) {
+  return async function (request: FastifyRequest, _reply: FastifyReply): Promise<void> {
+    if (!request.user) throw new UnauthorizedError('No autenticado');
+    const userRole = ((request.user as any).rol ?? '').toUpperCase();
+    const allowed = roles.map((r) => r.toUpperCase());
+    if (!allowed.includes(userRole)) {
+      throw new UnauthorizedError('Permisos insuficientes');
+    }
+  };
+}
+
 export async function authMiddleware(
   request: FastifyRequest,
   _reply: FastifyReply,
@@ -26,7 +37,7 @@ export async function authMiddleware(
   let payload: { sub: string; email: string; anonymous?: boolean };
 
   try {
-    payload = jwt.verify(token, JWT_SECRET) as { sub: string; email: string; anonymous?: boolean };
+    payload = jwt.verify(token, JWT_SECRET as string) as unknown as { sub: string; email: string; anonymous?: boolean };
   } catch {
     throw new UnauthorizedError('Token inválido o expirado');
   }
