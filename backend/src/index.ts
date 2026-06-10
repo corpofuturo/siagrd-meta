@@ -20,7 +20,7 @@ import { damnificadosRoutes } from './routes/damnificados.js';
 import { reportesRoutes } from './routes/reportes.js';
 import { usuariosRoutes } from './routes/usuarios.js';
 import { municipiosRoutes } from './routes/municipios.js';
-import webhooksRoutes from './routes/webhooks.js';
+import { webhooksRoutes } from './routes/webhooks.js';
 
 const IS_DEV = process.env.NODE_ENV !== 'production';
 const PORT = parseInt(process.env.PORT ?? '3000', 10);
