@@ -43,26 +43,18 @@ export default function MapaAlertaDibujo({
   municipiosSeleccionados = [],
 }: MapaAlertaDibujoProps) {
   const mapRef = useRef<HTMLDivElement>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const leafletRef = useRef<any>(null); // L instance
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const mapInstanceRef = useRef<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const markersRef = useRef<any[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const polylineRef = useRef<any>(null); // live preview line
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const polygonRef = useRef<any>(null); // closed polygon
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const municipioMarkersRef = useRef<any[]>([]);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const clickHandlerRef = useRef<any>(null);
+  const leafletRef = useRef<any>(null); // eslint-disable-line
+  const mapInstanceRef = useRef<any>(null); // eslint-disable-line
+  const markersRef = useRef<any[]>([]); // eslint-disable-line
+  const polylineRef = useRef<any>(null); // eslint-disable-line
+  const polygonRef = useRef<any>(null); // eslint-disable-line
+  const municipioMarkersRef = useRef<any[]>([]); // eslint-disable-line
+  const clickHandlerRef = useRef<any>(null); // eslint-disable-line
 
   const [drawing, setDrawing] = useState(false);
   const [vertices, setVertices] = useState<[number, number][]>([]);
   const [closed, setClosed] = useState(false);
 
-  // Initialize Leaflet map
   useEffect(() => {
     if (!mapRef.current) return;
     let isMounted = true;
@@ -73,8 +65,7 @@ export default function MapaAlertaDibujo({
       const Lf = leafletRef.current;
 
       // Fix default icon paths broken by bundlers
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      delete (Lf.Icon.Default.prototype as any)._getIconUrl;
+      delete (Lf.Icon.Default.prototype as Record<string, unknown>)._getIconUrl;
       Lf.Icon.Default.mergeOptions({
         iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
         iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
@@ -104,13 +95,11 @@ export default function MapaAlertaDibujo({
     };
   }, []);
 
-  // Update municipio reference markers
   useEffect(() => {
     const map = mapInstanceRef.current;
     const Lf = leafletRef.current;
     if (!map || !Lf) return;
 
-    // Clear previous
     municipioMarkersRef.current.forEach((m) => m.remove());
     municipioMarkersRef.current = [];
 
@@ -134,20 +123,13 @@ export default function MapaAlertaDibujo({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [municipiosSeleccionados, mapInstanceRef.current, leafletRef.current]);
 
-  // Redraw polyline/polygon whenever vertices change
   useEffect(() => {
     const map = mapInstanceRef.current;
     const Lf = leafletRef.current;
     if (!map || !Lf) return;
 
-    if (polylineRef.current) {
-      polylineRef.current.remove();
-      polylineRef.current = null;
-    }
-    if (polygonRef.current) {
-      polygonRef.current.remove();
-      polygonRef.current = null;
-    }
+    if (polylineRef.current) { polylineRef.current.remove(); polylineRef.current = null; }
+    if (polygonRef.current) { polygonRef.current.remove(); polygonRef.current = null; }
     markersRef.current.forEach((m) => m.remove());
     markersRef.current = [];
 
@@ -155,25 +137,17 @@ export default function MapaAlertaDibujo({
 
     if (closed) {
       polygonRef.current = Lf.polygon(vertices, {
-        color: '#DC2626',
-        fillColor: '#DC2626',
-        fillOpacity: 0.15,
-        weight: 2,
+        color: '#DC2626', fillColor: '#DC2626', fillOpacity: 0.15, weight: 2,
       }).addTo(map);
     } else {
       polylineRef.current = Lf.polyline(vertices, {
-        color: '#DC2626',
-        weight: 2,
-        dashArray: '6 4',
+        color: '#DC2626', weight: 2, dashArray: '6 4',
       }).addTo(map);
     }
 
-    // Draw vertex markers
     const dotIcon = Lf.divIcon({
       html: '<div style="width:8px;height:8px;background:#DC2626;border:2px solid white;border-radius:50%;"></div>',
-      iconSize: [8, 8],
-      iconAnchor: [4, 4],
-      className: '',
+      iconSize: [8, 8], iconAnchor: [4, 4], className: '',
     });
     vertices.forEach((v, i) => {
       const m = Lf.marker(v, { icon: dotIcon, interactive: false }).addTo(map);
@@ -197,18 +171,15 @@ export default function MapaAlertaDibujo({
 
     map.getContainer().style.cursor = 'crosshair';
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const handler = (e: any) => {
+    const handler = (e: any) => { // eslint-disable-line
       const latlng: [number, number] = [e.latlng.lat, e.latlng.lng];
 
       setVertices((prev) => {
         if (prev.length >= 3) {
-          // Check if click is near first vertex (within 20px)
           const firstPx = map.latLngToContainerPoint(prev[0]);
           const clickPx = map.latLngToContainerPoint(e.latlng);
           const dist = Math.hypot(firstPx.x - clickPx.x, firstPx.y - clickPx.y);
           if (dist <= 20) {
-            // Close polygon
             const finalVerts = prev;
             setClosed(true);
             setDrawing(false);
@@ -217,11 +188,8 @@ export default function MapaAlertaDibujo({
             clickHandlerRef.current = null;
 
             const geoCoords = finalVerts.map((v) => [v[1], v[0]]);
-            geoCoords.push(geoCoords[0]); // close ring
-            onAreaChange({
-              type: 'Polygon',
-              coordinates: [geoCoords],
-            });
+            geoCoords.push(geoCoords[0]);
+            onAreaChange({ type: 'Polygon', coordinates: [geoCoords] });
 
             return finalVerts;
           }

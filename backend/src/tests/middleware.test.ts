@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+vi.hoisted(() => {
+  process.env.JWT_SECRET = 'test-secret-for-middleware-tests';
+});
+
 const { mockDbFn } = vi.hoisted(() => {
   const mockDbFn = vi.fn().mockResolvedValue([]);
   (mockDbFn as any).array = vi.fn().mockImplementation((arr: any[]) => arr);

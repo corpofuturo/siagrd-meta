@@ -2,105 +2,8 @@ import { db } from '../lib/db.js';
 import { logger } from '../utils/logger.js';
 import type { NivelAlerta } from '../types/domain.js';
 
-let twilioClient: import('twilio').Twilio | null = null;
-
-/**
- * Retorna el cliente Twilio, inicializándolo de forma lazy si las credenciales están disponibles.
- */
-function getTwilioClient(): import('twilio').Twilio | null {
-  if (twilioClient) return twilioClient;
-
-  const accountSid = process.env.TWILIO_ACCOUNT_SID;
-  const authToken = process.env.TWILIO_AUTH_TOKEN;
-
-  if (!accountSid || !authToken) {
-    return null;
-  }
-
-  try {
-    const twilio = require('twilio') as typeof import('twilio');
-    twilioClient = twilio(accountSid, authToken);
-    return twilioClient;
-  } catch (err) {
-    logger.error({ err, service: 'sms' }, 'Error inicializando cliente Twilio');
-    return null;
-  }
-}
-
-/**
- * Envía un SMS a un teléfono destino.
- * Si las credenciales Twilio no están configuradas, retorna false sin crash.
- */
-export async function enviarSMS(telefono: string, mensaje: string): Promise<boolean> {
-  const accountSid = process.env.TWILIO_ACCOUNT_SID;
-  if (!accountSid) {
-    logger.warn({ service: 'sms' }, 'TWILIO_ACCOUNT_SID no configurado — SMS deshabilitado');
-    return false;
-  }
-
-  const client = getTwilioClient();
-  if (!client) {
-    logger.warn({ service: 'sms', telefono }, 'Cliente Twilio no disponible — SMS no enviado');
-    return false;
-  }
-
-  const from = process.env.TWILIO_PHONE_NUMBER;
-  if (!from) {
-    logger.warn({ service: 'sms' }, 'TWILIO_PHONE_NUMBER no configurado — SMS no enviado');
-    return false;
-  }
-
-  try {
-    const result = await client.messages.create({ to: telefono, from, body: mensaje });
-    logger.info({ service: 'sms', telefono, sid: result.sid }, 'SMS enviado');
-    return true;
-  } catch (err) {
-    logger.error({ err, service: 'sms', telefono }, 'Error enviando SMS');
-    return false;
-  }
-}
-
-/**
- * Envía SMS de alerta a múltiples teléfonos en lotes de 10.
- */
-export async function enviarSMSAlerta(
-  alerta: { tipo: string; nivel: NivelAlerta; instrucciones: string },
-  telefonos: string[],
-): Promise<void> {
-  if (telefonos.length === 0) return;
-
-  const instruccionesCortas = alerta.instrucciones.slice(0, 100);
-  const mensaje = `ALERTA ${alerta.nivel} - ${alerta.tipo}. ${instruccionesCortas}. Info: siagrd.meta.gov.co`;
-
-  const BATCH_SIZE = 10;
-  let totalOk = 0;
-  let totalFallidos = 0;
-
-  for (let i = 0; i < telefonos.length; i += BATCH_SIZE) {
-    const lote = telefonos.slice(i, i + BATCH_SIZE);
-    const resultados = await Promise.allSettled(lote.map((tel) => enviarSMS(tel, mensaje)));
-
-    for (const r of resultados) {
-      if (r.status === 'fulfilled' && r.value) {
-        totalOk++;
-      } else {
-        totalFallidos++;
-      }
-    }
-  }
-
-  logger.info(
-    { nivel: alerta.nivel, tipo: alerta.tipo, ok: totalOk, fallidos: totalFallidos },
-    'SMS alerta completado',
-  );
-}
-
 let fcmApp: import('firebase-admin').app.App | null = null;
 
-/**
- * Inicializa Firebase Admin SDK para FCM.
- * Si las variables de entorno no están configuradas, el servicio opera en modo graceful (no-op).
- */
 export function initFCM(): void {
   const projectId = process.env.FIREBASE_PROJECT_ID;
   if (!projectId) {
@@ -123,11 +26,6 @@ export function initFCM(): void {
   }
 }
 
-/**
- * Envía alerta push a todos los dispositivos de los municipios afectados.
- * Envía en lotes de 500 (límite FCM).
- * Si FCM no está inicializado, registra warning y retorna sin error.
- */
 export async function enviarAlertaPush(
   alertaId: string,
   nivel: NivelAlerta,
@@ -142,7 +40,6 @@ export async function enviarAlertaPush(
     return;
   }
 
-  // Obtener tokens de dispositivos activos en los municipios afectados
   let profiles: { device_token: string | null }[] = [];
   try {
     profiles = await db`
@@ -179,7 +76,7 @@ export async function enviarAlertaPush(
     try {
       const response = await messaging.sendEachForMulticast({
         tokens: lote,
-        notification: { title: `🚨 ALERTA ${nivel}`, body: titulo },
+        notification: { title: `ALERTA ${nivel}`, body: titulo },
         data: { alerta_id: alertaId, nivel, tipo: 'ALERTA_EMERGENCIA' },
         android: { priority },
         apns: {
@@ -194,7 +91,6 @@ export async function enviarAlertaPush(
     }
   }
 
-  // Registrar en tabla notificaciones
   const estado = totalFallidos === tokens.length ? 'error' : totalEnviados > 0 ? 'ok' : 'sin_tokens';
   await db`
     INSERT INTO notificaciones (alerta_id, nivel, titulo, municipios_ids, total_tokens, enviados, fallidos, estado)

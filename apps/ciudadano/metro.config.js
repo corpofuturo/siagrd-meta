@@ -9,36 +9,39 @@ const config = getDefaultConfig(projectRoot);
 config.watchFolders = [monorepoRoot];
 
 config.resolver.nodeModulesPaths = [
-  path.resolve(projectRoot, 'node_modules'),
   path.resolve(monorepoRoot, 'node_modules'),
 ];
 
-const MONOREPO_MODULES = path.resolve(monorepoRoot, 'node_modules');
-
-config.resolver.extraNodeModules = {
-  'react':                          path.resolve(MONOREPO_MODULES, 'react'),
-  'react-native':                   path.resolve(MONOREPO_MODULES, 'react-native'),
-  'react-native-reanimated':        path.resolve(MONOREPO_MODULES, 'react-native-reanimated'),
-  'react-native-screens':           path.resolve(MONOREPO_MODULES, 'react-native-screens'),
-  'react-native-safe-area-context': path.resolve(MONOREPO_MODULES, 'react-native-safe-area-context'),
-  'react-native-gesture-handler':   path.resolve(MONOREPO_MODULES, 'react-native-gesture-handler'),
-};
-
-// Fuerza instancia única de React para CUALQUIER módulo, incluyendo los resueltos via symlinks pnpm
-const FORCE_SINGLE = new Set([
+// Paquetes que deben existir como instancia única en todo el bundle.
+// pnpm crea junctions locales y copias hoisted en root, dando dos module IDs
+// distintos para el mismo paquete → crashes de contexto en Hermes.
+// NOTA: expo-router NO está aquí — necesita resolverse desde el contexto de
+// ciudadano para que el descubrimiento de rutas funcione correctamente.
+const SINGLETON_PREFIXES = [
   'react',
-  'react/jsx-runtime',
-  'react/jsx-dev-runtime',
   'react-native',
-]);
+  '@react-navigation/',
+  'react-native-safe-area-context',
+  'react-native-screens',
+  'react-native-gesture-handler',
+  'react-native-reanimated',
+];
+
+const rootPackageJson = path.join(monorepoRoot, 'package.json');
 
 config.resolver.resolveRequest = (context, moduleName, platform) => {
-  if (FORCE_SINGLE.has(moduleName)) {
-    return {
-      filePath: require.resolve(moduleName, { paths: [MONOREPO_MODULES] }),
-      type: 'sourceFile',
-    };
+  const isSingleton = SINGLETON_PREFIXES.some(
+    (prefix) => moduleName === prefix || moduleName.startsWith(prefix + '/') || moduleName.startsWith(prefix)
+  );
+
+  if (isSingleton) {
+    return context.resolveRequest(
+      { ...context, originModulePath: rootPackageJson },
+      moduleName,
+      platform
+    );
   }
+
   return context.resolveRequest(context, moduleName, platform);
 };
 
