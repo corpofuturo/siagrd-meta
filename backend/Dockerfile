@@ -11,6 +11,9 @@ COPY backend/package.json ./backend/package.json
 COPY packages/ui/package.json ./packages/ui/package.json
 COPY packages/types/package.json ./packages/types/package.json
 COPY packages/config/package.json ./packages/config/package.json
+COPY apps/ciudadano/package.json ./apps/ciudadano/package.json
+COPY apps/panel-web/package.json ./apps/panel-web/package.json
+COPY apps/socorro/package.json ./apps/socorro/package.json
 
 RUN pnpm install --frozen-lockfile --filter backend...
 
