@@ -103,7 +103,7 @@ export default function DashboardScreen() {
       const raw = await AsyncStorage.getItem(OFFLINE_QUEUE_KEY);
       if (!raw) return [];
       const queue: Incidente[] = JSON.parse(raw);
-      return queue.map((item) => ({ ...item, estado: 'ABIERTO', _offline: true }));
+      return queue.map((item) => ({ ...item, estado: 'PENDIENTE' as const, _offline: true }));
     } catch {
       return [];
     }

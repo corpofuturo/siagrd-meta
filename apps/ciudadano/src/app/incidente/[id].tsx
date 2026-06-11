@@ -289,7 +289,7 @@ export default function IncidenteDetalleScreen() {
                   lon={lon}
                   zoom={13}
                   eventos={[{
-                    id: incidente.id,
+                    id: String(incidente.id),
                     lat,
                     lon,
                     titulo: incidente.titulo,

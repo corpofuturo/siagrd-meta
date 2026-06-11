@@ -58,6 +58,13 @@ function RootNavigator() {
       />
       <Stack.Screen name="incidente/[id]" options={{ headerShown: false }} />
       <Stack.Screen name="chat/[id]" options={{ headerShown: false }} />
+      <Stack.Screen name="admin/index" options={{ headerShown: false }} />
+      <Stack.Screen name="admin/organismos" options={{ headerShown: false }} />
+      <Stack.Screen name="admin/organismos/[id]" options={{ headerShown: false }} />
+      <Stack.Screen name="admin/comites" options={{ headerShown: false }} />
+      <Stack.Screen name="admin/jal" options={{ headerShown: false }} />
+      <Stack.Screen name="admin/grupos" options={{ headerShown: false }} />
+      <Stack.Screen name="admin/configuracion" options={{ headerShown: false }} />
     </Stack>
   );
 }

@@ -304,7 +304,7 @@ export default function NuevoIncidente() {
         )}
 
         <TouchableOpacity
-          style={[styles.submitBtn, (!municipio.trim() || (foto && !fotoAutorizada)) && styles.submitBtnDisabled]}
+          style={[styles.submitBtn, (!municipio.trim() || (foto && !fotoAutorizada)) ? styles.submitBtnDisabled : null]}
           onPress={handleRegistrar}
           disabled={!municipio.trim() || loadingEnvio || (!!foto && !fotoAutorizada)}
         >
