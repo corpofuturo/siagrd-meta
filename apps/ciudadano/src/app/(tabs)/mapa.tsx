@@ -42,7 +42,7 @@ export default function MapaRiesgosScreen() {
   const [mapMounted, setMapMounted] = useState(false);
   const [region, setRegion] = useState(DEFAULT_REGION);
   const [eventos, setEventos] = useState<any[]>([]);
-  const [capa, setCapa] = useState<Capa>('ACTIVOS');
+  const [capa, setCapa] = useState<Capa>('TODOS');
   const [error, setError] = useState<string | null>(null);
 
   const getLocationSafe = useCallback(async (): Promise<Location.LocationObject | null> => {
