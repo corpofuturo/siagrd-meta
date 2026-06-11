@@ -101,24 +101,25 @@ export async function configuracionRoutes(app: FastifyInstance): Promise<void> {
 
     const [stats] = await db`
       SELECT
-        COUNT(*)                                          AS total_incidentes,
-        COUNT(*) FILTER (WHERE estado = 'CERRADO')        AS cerrados,
-        COUNT(*) FILTER (WHERE estado = 'ABIERTO')        AS abiertos,
-        COUNT(*) FILTER (WHERE estado = 'EN_ATENCION')    AS en_atencion,
-        COUNT(*) FILTER (WHERE estado = 'FALSA_ALARMA')   AS falsas_alarmas
+        COUNT(*)                                                    AS total_incidentes,
+        COUNT(*) FILTER (WHERE estado = 'CERRADO')                  AS cerrados,
+        COUNT(*) FILTER (WHERE estado = 'FALSO_POSITIVO')           AS falsos_positivos,
+        COUNT(*) FILTER (WHERE estado IN ('EN_CURSO','CONFIRMADO','PENDIENTE')) AS activos,
+        COUNT(*) FILTER (WHERE estado = 'CONTROLADO')               AS controlados
       FROM incidentes
       WHERE created_at >= ${desde}
     `;
 
     const eventos = await db`
       SELECT i.id, i.codigo, i.titulo, i.tipo_amenaza, i.estado,
-             i.nivel_alerta, i.lat, i.lng, i.municipio_id,
-             m.nombre AS municipio_nombre, i.afectados_estimado,
+             i.nivel_alerta, i.municipio_id,
+             m.nombre AS municipio_nombre,
              i.fecha_inicio, i.created_at
       FROM incidentes i
       LEFT JOIN municipios m ON m.id = i.municipio_id
       WHERE i.created_at >= ${desde}
       ORDER BY i.created_at DESC
+      LIMIT 200
     `;
 
     const payload = {
