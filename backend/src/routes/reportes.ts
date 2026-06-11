@@ -24,7 +24,7 @@ export async function reportesRoutes(app: FastifyInstance): Promise<void> {
         limit?: string;
       };
 
-      const limitNum = limit ? parseInt(limit, 10) : 50;
+      const limitNum = Math.min(limit ? parseInt(limit, 10) : 50, 500);
 
       const rows = await db`
         SELECT * FROM reportes_ciudadanos
@@ -56,8 +56,13 @@ export async function reportesRoutes(app: FastifyInstance): Promise<void> {
           keyGenerator: (request) => {
             const token = request.headers.authorization;
             if (token?.startsWith('Bearer ')) {
-              // Usar el token completo como clave — suficientemente único por sesión
-              return `auth:${token.slice(7, 47)}`; // primeros 40 chars del JWT
+              try {
+                // Decodificar payload (sin verificar firma — solo para clave de rate limit)
+                const b64 = token.slice(7).split('.')[1] ?? '';
+                const payload = JSON.parse(Buffer.from(b64, 'base64url').toString()) as { sub?: string };
+                if (payload.sub) return `auth:${payload.sub}`;
+              } catch { /* fallback */ }
+              return `auth:${token.slice(7, 47)}`;
             }
             const ip =
               request.headers['x-forwarded-for']?.toString().split(',')[0]?.trim() ??

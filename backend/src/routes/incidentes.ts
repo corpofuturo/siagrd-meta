@@ -14,8 +14,10 @@ export async function incidentesRoutes(app: FastifyInstance): Promise<void> {
     '/incidentes',
     { preHandler: authMiddleware },
     async (request, reply) => {
-      const { estado, tipo } = request.query as { estado?: string; tipo?: string };
+      const { estado, tipo, limit } = request.query as { estado?: string; tipo?: string; limit?: string };
       const user = request.user!;
+
+      const limitNum = Math.min(limit ? parseInt(limit, 10) : 200, 500);
 
       const rows = await db`
         SELECT * FROM incidentes
@@ -26,6 +28,7 @@ export async function incidentesRoutes(app: FastifyInstance): Promise<void> {
           ${estado ? db`AND estado = ${estado}` : db``}
           ${tipo ? db`AND tipo_amenaza = ${tipo}` : db``}
         ORDER BY created_at DESC
+        LIMIT ${limitNum}
       `;
 
       return reply.send({ data: rows, total: rows.length });

@@ -165,8 +165,10 @@ async function bootstrap(): Promise<void> {
   await app.listen({ port: PORT, host: '0.0.0.0' });
   logger.info({ port: PORT, env: process.env.NODE_ENV ?? 'development' }, 'SIAGRD API iniciada');
 
-  // Seed usuarios demo si no existen (no bloquea el startup)
-  seedDemoUsers().catch((err) => logger.warn({ err }, 'seedDemoUsers falló — continuando sin seed'));
+  // Seed usuarios demo solo si la variable está habilitada (nunca en producción sin SEED_DEMO_USERS=true)
+  if (process.env.SEED_DEMO_USERS === 'true') {
+    seedDemoUsers().catch((err) => logger.warn({ err }, 'seedDemoUsers falló — continuando sin seed'));
+  }
 
   // Worker de cola durable de notificaciones — ejecuta cada 30 segundos
   setInterval(() => {

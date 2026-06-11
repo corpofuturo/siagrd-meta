@@ -1,5 +1,7 @@
+import crypto from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
+import bcrypt from 'bcryptjs';
 import { db } from '../lib/db.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { ForbiddenError, NotFoundError, ValidationError } from '../utils/errors.js';
@@ -88,17 +90,24 @@ export async function usuariosRoutes(app: FastifyInstance): Promise<void> {
     let omitidos = 0;
     const errores: string[] = [];
 
+    const credenciales: Array<{ email: string; password_temporal: string }> = [];
+
     await db.begin(async (sql) => {
       for (const u of usuarios) {
         try {
+          // Generar contraseña temporal segura de 12 caracteres
+          const password_temporal = crypto.randomBytes(9).toString('base64url').slice(0, 12);
+          const password_hash = await bcrypt.hash(password_temporal, 10);
+
           const [result] = await sql`
-            INSERT INTO profiles (email, nombre, rol, municipio_id)
-            VALUES (${u.email}, ${u.nombre}, ${u.rol}, ${u.municipio_id ?? null})
+            INSERT INTO profiles (email, nombre, rol, municipio_id, password_hash, activo)
+            VALUES (${u.email}, ${u.nombre}, ${u.rol}, ${u.municipio_id ?? null}, ${password_hash}, true)
             ON CONFLICT (email) DO NOTHING
             RETURNING id
           `;
           if (result) {
             insertados++;
+            credenciales.push({ email: u.email, password_temporal });
           } else {
             omitidos++;
           }
@@ -108,6 +117,7 @@ export async function usuariosRoutes(app: FastifyInstance): Promise<void> {
       }
     });
 
-    return reply.send({ insertados, omitidos, errores });
+    // Retornar credenciales temporales UNA SOLA VEZ — no se vuelven a mostrar
+    return reply.send({ insertados, omitidos, errores, credenciales });
   });
 }

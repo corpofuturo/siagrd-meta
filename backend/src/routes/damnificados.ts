@@ -24,7 +24,7 @@ export async function damnificadosRoutes(app: FastifyInstance): Promise<void> {
         limit?: string;
       };
 
-      const limitNum = limit ? parseInt(limit, 10) : 100;
+      const limitNum = Math.min(limit ? parseInt(limit, 10) : 100, 500);
 
       // CMGRD y SOCORRO solo ven su municipio
       const municipioFiltro =

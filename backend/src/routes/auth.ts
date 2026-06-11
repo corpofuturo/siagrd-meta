@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -131,6 +132,14 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
 
       if (payload.type !== 'refresh') throw new UnauthorizedError('Token no es de tipo refresh');
 
+      // Verificar que no esté en lista negra
+      const tokenHash = crypto.createHash('sha256').update(refresh_token).digest('hex');
+      const [revoked] = await db`SELECT 1 FROM revoked_refresh_tokens WHERE token_hash = ${tokenHash} LIMIT 1`;
+      if (revoked) throw new UnauthorizedError('refresh_token revocado');
+
+      // Limpiar tokens expirados (mantenimiento liviano)
+      db`DELETE FROM revoked_refresh_tokens WHERE expires_at < NOW()`.catch(() => {});
+
       const [user] = await db`SELECT id, email FROM profiles WHERE id = ${payload.sub} AND activo = true`;
       if (!user) throw new UnauthorizedError('Usuario no encontrado');
 
@@ -170,9 +179,29 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // POST /auth/logout
-  app.post('/auth/logout', { preHandler: authMiddleware }, async (_request, reply) => {
-    return reply.send({ message: 'Sesión cerrada' });
-  });
+  app.post<{ Body: { refresh_token?: string } }>(
+    '/auth/logout',
+    { preHandler: authMiddleware },
+    async (request, reply) => {
+      const { refresh_token } = request.body ?? {};
+      if (refresh_token) {
+        try {
+          // Revocar el refresh token — calcular fecha de expiración del JWT
+          const decoded = jwt.decode(refresh_token) as { exp?: number } | null;
+          const expiresAt = decoded?.exp
+            ? new Date(decoded.exp * 1000).toISOString()
+            : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+          const tokenHash = crypto.createHash('sha256').update(refresh_token).digest('hex');
+          await db`
+            INSERT INTO revoked_refresh_tokens (token_hash, expires_at)
+            VALUES (${tokenHash}, ${expiresAt})
+            ON CONFLICT DO NOTHING
+          `;
+        } catch { /* no bloquear logout si falla el registro */ }
+      }
+      return reply.send({ message: 'Sesión cerrada' });
+    },
+  );
 
   // GET /auth/me
   app.get('/auth/me', { preHandler: authMiddleware }, async (request, reply) => {

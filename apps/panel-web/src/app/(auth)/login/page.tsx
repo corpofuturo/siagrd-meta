@@ -3,12 +3,6 @@
 export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
-import { apiFetch } from '@/lib/api';
-
-interface LoginResponse {
-  access_token: string;
-  refresh_token: string;
-}
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -22,15 +16,17 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const data = await apiFetch<LoginResponse>('/auth/login', {
+      // Llamar a la API route interna — setea cookies HttpOnly server-side
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
-      // Guardar tokens en cookies
-      const maxAge = 60 * 60 * 24 * 7; // 7 días
-      document.cookie = `siagrd_token=${data.access_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
-      document.cookie = `siagrd_refresh=${data.refresh_token}; path=/; max-age=${maxAge}; SameSite=Lax`;
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: 'Error desconocido' }));
+        throw new Error((err as { message?: string }).message ?? `Error ${res.status}`);
+      }
 
       window.location.href = '/';
     } catch (err) {
