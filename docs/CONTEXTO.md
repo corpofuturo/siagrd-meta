@@ -139,4 +139,3 @@ pnpm dev
 - FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL — FCM push
 - RAILWAY_TOKEN, VERCEL_TOKEN — deploy
 - SENTRY_DSN — monitoreo de errores
-- TWILIO_* — SMS fallback (pay-per-use)

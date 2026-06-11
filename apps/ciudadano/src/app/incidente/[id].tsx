@@ -11,7 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import LeafletMap from '../../components/LeafletMap';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { API_BASE } from '../../constants';
@@ -284,25 +284,22 @@ export default function IncidenteDetalleScreen() {
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Ubicación</Text>
               <View style={styles.miniMapContainer}>
-                <MapView
+                <LeafletMap
+                  lat={lat}
+                  lon={lon}
+                  zoom={13}
+                  eventos={[{
+                    id: incidente.id,
+                    lat,
+                    lon,
+                    titulo: incidente.titulo,
+                    estado: incidente.estado,
+                    nivel: incidente.nivel_alerta,
+                  }]}
                   style={styles.miniMap}
-                  initialRegion={{
-                    latitude: lat,
-                    longitude: lon,
-                    latitudeDelta: 0.05,
-                    longitudeDelta: 0.05,
-                  }}
                   scrollEnabled={false}
                   zoomEnabled={false}
-                  rotateEnabled={false}
-                  pitchEnabled={false}
-                >
-                  <Marker
-                    coordinate={{ latitude: lat, longitude: lon }}
-                    title={incidente.titulo}
-                    pinColor={NIVEL_COLORS[incidente.nivel_alerta] ?? '#F97316'}
-                  />
-                </MapView>
+                />
               </View>
             </View>
           );

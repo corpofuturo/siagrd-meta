@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 interface TopBarProps {
   nivelAlerta?: 'VERDE' | 'AMARILLO' | 'NARANJA' | 'ROJO' | null;
@@ -55,6 +57,7 @@ function useOnlineStatus() {
 export default function TopBar({ nivelAlerta }: TopBarProps) {
   const time = useClock();
   const online = useOnlineStatus();
+  const pathname = usePathname();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-12 bg-[#111827] border-b border-[#2D3748] flex items-center px-4 gap-4">
@@ -82,6 +85,30 @@ export default function TopBar({ nivelAlerta }: TopBarProps) {
           </span>
         )}
       </div>
+
+      {/* Navegación rápida */}
+      <nav className="flex items-center gap-1 flex-wrap">
+        {[
+          { href: '/chat',          label: 'Comunicaciones' },
+          { href: '/organismos',    label: 'Organismos' },
+          { href: '/comites',       label: 'Comités' },
+          { href: '/jal',           label: 'JAC' },
+          { href: '/grupos',        label: 'Grupos' },
+          { href: '/configuracion', label: 'Config' },
+        ].map(({ href, label }) => (
+          <Link
+            key={href}
+            href={href}
+            className={`px-3 py-1 text-xs font-display uppercase tracking-wider rounded transition-colors ${
+              pathname?.startsWith(href)
+                ? 'bg-[#1E2535] text-[#F0F4FF]'
+                : 'text-[#8B9CC8] hover:text-[#F0F4FF] hover:bg-[#1E2535]/60'
+            }`}
+          >
+            {label}
+          </Link>
+        ))}
+      </nav>
 
       <div className="flex-1" />
 

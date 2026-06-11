@@ -1,0 +1,11 @@
+import postgres from 'postgres';
+const sql = postgres('postgresql://siagrd:siagrd2026@viaduct.proxy.rlwy.net:56926/siagrd', { ssl: 'require', max: 1 });
+const depts = await sql.unsafe("SELECT COUNT(*) n FROM departamentos");
+const munis = await sql.unsafe("SELECT COUNT(*) n FROM municipios WHERE latitud IS NOT NULL");
+const orgs = await sql.unsafe("SELECT COUNT(*) n FROM organismos");
+const events = await sql.unsafe("SELECT estado, COUNT(*) n FROM incidentes GROUP BY estado ORDER BY estado");
+console.log('Departamentos:', depts[0].n);
+console.log('Municipios con coords:', munis[0].n);
+console.log('Organismos:', orgs[0].n);
+console.log('Eventos por estado:', events.map(e=>`${e.estado}:${e.n}`).join(', '));
+await sql.end();

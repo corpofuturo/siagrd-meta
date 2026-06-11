@@ -3,7 +3,7 @@
 
 > Tiempo estimado total: 2–3 horas la primera vez.  
 > Costo: $0/mes hasta ~10.000 usuarios.  
-> Todo lo que se hace aquí es gratuito excepto Twilio (pay-per-use, solo si se activa SMS).
+> Todo lo que se hace aquí es gratuito.
 
 ---
 
@@ -15,10 +15,9 @@
 4. [Vercel / Netlify — Hosting del panel web](#4-panel-web)
 5. [Sentry — Monitoreo de errores](#5-sentry)
 6. [UptimeRobot — Alertas de disponibilidad](#6-uptimerobot)
-7. [Twilio — SMS de emergencia (opcional)](#7-twilio)
-8. [GitHub Actions — Secrets para CI/CD](#8-github-secrets)
-9. [Conectar todo: llenar el .env](#9-env-final)
-10. [Verificar que funciona](#10-verificacion)
+7. [GitHub Actions — Secrets para CI/CD](#7-github-secrets)
+8. [Conectar todo: llenar el .env](#8-env-final)
+9. [Verificar que funciona](#9-verificacion)
 
 ---
 
@@ -322,35 +321,12 @@ SENTRY_DSN=tu-sentry-dsn
 
 ---
 
-## 7. Twilio (opcional)
-
-> Solo se activa si se quiere SMS de emergencia como respaldo cuando FCM falla.
-> Se paga por mensaje: aproximadamente $0.0075 USD por SMS.
-
-### 7.1 Crear cuenta
-
-1. Ir a **[twilio.com](https://twilio.com)**
-2. Registrarse → verificar el número de celular colombiano
-3. Twilio da $15 USD de crédito inicial gratuito
-
-### 7.2 Obtener credenciales
-
-1. En el **Dashboard** de Twilio, copiar:
-   - **Account SID** → `TWILIO_ACCOUNT_SID`
-   - **Auth Token** → `TWILIO_AUTH_TOKEN`
-2. Ir a **Phone Numbers** → **Buy a number**
-3. Buscar números de Colombia (+57) — si no hay disponibles, usar un número de EE.UU.
-4. El número comprado → `TWILIO_FROM_NUMBER`
-5. Agregar estas tres variables en Railway
-
----
-
-## 8. GitHub Secrets
+## 7. GitHub Secrets
 
 > Los secrets en GitHub permiten que el CI/CD (GitHub Actions) haga deploy automático
 > al hacer push a `main`, sin exponer las credenciales en el código.
 
-### 8.1 Agregar los secrets
+### 7.1 Agregar los secrets
 
 1. Ir al repositorio en GitHub
 2. **Settings** → **Secrets and variables** → **Actions**
@@ -364,7 +340,7 @@ SENTRY_DSN=tu-sentry-dsn
 | `SUPABASE_URL` | La URL del proyecto Supabase |
 | `SUPABASE_SERVICE_ROLE_KEY` | La service role key de Supabase |
 
-### 8.2 Verificar que CI/CD funciona
+### 7.2 Verificar que CI/CD funciona
 
 1. Hacer cualquier cambio pequeño en el repo (ej: editar el README)
 2. Hacer commit y push a `main`
@@ -374,7 +350,7 @@ SENTRY_DSN=tu-sentry-dsn
 
 ---
 
-## 9. Llenar el .env local
+## 8. Llenar el .env local
 
 Una vez que tengas todas las credenciales, crear el archivo `.env` local
 (nunca en git — ya está en `.gitignore`):
@@ -422,11 +398,11 @@ LOG_LEVEL=info
 
 ---
 
-## 10. Verificación final
+## 9. Verificación final
 
 Una vez configurado todo, ejecutar estos pasos en orden:
 
-### 10.1 Verificar base de datos local
+### 9.1 Verificar base de datos local
 
 ```bash
 cd D:/Jota/Desa/siagrd
@@ -437,7 +413,7 @@ pnpm db:seed                  # cargar municipios y organismos
 
 Debe terminar sin errores.
 
-### 10.2 Verificar backend local
+### 9.2 Verificar backend local
 
 ```bash
 pnpm dev
@@ -450,7 +426,7 @@ Debe mostrar:
 { "status": "ok", "services": { "database": { "status": "ok" } } }
 ```
 
-### 10.3 Verificar conexión con Supabase real
+### 9.3 Verificar conexión con Supabase real
 
 Cambiar en `.env` local:
 ```
@@ -460,7 +436,7 @@ SUPABASE_URL=https://tu-proyecto-real.supabase.co
 
 Volver a ejecutar `pnpm dev` y verificar el `/health`.
 
-### 10.4 Verificar panel web local
+### 9.4 Verificar panel web local
 
 ```bash
 pnpm --filter panel-web dev
@@ -468,7 +444,7 @@ pnpm --filter panel-web dev
 
 Abrir `http://localhost:3001` — debe cargar el login.
 
-### 10.5 Checklist final antes de ir a producción
+### 9.5 Checklist final antes de ir a producción
 
 ```
 □ /api/v1/health responde "ok" en Railway

@@ -27,6 +27,10 @@ import { chatRoutes } from './routes/chat.js';
 import { estadisticasRoutes } from './routes/estadisticas.js';
 import { informesRoutes } from './routes/informes.js';
 import { organismosRoutes } from './routes/organismos.js';
+import { configuracionRoutes } from './routes/configuracion.js';
+import { comitesRoutes } from './routes/comites.js';
+import { jalRoutes } from './routes/jal.js';
+import { gruposRoutes } from './routes/grupos.js';
 
 // Validación temprana de variables de entorno obligatorias
 const REQUIRED_ENV = ['JWT_SECRET', 'DATABASE_URL'] as const;
@@ -149,6 +153,10 @@ async function bootstrap(): Promise<void> {
   await app.register(estadisticasRoutes, { prefix: '/api/v1' });
   await app.register(informesRoutes, { prefix: '/api/v1' });
   await app.register(organismosRoutes, { prefix: '/api/v1' });
+  await app.register(configuracionRoutes, { prefix: '/api/v1' });
+  await app.register(comitesRoutes, { prefix: '/api/v1' });
+  await app.register(jalRoutes, { prefix: '/api/v1' });
+  await app.register(gruposRoutes, { prefix: '/api/v1' });
 
   // Inicializar FCM (modo graceful si no configurado)
   initFCM();

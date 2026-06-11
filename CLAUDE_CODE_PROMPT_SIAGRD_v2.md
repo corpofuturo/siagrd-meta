@@ -181,8 +181,7 @@ STORAGE ARCHIVOS:  Supabase Storage — 1GB gratis, luego USD 0.021/GB
 PUSH NOTIFICATIONS: Firebase Cloud Messaging — GRATIS ilimitado ✓
                     No usar OneSignal (límite en plan gratuito)
 
-SMS FALLBACK:      Twilio — USD 0.0075/SMS (pagar solo si se usa)
-                   Alternativa gratuita para Colombia: usar WhatsApp Business API
+SMS FALLBACK:      WhatsApp Business API
                    (Meta for Developers — gratuito hasta 1000 conversaciones/mes)
 
 CACHÉ/REDIS:       Upstash — Plan gratuito 10.000 comandos/día
@@ -263,7 +262,7 @@ Mapas:            MapLibre GL + OpenStreetMap (sin costo)
 Base de datos:    PostgreSQL + PostGIS via Supabase (gratis)
 Offline móvil:    WatermelonDB (SQLite) + cola de sync
 Push:             Firebase Cloud Messaging (gratis)
-SMS fallback:     Twilio (pay-per-use) o WhatsApp Business API
+SMS fallback:     WhatsApp Business API
 Auth:             Supabase Auth — roles: ADMIN|CDGRD|CMGRD|SOCORRO|CIUDADANO
 Storage:          Supabase Storage (fotos comprimidas < 300KB)
 Caché:            Upstash Redis (plan gratuito)
@@ -650,7 +649,7 @@ backend/
       sync.service.ts     # Procesar cola sync_queue
       geo.service.ts      # ST_DWithin, ST_Contains, etc.
       storage.service.ts  # Upload a Supabase Storage con compresión
-      notifications.service.ts # FCM batch + SMS Twilio
+      notifications.service.ts # FCM batch + WhatsApp fallback
     types/
       domain.ts           # Tipos del dominio (Incidente, Alerta, Profile, etc.)
       api.ts              # Request/Response types
@@ -1297,7 +1296,7 @@ src/
 //   - Niveles VERDE y AMARILLO: un click en "EMITIR ALERTA"
 //   - Nivel NARANJA: "Confirmar" en modal con resumen
 //   - Nivel ROJO: dos confirmaciones separadas + campo de texto "Motivo" obligatorio
-// Post-emisión: contador en tiempo real de push enviados + SMS enviados (SSE)
+// Post-emisión: contador en tiempo real de push enviados (SSE)
 ```
 
 ## Criterios de aceptación — Agente 4
@@ -1565,8 +1564,7 @@ interface HealthResponse {
 → Tiempo estimado: 2 horas
 
 ## Escenario 3: FCM falla (push no llega)
-→ Automático: Twilio SMS como fallback (configurado desde Agente 1)
-→ Manual: WhatsApp Business API como segunda alternativa
+→ Automático: WhatsApp Business API como fallback (configurado desde Agente 1)
 → Último recurso: protocolo de radio (documento en /docs/protocolos/radio.md)
 
 ## Escenario 4: Sistema completamente caído
@@ -1651,10 +1649,6 @@ RAILWAY_TOKEN=             # railway.com → Settings → Tokens
 VERCEL_TOKEN=              # vercel.com → Settings → Tokens
 SENTRY_DSN=                # sentry.io → nuevo proyecto → DSN (plan gratuito)
 
-# Pay-per-use (solo si se activa):
-TWILIO_ACCOUNT_SID=        # twilio.com (USD 15 crédito inicial gratis)
-TWILIO_AUTH_TOKEN=
-TWILIO_FROM_NUMBER=
 ```
 
 ## Señales para detener un agente (además de los STOP)

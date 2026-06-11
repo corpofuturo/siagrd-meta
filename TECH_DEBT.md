@@ -28,4 +28,15 @@ Estas 4 integraciones requieren gestion externa.
 **Estado**: Canal WHATSAPP definido en BD, no implementado
 **Requiere**: Cuenta Meta Business verificada + aprobacion plantillas emergencia
 **Contacto**: business.whatsapp.com
-**Impacto**: Notificaciones de alerta solo por Push FCM y SMS Twilio
+**Impacto**: Notificaciones de alerta solo por Push FCM
+
+## DT-005 — Generacion de PDF de Informe de Cierre
+**Archivo**: backend/src/routes/informes.ts — POST /incidentes/:id/informe/firmar
+**Estado**: No implementado — el endpoint firma con SHA-256 pero no genera PDF
+**Requiere**: Libreria pesada (puppeteer, pdfkit, jsPDF server-side) o servicio externo
+**Opciones evaluadas**:
+  - puppeteer: +10 MB imagen Docker, requiere Chromium en Railway
+  - @react-pdf/renderer: viable pero requiere SSR setup
+  - Servicio externo (HTML→PDF API): costo operativo
+**Impacto**: El informe firmado existe en BD con hash de integridad; no hay PDF descargable
+**Activar cuando**: Se defina presupuesto o se elija libreria en sprint de cierre v2

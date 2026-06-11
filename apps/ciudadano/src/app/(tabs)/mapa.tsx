@@ -1,29 +1,13 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react';
-import {
-  View,
-  Text,
-  ActivityIndicator,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
 import * as Location from 'expo-location';
 import * as SecureStore from 'expo-secure-store';
 import { API_BASE } from '../../constants';
+import LeafletMap, { type MapEvento } from '../../components/LeafletMap';
 
-const DEFAULT_REGION = {
-  latitude: 3.5,
-  longitude: -73.0,
-  latitudeDelta: 4,
-  longitudeDelta: 4,
-};
-
-const PIN_COLOR: Record<string, string> = {
-  ROJO: '#EF4444',
-  NARANJA: '#F97316',
-  AMARILLO: '#EAB308',
-  VERDE: '#22C55E',
-};
+const DEFAULT_LAT = 3.5;
+const DEFAULT_LON = -73.0;
+const DEFAULT_ZOOM = 7;
 
 const ESTADOS_ACTIVOS = ['EN_CURSO', 'CONFIRMADO', 'PENDIENTE'];
 const ESTADOS_CERRADOS = ['CERRADO', 'CONTROLADO', 'FALSO_POSITIVO', 'CANCELADO'];
@@ -37,28 +21,12 @@ const CAPAS: { key: Capa; label: string }[] = [
 ];
 
 export default function MapaRiesgosScreen() {
-  const mapRef = useRef<MapView>(null);
   const [loading, setLoading] = useState(true);
-  const [mapMounted, setMapMounted] = useState(false);
-  const [region, setRegion] = useState(DEFAULT_REGION);
+  const [userLat, setUserLat] = useState(DEFAULT_LAT);
+  const [userLon, setUserLon] = useState(DEFAULT_LON);
   const [eventos, setEventos] = useState<any[]>([]);
   const [capa, setCapa] = useState<Capa>('TODOS');
   const [error, setError] = useState<string | null>(null);
-
-  const getLocationSafe = useCallback(async (): Promise<Location.LocationObject | null> => {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') return null;
-      // Timeout 5s — no bloquea si el GPS tarda
-      const result = await Promise.race<Location.LocationObject | null>([
-        Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }),
-        new Promise<null>((res) => setTimeout(() => res(null), 5000)),
-      ]);
-      return result;
-    } catch {
-      return null;
-    }
-  }, []);
 
   const fetchEventos = useCallback(async () => {
     try {
@@ -66,16 +34,14 @@ export default function MapaRiesgosScreen() {
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
       if (token) headers['Authorization'] = `Bearer ${token}`;
 
-      // Intentar endpoint optimizado con lat/lon ya incluidos
-      const mapaRes = await fetch(`${API_BASE}/incidentes/mapa`, { headers });
-      if (mapaRes.ok) {
-        const data = await mapaRes.json();
+      const res = await fetch(`${API_BASE}/incidentes/mapa`, { headers });
+      if (res.ok) {
+        const data = await res.json();
         const list: any[] = Array.isArray(data) ? data : data.data ?? [];
         setEventos(list.filter((e) => e.latitud != null && e.longitud != null));
         return;
       }
 
-      // Fallback: cruzar incidentes con municipios
       const [inciRes, muniRes] = await Promise.all([
         fetch(`${API_BASE}/incidentes?limit=200`, { headers }),
         fetch(`${API_BASE}/municipios?departamento=50`, { headers }),
@@ -114,39 +80,53 @@ export default function MapaRiesgosScreen() {
     (async () => {
       setLoading(true);
       await Promise.all([
-        getLocationSafe().then((loc) => {
-          if (loc) {
-            setRegion({
-              latitude: loc.coords.latitude,
-              longitude: loc.coords.longitude,
-              latitudeDelta: 1.5,
-              longitudeDelta: 1.5,
-            });
-          }
-        }),
+        (async () => {
+          try {
+            const { status } = await Location.requestForegroundPermissionsAsync();
+            if (status === 'granted') {
+              const loc = await Promise.race<Location.LocationObject | null>([
+                Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }),
+                new Promise<null>((res) => setTimeout(() => res(null), 5000)),
+              ]);
+              if (loc) {
+                setUserLat(loc.coords.latitude);
+                setUserLon(loc.coords.longitude);
+              }
+            }
+          } catch { /* ignore */ }
+        })(),
         fetchEventos(),
       ]);
       setLoading(false);
-      // Defer MapView mount to avoid freezing UI thread on Android
-      setTimeout(() => setMapMounted(true), 350);
     })();
   }, []);
 
-  const eventosFiltrados = eventos.filter((ev) => {
-    const estado: string = ev.estado ?? '';
-    if (capa === 'ACTIVOS') return ESTADOS_ACTIVOS.includes(estado);
-    if (capa === 'CERRADOS') return ESTADOS_CERRADOS.includes(estado);
-    if (capa === 'MES') {
-      const ts = ev.created_at ?? ev.fecha_inicio;
-      if (!ts) return false;
-      const f = new Date(ts);
-      const now = new Date();
-      return f.getFullYear() === now.getFullYear() && f.getMonth() === now.getMonth();
-    }
-    return true;
-  });
+  const eventosFiltrados: MapEvento[] = eventos
+    .filter((ev) => {
+      const estado: string = ev.estado ?? '';
+      if (capa === 'ACTIVOS') return ESTADOS_ACTIVOS.includes(estado);
+      if (capa === 'CERRADOS') return ESTADOS_CERRADOS.includes(estado);
+      if (capa === 'MES') {
+        const ts = ev.created_at ?? ev.fecha_inicio;
+        if (!ts) return false;
+        const f = new Date(ts);
+        const now = new Date();
+        return f.getFullYear() === now.getFullYear() && f.getMonth() === now.getMonth();
+      }
+      return true;
+    })
+    .map((ev) => ({
+      id: ev.id ?? String(Math.random()),
+      lat: parseFloat(ev.latitud),
+      lon: parseFloat(ev.longitud),
+      titulo: ev.titulo ?? ev.tipo_amenaza ?? 'Evento',
+      estado: ev.estado ?? '',
+      nivel: (ev.nivel_alerta ?? 'AMARILLO').toUpperCase(),
+      municipio: ev.municipio_nombre ?? '',
+    }))
+    .filter((e) => !isNaN(e.lat) && !isNaN(e.lon));
 
-  if (loading || !mapMounted) {
+  if (loading) {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" color="#F97316" />
@@ -171,29 +151,13 @@ export default function MapaRiesgosScreen() {
         ))}
       </View>
 
-      <MapView
-        ref={mapRef}
+      <LeafletMap
+        lat={userLat}
+        lon={userLon}
+        zoom={DEFAULT_ZOOM}
+        eventos={eventosFiltrados}
         style={styles.mapa}
-        initialRegion={region}
-        showsUserLocation
-        showsMyLocationButton
-      >
-        {eventosFiltrados.map((ev, idx) => {
-          const lat = parseFloat(ev.latitud);
-          const lon = parseFloat(ev.longitud);
-          if (isNaN(lat) || isNaN(lon)) return null;
-          const nivel = (ev.nivel_alerta ?? 'AMARILLO').toUpperCase();
-          return (
-            <Marker
-              key={ev.id ?? idx}
-              coordinate={{ latitude: lat, longitude: lon }}
-              title={ev.titulo ?? ev.tipo_amenaza ?? 'Evento'}
-              description={`${ev.estado} · ${ev.municipio_nombre ?? ''}`}
-              pinColor={PIN_COLOR[nivel] ?? PIN_COLOR.AMARILLO}
-            />
-          );
-        })}
-      </MapView>
+      />
 
       <View style={styles.contador}>
         <Text style={styles.contadorText}>

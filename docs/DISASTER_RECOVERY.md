@@ -53,7 +53,7 @@
 
 ## Escenario 3: FCM falla (notificaciones push no llegan)
 
-**RTO objetivo:** N/A — hay fallback automatico a SMS
+**RTO objetivo:** N/A — hay fallback automatico
 
 **Sintomas:** Alertas emitidas pero ciudadanos no reciben push notifications, logs muestran error FCM.
 
@@ -61,12 +61,9 @@
 
 1. Verificar estado de Firebase en https://status.firebase.google.com.
 2. Si es incidente de Firebase: el sistema debe continuar operando — las alertas se guardan en BD.
-3. Activar fallback a SMS: habilitar la variable de entorno `SMS_FALLBACK_ENABLED=true` en Railway.
-4. Configurar proveedor SMS (Twilio o equivalente) si no esta activo: ver `SMS_PROVIDER_*` variables.
-5. Reenviar alertas pendientes usando el endpoint `POST /alertas/:id/reenviar` con modo SMS.
-6. Comunicar al equipo operativo que esten atentos a canales alternativos (radio, llamada directa).
-7. Una vez Firebase recuperado: deshabilitar `SMS_FALLBACK_ENABLED` para evitar costos adicionales.
-8. Revisar y limpiar cola de mensajes duplicados si los hubo.
+3. Reenviar alertas pendientes usando el endpoint `POST /alertas/:id/reenviar`.
+4. Comunicar al equipo operativo que esten atentos a canales alternativos (radio, llamada directa).
+5. Una vez Firebase recuperado: revisar y limpiar cola de mensajes duplicados si los hubo.
 
 ---
 
