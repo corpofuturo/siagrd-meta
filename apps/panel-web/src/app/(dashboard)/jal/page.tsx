@@ -34,44 +34,40 @@ function authHeaders(): Record<string, string> {
   return h;
 }
 
-function Toast({ msg, onClose }: { msg: string; onClose: () => void }) {
+function Toast({ msg, onClose }: { msg: string; onClose: () => void }): React.ReactElement {
   useEffect(() => { const t = setTimeout(onClose, 3500); return () => clearTimeout(t); }, [onClose]);
   const isErr = msg.startsWith('Error');
   return (
-    <div className={`fixed bottom-6 right-6 z-50 rounded-lg px-4 py-3 text-sm shadow-lg border ${isErr ? 'bg-[#DC2626]/10 border-[#DC2626]/40 text-[#FCA5A5]' : 'bg-[#1E2535] border-[#2D3748] text-[#F0F4FF]'}`}>
-      {msg}
+    <div className={`fixed bottom-6 right-6 z-50 rounded-lg px-4 py-3 text-sm shadow-xl border ${isErr ? 'bg-[#1A0A0A] border-[#DC2626]/40 text-[#FCA5A5]' : 'bg-[#0D1A10] border-[#16A34A]/40 text-[#86EFAC]'}`}>
+      {isErr ? '✕ ' : '✓ '}{msg}
     </div>
   );
 }
 
-function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
+function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }): React.ReactElement {
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60">
-      <div className="bg-[#111827] border border-[#2D3748] rounded-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#2D3748]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+      <div className="bg-[#111827] border border-[#2D3748] rounded-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#2D3748]">
           <h3 className="text-[#F0F4FF] font-bold text-sm uppercase tracking-wider">{title}</h3>
-          <button onClick={onClose} className="text-[#6B7280] hover:text-[#F0F4FF] text-xl leading-none">×</button>
+          <button onClick={onClose} className="text-[#6B7280] hover:text-[#F0F4FF] text-2xl leading-none w-8 h-8 flex items-center justify-center rounded hover:bg-[#1E2535] transition-colors">×</button>
         </div>
-        <div className="px-5 py-4">{children}</div>
+        <div className="px-6 py-5">{children}</div>
       </div>
     </div>
   );
 }
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
+function Field({ label, children }: { label: string; children: ReactNode }): React.ReactElement {
   return (
-    <div className="flex flex-col gap-1">
-      <label className="text-[#8B9CC8] text-xs uppercase tracking-wider">{label}</label>
+    <div className="flex flex-col gap-1.5">
+      <label className="text-[#8B9CC8] text-xs font-semibold uppercase tracking-wider">{label}</label>
       {children}
     </div>
   );
 }
 
-const inputCls = 'bg-[#0A0E1A] border border-[#2D3748] text-[#F0F4FF] text-sm rounded px-3 py-2 focus:outline-none focus:border-[#3B82F6] w-full';
-const btnPrimary = 'bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold rounded px-4 py-2 transition-colors disabled:opacity-50';
-const btnSecondary = 'bg-[#1E2535] hover:bg-[#2D3748] text-[#F0F4FF] text-sm font-semibold rounded px-4 py-2 transition-colors border border-[#2D3748]';
-
-// ─── Formulario compartido ────────────────────────────────────────────────────
+const inputCls = 'bg-[#0A0E1A] border border-[#2D3748] text-[#F0F4FF] text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/20 w-full transition-colors placeholder:text-[#374151]';
 
 interface JACFormState {
   nombre: string;
@@ -83,13 +79,7 @@ interface JACFormState {
 }
 
 function JACForm({
-  initial,
-  municipios,
-  saving,
-  err,
-  submitLabel,
-  onSubmit,
-  onCancel,
+  initial, municipios, saving, err, submitLabel, onSubmit, onCancel,
 }: {
   initial: JACFormState;
   municipios: Municipio[];
@@ -98,11 +88,11 @@ function JACForm({
   submitLabel: string;
   onSubmit: (form: JACFormState) => void;
   onCancel: () => void;
-}) {
+}): React.ReactElement {
   const [form, setForm] = useState<JACFormState>(initial);
-  const set = (k: keyof JACFormState, v: string) => setForm(f => ({ ...f, [k]: v }));
+  const set = (k: keyof JACFormState, v: string): void => setForm(f => ({ ...f, [k]: v }));
 
-  function handle(e: React.FormEvent<HTMLFormElement>) {
+  function handle(e: React.FormEvent<HTMLFormElement>): void {
     e.preventDefault();
     onSubmit(form);
   }
@@ -110,55 +100,53 @@ function JACForm({
   return (
     <form onSubmit={handle} className="flex flex-col gap-4">
       <Field label="Nombre *">
-        <input className={inputCls} value={form.nombre} onChange={e => set('nombre', e.target.value)} required />
+        <input className={inputCls} value={form.nombre} onChange={e => set('nombre', e.target.value)} required placeholder="Nombre de la JAC" />
       </Field>
-      <Field label="Barrio / Vereda">
-        <input className={inputCls} value={form.barrio_vereda} onChange={e => set('barrio_vereda', e.target.value)} />
-      </Field>
-      <Field label="Municipio">
-        <select className={inputCls} value={form.municipio_id} onChange={e => set('municipio_id', e.target.value)}>
-          <option value="">Sin asignar</option>
-          {municipios.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
-        </select>
-      </Field>
-      <Field label="Presidente">
-        <input className={inputCls} value={form.presidente} onChange={e => set('presidente', e.target.value)} />
-      </Field>
+      <div className="grid grid-cols-2 gap-4">
+        <Field label="Barrio / Vereda">
+          <input className={inputCls} value={form.barrio_vereda} onChange={e => set('barrio_vereda', e.target.value)} placeholder="Ej: Barrio Centro" />
+        </Field>
+        <Field label="Municipio">
+          <select className={inputCls} value={form.municipio_id} onChange={e => set('municipio_id', e.target.value)}>
+            <option value="">Sin asignar</option>
+            {municipios.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+          </select>
+        </Field>
+        <Field label="Presidente">
+          <input className={inputCls} value={form.presidente} onChange={e => set('presidente', e.target.value)} placeholder="Nombre completo" />
+        </Field>
+        <Field label="Teléfono">
+          <input className={inputCls} value={form.telefono} onChange={e => set('telefono', e.target.value)} placeholder="310 000 0000" />
+        </Field>
+      </div>
       <Field label="Correo">
-        <input className={inputCls} type="email" value={form.correo} onChange={e => set('correo', e.target.value)} />
+        <input className={inputCls} type="email" value={form.correo} onChange={e => set('correo', e.target.value)} placeholder="jac@ejemplo.com" />
       </Field>
-      <Field label="Teléfono">
-        <input className={inputCls} value={form.telefono} onChange={e => set('telefono', e.target.value)} />
-      </Field>
-      {err && <p className="text-[#FCA5A5] text-xs">{err}</p>}
-      <div className="flex gap-3 justify-end pt-2">
-        <button type="button" className={btnSecondary} onClick={onCancel}>Cancelar</button>
-        <button type="submit" className={btnPrimary} disabled={saving}>{saving ? 'Guardando...' : submitLabel}</button>
+      {err && <p className="text-[#FCA5A5] text-xs bg-[#DC2626]/10 border border-[#DC2626]/20 rounded px-3 py-2">⚠️ {err}</p>}
+      <div className="flex gap-3 justify-end pt-2 border-t border-[#1E2535]">
+        <button type="button" onClick={onCancel}
+          className="bg-[#1E2535] hover:bg-[#2D3748] text-[#F0F4FF] text-sm font-semibold rounded-lg px-4 py-2 transition-colors border border-[#2D3748]">
+          Cancelar
+        </button>
+        <button type="submit" disabled={saving}
+          className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold rounded-lg px-5 py-2 transition-colors disabled:opacity-50">
+          {saving ? 'Guardando...' : submitLabel}
+        </button>
       </div>
     </form>
   );
 }
 
-// ─── Modals ───────────────────────────────────────────────────────────────────
-
-function ModalCrearJAC({
-  municipios,
-  onClose,
-  onCreated,
-}: {
+function ModalCrearJAC({ municipios, onClose, onCreated }: {
   municipios: Municipio[];
   onClose: () => void;
   onCreated: (j: JAC) => void;
-}) {
+}): React.ReactElement {
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState('');
+  const initial: JACFormState = { nombre: '', barrio_vereda: '', municipio_id: '', presidente: '', correo: '', telefono: '' };
 
-  const initial: JACFormState = {
-    nombre: '', barrio_vereda: '', municipio_id: '',
-    presidente: '', correo: '', telefono: '',
-  };
-
-  async function handleSubmit(form: JACFormState) {
+  async function handleSubmit(form: JACFormState): Promise<void> {
     if (!form.nombre.trim()) { setErr('El nombre es requerido'); return; }
     setSaving(true); setErr('');
     try {
@@ -174,34 +162,20 @@ function ModalCrearJAC({
   }
 
   return (
-    <Modal title="Nueva JAC" onClose={onClose}>
-      <JACForm
-        initial={initial}
-        municipios={municipios}
-        saving={saving}
-        err={err}
-        submitLabel="Crear JAC"
-        onSubmit={handleSubmit}
-        onCancel={onClose}
-      />
+    <Modal title="🏘️ Nueva JAC" onClose={onClose}>
+      <JACForm initial={initial} municipios={municipios} saving={saving} err={err} submitLabel="Crear JAC" onSubmit={handleSubmit} onCancel={onClose} />
     </Modal>
   );
 }
 
-function ModalEditarJAC({
-  jac,
-  municipios,
-  onClose,
-  onUpdated,
-}: {
+function ModalEditarJAC({ jac, municipios, onClose, onUpdated }: {
   jac: JAC;
   municipios: Municipio[];
   onClose: () => void;
   onUpdated: (j: JAC) => void;
-}) {
+}): React.ReactElement {
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState('');
-
   const initial: JACFormState = {
     nombre: jac.nombre,
     barrio_vereda: jac.barrio_vereda ?? '',
@@ -211,7 +185,7 @@ function ModalEditarJAC({
     telefono: jac.telefono ?? '',
   };
 
-  async function handleSubmit(form: JACFormState) {
+  async function handleSubmit(form: JACFormState): Promise<void> {
     setSaving(true); setErr('');
     try {
       const r = await fetch(`${API_URL}/api/v1/jac/${jac.id}`, {
@@ -226,36 +200,26 @@ function ModalEditarJAC({
   }
 
   return (
-    <Modal title="Editar JAC" onClose={onClose}>
-      <JACForm
-        initial={initial}
-        municipios={municipios}
-        saving={saving}
-        err={err}
-        submitLabel="Guardar cambios"
-        onSubmit={handleSubmit}
-        onCancel={onClose}
-      />
+    <Modal title="✏️ Editar JAC" onClose={onClose}>
+      <JACForm initial={initial} municipios={municipios} saving={saving} err={err} submitLabel="Guardar cambios" onSubmit={handleSubmit} onCancel={onClose} />
     </Modal>
   );
 }
 
 // ─── Página principal ─────────────────────────────────────────────────────────
 
-export default function JalPage() {
+export default function JalPage(): React.ReactElement {
   const [jacs, setJacs] = useState<JAC[]>([]);
   const [municipios, setMunicipios] = useState<Municipio[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState('');
-
   const [filtroMunicipio, setFiltroMunicipio] = useState('');
   const [filtroActivo, setFiltroActivo] = useState('true');
-
   const [showCrear, setShowCrear] = useState(false);
   const [editando, setEditando] = useState<JAC | null>(null);
 
-  const fetchJACs = useCallback(async () => {
+  const fetchJACs = useCallback(async (): Promise<void> => {
     setLoading(true); setError(null);
     try {
       const params = new URLSearchParams();
@@ -278,7 +242,7 @@ export default function JalPage() {
       .catch(() => {});
   }, [fetchJACs]);
 
-  async function desactivar(id: string) {
+  async function desactivar(id: string): Promise<void> {
     if (!confirm('¿Desactivar esta JAC?')) return;
     try {
       await fetch(`${API_URL}/api/v1/jac/${id}`, {
@@ -289,6 +253,14 @@ export default function JalPage() {
       fetchJACs();
     } catch { setToast('Error al desactivar'); }
   }
+
+  // Stats
+  const totalActivas = jacs.filter(j => j.activo).length;
+  const municipiosUnicos = new Set(jacs.filter(j => j.activo && j.municipio_id).map(j => j.municipio_id)).size;
+  const conPresidente = jacs.filter(j => j.activo && j.presidente).length;
+  const sinContacto = jacs.filter(j => j.activo && !j.correo && !j.telefono).length;
+
+  const selectCls = 'bg-[#111827] border border-[#2D3748] text-[#F0F4FF] text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#3B82F6] transition-colors';
 
   return (
     <div className="flex-1 overflow-y-auto p-6">
@@ -310,80 +282,130 @@ export default function JalPage() {
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="font-display text-2xl font-bold text-[#F0F4FF] uppercase tracking-wider">
-            Juntas de Acción Comunal (JAC)
+          <h1 className="text-[#F0F4FF] text-2xl font-bold tracking-tight">
+            🏘️ Juntas de Acción Comunal
           </h1>
-          <p className="text-[#8B9CC8] text-sm mt-1">{jacs.length} registro{jacs.length !== 1 ? 's' : ''}</p>
+          <p className="text-[#6B7280] text-sm mt-1">
+            Organizaciones comunitarias de base territorial en el departamento
+          </p>
         </div>
-        <button className={btnPrimary} onClick={() => setShowCrear(true)}>+ Nueva JAC</button>
+        <button
+          onClick={() => setShowCrear(true)}
+          className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold rounded-lg px-4 py-2.5 transition-colors flex items-center gap-2 flex-shrink-0"
+        >
+          + Nueva JAC
+        </button>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {[
+          { icon: '🏘️', label: 'Total activas', value: totalActivas, color: 'bg-[#0D9488]' },
+          { icon: '📍', label: 'Municipios', value: municipiosUnicos, color: 'bg-[#2563EB]' },
+          { icon: '👤', label: 'Con presidente', value: conPresidente, color: 'bg-[#7C3AED]' },
+          { icon: '📵', label: 'Sin contacto', value: sinContacto, color: 'bg-[#DC2626]' },
+        ].map(({ icon, label, value, color }) => (
+          <div key={label} className="bg-[#111827] border border-[#2D3748] rounded-xl p-4 relative overflow-hidden">
+            <div className={`absolute top-0 left-0 right-0 h-0.5 ${color}`} />
+            <p className="text-xl mb-2">{icon}</p>
+            <p className="text-[#F0F4FF] text-2xl font-bold font-mono">{value}</p>
+            <p className="text-[#6B7280] text-xs mt-0.5">{label}</p>
+          </div>
+        ))}
       </div>
 
       {/* Filtros */}
-      <div className="flex gap-3 mb-5 flex-wrap">
-        <select value={filtroMunicipio} onChange={e => setFiltroMunicipio(e.target.value)}
-          className="bg-[#111827] border border-[#2D3748] text-[#F0F4FF] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#3B82F6]">
+      <div className="flex gap-3 mb-5 flex-wrap items-center">
+        <select value={filtroMunicipio} onChange={e => setFiltroMunicipio(e.target.value)} className={selectCls}>
           <option value="">Todos los municipios</option>
           {municipios.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
         </select>
-        <select value={filtroActivo} onChange={e => setFiltroActivo(e.target.value)}
-          className="bg-[#111827] border border-[#2D3748] text-[#F0F4FF] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#3B82F6]">
+        <select value={filtroActivo} onChange={e => setFiltroActivo(e.target.value)} className={selectCls}>
           <option value="true">Activas</option>
           <option value="false">Inactivas</option>
           <option value="">Todas</option>
         </select>
+        {jacs.length > 0 && (
+          <span className="text-[#4B5563] text-xs ml-auto">
+            {jacs.length} registro{jacs.length !== 1 ? 's' : ''}
+          </span>
+        )}
       </div>
 
-      {loading && <p className="text-[#8B9CC8] text-sm font-mono animate-pulse">Cargando juntas...</p>}
-      {error && <p className="text-[#DC2626] text-sm bg-[#DC2626]/10 border border-[#DC2626]/30 rounded px-3 py-2 mb-4">{error}</p>}
+      {loading && (
+        <div className="flex items-center gap-3 text-[#8B9CC8] text-sm py-8">
+          <span className="animate-spin text-lg">⟳</span>
+          Cargando juntas...
+        </div>
+      )}
+      {error && (
+        <div className="flex items-center gap-2 text-[#FCA5A5] text-sm bg-[#DC2626]/10 border border-[#DC2626]/30 rounded-lg px-4 py-3 mb-4">
+          ⚠️ {error}
+        </div>
+      )}
       {!loading && jacs.length === 0 && !error && (
-        <p className="text-[#8B9CC8] text-sm">Sin juntas registradas.</p>
+        <div className="text-center py-16 text-[#6B7280]">
+          <p className="text-4xl mb-3">🏘️</p>
+          <p className="text-sm">Sin juntas registradas</p>
+        </div>
       )}
 
       {!loading && jacs.length > 0 && (
-        <div className="bg-[#111827] border border-[#2D3748] rounded-lg overflow-hidden">
+        <div className="bg-[#111827] border border-[#2D3748] rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#2D3748]">
-                <th className="text-left px-4 py-3 text-xs text-[#8B9CC8] uppercase tracking-wider">Nombre</th>
-                <th className="text-left px-4 py-3 text-xs text-[#8B9CC8] uppercase tracking-wider">Barrio / Vereda</th>
-                <th className="text-left px-4 py-3 text-xs text-[#8B9CC8] uppercase tracking-wider">Municipio</th>
-                <th className="text-left px-4 py-3 text-xs text-[#8B9CC8] uppercase tracking-wider">Presidente</th>
-                <th className="text-left px-4 py-3 text-xs text-[#8B9CC8] uppercase tracking-wider">Contacto</th>
-                <th className="text-left px-4 py-3 text-xs text-[#8B9CC8] uppercase tracking-wider">Estado</th>
-                <th className="px-4 py-3" />
+              <tr className="border-b border-[#1E2535] bg-[#0D1120]">
+                <th className="text-left px-5 py-3 text-xs text-[#4B5563] font-semibold uppercase tracking-wider">Junta</th>
+                <th className="text-left px-4 py-3 text-xs text-[#4B5563] font-semibold uppercase tracking-wider">Municipio</th>
+                <th className="text-left px-4 py-3 text-xs text-[#4B5563] font-semibold uppercase tracking-wider">Presidente</th>
+                <th className="text-left px-4 py-3 text-xs text-[#4B5563] font-semibold uppercase tracking-wider">Contacto</th>
+                <th className="text-left px-4 py-3 text-xs text-[#4B5563] font-semibold uppercase tracking-wider">Estado</th>
+                <th className="px-4 py-3 w-24" />
               </tr>
             </thead>
             <tbody>
               {jacs.map(j => (
-                <tr key={j.id} className="border-b border-[#2D3748] last:border-0 hover:bg-[#1E2535] transition-colors">
-                  <td className="px-4 py-3 text-[#F0F4FF] font-semibold">{j.nombre}</td>
-                  <td className="px-4 py-3 text-[#8B9CC8] text-xs">{j.barrio_vereda ?? '—'}</td>
-                  <td className="px-4 py-3 text-[#8B9CC8] text-xs">{j.municipio_nombre ?? '—'}</td>
-                  <td className="px-4 py-3 text-[#8B9CC8] text-xs">{j.presidente ?? '—'}</td>
-                  <td className="px-4 py-3 text-xs text-[#8B9CC8]">
-                    {j.correo && <p>{j.correo}</p>}
-                    {j.telefono && <p className="font-mono">{j.telefono}</p>}
-                    {!j.correo && !j.telefono && '—'}
+                <tr key={j.id} className="border-b border-[#1E2535] last:border-0 hover:bg-[#0D1120] transition-colors group">
+                  <td className="px-5 py-3.5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-[#0D9488] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                        {j.nombre.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="text-[#F0F4FF] font-semibold text-sm leading-tight">{j.nombre}</p>
+                        {j.barrio_vereda && (
+                          <p className="text-[#4B5563] text-[10px] mt-0.5">📍 {j.barrio_vereda}</p>
+                        )}
+                      </div>
+                    </div>
                   </td>
-                  <td className="px-4 py-3">
-                    <span className={`text-xs font-bold ${j.activo ? 'text-[#16A34A]' : 'text-[#6B7280]'}`}>
+                  <td className="px-4 py-3.5 text-[#8B9CC8] text-xs">{j.municipio_nombre ?? <span className="text-[#374151]">—</span>}</td>
+                  <td className="px-4 py-3.5 text-[#8B9CC8] text-xs">{j.presidente ?? <span className="text-[#374151]">—</span>}</td>
+                  <td className="px-4 py-3.5 text-xs">
+                    {j.correo && <p className="text-[#8B9CC8]">{j.correo}</p>}
+                    {j.telefono && <p className="text-[#8B9CC8] font-mono">{j.telefono}</p>}
+                    {!j.correo && !j.telefono && <span className="text-[#374151]">—</span>}
+                  </td>
+                  <td className="px-4 py-3.5">
+                    <span className={`inline-flex items-center gap-1 text-xs font-semibold ${j.activo ? 'text-[#16A34A]' : 'text-[#4B5563]'}`}>
+                      <span className="text-[8px]">●</span>
                       {j.activo ? 'Activa' : 'Inactiva'}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2 justify-end">
+                  <td className="px-4 py-3.5">
+                    <div className="flex gap-2 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={() => setEditando(j)}
-                        className="text-xs text-[#8B9CC8] hover:text-[#F0F4FF] transition-colors"
+                        className="text-xs text-[#60A5FA] hover:text-[#F0F4FF] bg-[#1E2535] hover:bg-[#2D3748] px-2.5 py-1 rounded-md transition-colors"
                       >
                         Editar
                       </button>
                       {j.activo && (
                         <button
                           onClick={() => desactivar(j.id)}
-                          className="text-xs text-[#DC2626] hover:text-[#F87171] transition-colors"
+                          className="text-xs text-[#DC2626] hover:text-[#F87171] bg-[#DC2626]/10 hover:bg-[#DC2626]/20 px-2.5 py-1 rounded-md transition-colors"
                         >
                           Desactivar
                         </button>
