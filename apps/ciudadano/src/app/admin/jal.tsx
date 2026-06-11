@@ -12,6 +12,7 @@ interface JAL {
   nombre: string;
   barrio_vereda?: string;
   municipio?: string;
+  municipio_nombre?: string;
   municipio_id?: string;
   presidente?: string;
   correo?: string;
@@ -92,7 +93,7 @@ export default function JALScreen() {
         <Text style={styles.itemNombre} numberOfLines={1}>{item.nombre}</Text>
       </View>
       {item.barrio_vereda && <Text style={styles.itemSub}>🏘️ {item.barrio_vereda}</Text>}
-      {(item.municipio || item.municipio_id) && <Text style={styles.itemSub}>📍 {item.municipio ?? item.municipio_id}</Text>}
+      {(item.municipio_nombre || item.municipio || item.municipio_id) && <Text style={styles.itemSub}>📍 {item.municipio_nombre ?? item.municipio ?? item.municipio_id}</Text>}
       {item.presidente && <Text style={styles.itemSub}>Presidente: {item.presidente}</Text>}
       {item.correo && <Text style={styles.itemSub}>✉️ {item.correo}</Text>}
       <TouchableOpacity style={styles.editBtn} onPress={() => openEdit(item)}>
