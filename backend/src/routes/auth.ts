@@ -3,9 +3,10 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { db } from '../lib/db.js';
 import { authMiddleware } from '../middleware/auth.js';
-import { UnauthorizedError, ValidationError } from '../utils/errors.js';
+import { ForbiddenError, UnauthorizedError, ValidationError } from '../utils/errors.js';
 
-const JWT_SECRET = process.env.JWT_SECRET ?? 'dev-secret-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET as string;
+if (!JWT_SECRET) throw new Error('[FATAL] JWT_SECRET env var is required');
 const JWT_EXPIRES_IN = '8h';
 const JWT_REFRESH_EXPIRES_IN = '30d';
 
@@ -143,8 +144,14 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
-  // POST /auth/seed — crea usuarios demo (solo primera vez, idempotente)
-  app.post('/auth/seed', async (_request, reply) => {
+  // POST /auth/seed — crea usuarios demo (solo ambiente de desarrollo, solo ADMIN)
+  app.post('/auth/seed', { preHandler: authMiddleware }, async (request, reply) => {
+    if (process.env.NODE_ENV === 'production') {
+      throw new ForbiddenError('Endpoint deshabilitado en producción');
+    }
+    if ((request.user as any)?.rol !== 'ADMIN') {
+      throw new ForbiddenError('Solo ADMIN puede ejecutar seed');
+    }
     const hash_admin   = '$2a$10$e5cmIFiV3tNqzjoDfqxGruOcbABV7rtMfzlX8N4LO9Cv7ujIyq5Pq';
     const hash_bombero = '$2a$10$../BhUnSXYzDvjA/Vwdt8ORWEqedWvRJ0jKjZTvUYIef1/euB5ZVy';
 
