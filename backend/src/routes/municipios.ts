@@ -1,18 +1,42 @@
 import type { FastifyInstance } from 'fastify';
 import { db } from '../lib/db.js';
 import { NotFoundError } from '../utils/errors.js';
+import { getCached, setCached } from '../middleware/cache.js';
+
+interface MunicipiosQuery {
+  departamento?: string;
+}
 
 export async function municipiosRoutes(app: FastifyInstance): Promise<void> {
-  // GET /municipios — lista todos (público, para selects en formularios)
-  app.get('/municipios', async (_request, reply) => {
-    const rows = await db`
-      SELECT id, nombre, codigo_dane, departamento_id,
-             nivel_riesgo_inundacion, nivel_riesgo_remocion, nivel_riesgo_sismico,
-             poblacion, area_km2
-      FROM municipios
-      ORDER BY nombre ASC
-    `;
-    return reply.send({ data: rows, total: rows.length });
+  // GET /municipios — lista todos o filtra por ?departamento=<codigo_dane> (público)
+  app.get<{ Querystring: MunicipiosQuery }>('/municipios', async (request, reply) => {
+    const { departamento } = request.query;
+
+    const cacheKey = `municipios_${departamento ?? 'all'}`;
+    const cached = getCached(cacheKey);
+    if (cached) return reply.send(cached);
+
+    const rows = departamento
+      ? await db`
+          SELECT m.id, m.nombre, m.codigo_dane, m.departamento_id,
+                 m.nivel_riesgo_inundacion, m.nivel_riesgo_remocion, m.nivel_riesgo_sismico,
+                 m.poblacion, m.area_km2, m.latitud, m.longitud
+          FROM municipios m
+          JOIN departamentos d ON d.id = m.departamento_id
+          WHERE d.codigo_dane = ${departamento}
+          ORDER BY m.nombre ASC
+        `
+      : await db`
+          SELECT id, nombre, codigo_dane, departamento_id,
+                 nivel_riesgo_inundacion, nivel_riesgo_remocion, nivel_riesgo_sismico,
+                 poblacion, area_km2, latitud, longitud
+          FROM municipios
+          ORDER BY nombre ASC
+        `;
+
+    const result = { data: rows, total: rows.length };
+    setCached(cacheKey, result, 60000);
+    return reply.send(result);
   });
 
   // GET /municipios/:id — detalle con incidentes activos
@@ -20,7 +44,7 @@ export async function municipiosRoutes(app: FastifyInstance): Promise<void> {
     const [muni] = await db`
       SELECT id, nombre, codigo_dane, departamento_id,
              nivel_riesgo_inundacion, nivel_riesgo_remocion, nivel_riesgo_sismico,
-             poblacion, area_km2
+             poblacion, area_km2, latitud, longitud
       FROM municipios WHERE id = ${request.params.id}
     `;
     if (!muni) throw new NotFoundError('Municipio');
