@@ -149,7 +149,8 @@ export async function incidentesRoutes(app: FastifyInstance): Promise<void> {
       const user = request.user!;
 
       const [row] = await db`
-        SELECT i.*, m.nombre as municipio_nombre, m.codigo_dane as municipio_codigo
+        SELECT i.*, m.nombre as municipio_nombre, m.codigo_dane as municipio_codigo,
+               m.latitud as municipio_lat, m.longitud as municipio_lon
         FROM incidentes i
         LEFT JOIN municipios m ON m.id = i.municipio_id
         WHERE i.id = ${id}
