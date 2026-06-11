@@ -10,6 +10,16 @@ export type TipoAmenaza =
 export type NivelAlerta = 'VERDE' | 'AMARILLO' | 'NARANJA' | 'ROJO';
 export type EstadoIncidente = 'ABIERTO' | 'EN_ATENCION' | 'CERRADO' | 'FALSA_ALARMA';
 
+/** Estados del ciclo de vida SATAM (máquina de estados) */
+export type EstadoEvento =
+  | 'PENDIENTE'
+  | 'CONFIRMADO'
+  | 'EN_CURSO'
+  | 'CONTROLADO'
+  | 'CERRADO'
+  | 'CANCELADO'
+  | 'FALSO_POSITIVO';
+
 export interface AuthenticatedUser {
   id: string;
   rol: RolUsuario;

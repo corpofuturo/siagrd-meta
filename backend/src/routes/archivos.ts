@@ -7,17 +7,22 @@ import { ValidationError } from '../utils/errors.js';
 const UPLOADS_DIR = process.env.UPLOADS_DIR ?? '/app/uploads';
 
 export async function archivosRoutes(app: FastifyInstance): Promise<void> {
-  // GET /archivos/static/* — servir archivos subidos
+  // GET /archivos/static/* — servir archivos subidos (requiere autenticación)
   app.get(
     '/archivos/static/*',
+    { preHandler: authMiddleware },
     async (request, reply) => {
       const wildcard = (request.params as { '*': string })['*'];
-      // Prevenir path traversal
-      const safePath = path.normalize(wildcard).replace(/^(\.\.(\/|\\|$))+/, '');
-      const filePath = path.join(UPLOADS_DIR, safePath);
+      // Prevenir path traversal: resolver la ruta completa y verificar que esté dentro de UPLOADS_DIR
+      const resolvedBase = path.resolve(UPLOADS_DIR);
+      const resolvedPath = path.resolve(path.join(UPLOADS_DIR, wildcard));
+
+      if (!resolvedPath.startsWith(resolvedBase + path.sep) && resolvedPath !== resolvedBase) {
+        return reply.status(400).send({ error: 'Ruta de archivo inválida' });
+      }
 
       try {
-        const stream = await import('node:fs').then((m) => m.createReadStream(filePath));
+        const stream = await import('node:fs').then((m) => m.createReadStream(resolvedPath));
         return reply.send(stream);
       } catch {
         return reply.status(404).send({ error: 'Archivo no encontrado' });

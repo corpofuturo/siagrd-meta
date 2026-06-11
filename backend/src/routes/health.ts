@@ -4,25 +4,40 @@ import { logger } from '../utils/logger.js';
 import * as ideam from '../services/ideam.service.js';
 import * as sgc from '../services/sgc.service.js';
 
+const IS_PROD = process.env.NODE_ENV === 'production';
+
 export async function healthRoutes(app: FastifyInstance): Promise<void> {
+  // GET /health — Railway usa este endpoint para healthcheck (siempre 200)
+  // En producción devuelve solo status/timestamp para no exponer topología interna.
   app.get('/health', async (_req, reply) => {
     const start = Date.now();
-    const services: Record<string, string> = {};
-    let overallStatus: 'ok' | 'degraded' | 'down' = 'ok';
 
+    // Liveness check mínimo — siempre necesario para Railway
+    let dbStatus: 'ok' | 'down' = 'ok';
+    let overallStatus: 'ok' | 'degraded' | 'down' = 'ok';
     try {
       await db`SELECT 1`;
-      services.db = 'ok';
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       logger.error({ err: msg }, 'health: db down');
-      services.db = 'down';
+      dbStatus = 'down';
       overallStatus = 'down';
     }
 
+    // En producción devolver respuesta mínima (no exponer topología)
+    if (IS_PROD) {
+      return reply.status(200).send({
+        status: overallStatus,
+        response_ms: Date.now() - start,
+        timestamp: new Date().toISOString(),
+      });
+    }
+
+    // En dev/staging: detalle completo
+    const services: Record<string, string> = {};
+    services.db = dbStatus;
     services.storage = 'local';
     services.redis = 'not_configured';
-    services.sms = 'disabled';
     services.fcm = process.env.FIREBASE_PROJECT_ID ? 'configured' : 'not_configured';
     services.ideam = `mock (last_check: ${ideam.getLastCheck() || 'never'})`;
     services.sgc = `mock (last_check: ${sgc.getLastCheck() || 'never'})`;
@@ -33,8 +48,6 @@ export async function healthRoutes(app: FastifyInstance): Promise<void> {
       syncPendientes = row?.n ?? 0;
     } catch { /* no bloquear */ }
 
-    // Siempre 200 — Railway usa este endpoint para el healthcheck de deploy
-    // El estado real de servicios está en el body
     return reply.status(200).send({
       status: overallStatus,
       services,

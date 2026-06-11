@@ -20,5 +20,11 @@ export function getRateLimitConfig(route: string): RateLimitConfig {
     return { max: 10, timeWindow: '1 hour' };
   }
 
+  // POST /reportes-ciudadanos: rate limit diferenciado por autenticación
+  // (anónimos: 3/hora, autenticados: 10/hora) — configurado a nivel de ruta en reportes.ts
+  if (route.startsWith('/reportes-ciudadanos')) {
+    return { max: 3, timeWindow: '1 hour' };
+  }
+
   return { max: 200, timeWindow: '1 minute' };
 }

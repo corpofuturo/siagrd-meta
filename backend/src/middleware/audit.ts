@@ -29,10 +29,13 @@ export async function auditMiddleware(app: FastifyInstance): Promise<void> {
       const usuario_id: string | null =
         (request as any).user?.id ?? null;
 
-      const ip =
-        request.headers['x-forwarded-for']?.toString().split(',')[0]?.trim() ??
-        request.ip ??
-        null;
+      // Ley 1581/2012: no almacenar IP de reportantes anónimos en audit_log
+      const esReporteAnonimo = (request as any).__reporte_anonimo === true;
+      const ip: string | null = esReporteAnonimo
+        ? null
+        : (request.headers['x-forwarded-for']?.toString().split(',')[0]?.trim() ??
+           request.ip ??
+           null);
 
       const user_agent = request.headers['user-agent'] ?? null;
       const tabla = inferTable(request.url);
