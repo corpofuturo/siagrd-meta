@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { API_BASE } from '../../constants';
@@ -38,6 +39,10 @@ interface Incidente {
   descripcion?: string;
   fecha_inicio?: string;
   municipio_nombre?: string;
+  lat?: number | string;
+  lng?: number | string;
+  municipio_lat?: number | string;
+  municipio_lon?: number | string;
 }
 
 interface Actualizacion {
@@ -269,6 +274,39 @@ export default function IncidenteDetalleScreen() {
             </View>
           ) : null}
         </View>
+
+        {/* Mini-mapa */}
+        {(() => {
+          const lat = parseFloat(String(incidente.lat ?? incidente.municipio_lat ?? ''));
+          const lon = parseFloat(String(incidente.lng ?? incidente.municipio_lon ?? ''));
+          if (isNaN(lat) || isNaN(lon)) return null;
+          return (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Ubicación</Text>
+              <View style={styles.miniMapContainer}>
+                <MapView
+                  style={styles.miniMap}
+                  initialRegion={{
+                    latitude: lat,
+                    longitude: lon,
+                    latitudeDelta: 0.05,
+                    longitudeDelta: 0.05,
+                  }}
+                  scrollEnabled={false}
+                  zoomEnabled={false}
+                  rotateEnabled={false}
+                  pitchEnabled={false}
+                >
+                  <Marker
+                    coordinate={{ latitude: lat, longitude: lon }}
+                    title={incidente.titulo}
+                    pinColor={NIVEL_COLORS[incidente.nivel_alerta] ?? '#F97316'}
+                  />
+                </MapView>
+              </View>
+            </View>
+          );
+        })()}
 
         {/* Actualizaciones */}
         <View style={styles.section}>
@@ -523,5 +561,15 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '700',
+  },
+  miniMapContainer: {
+    borderRadius: 10,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#374151',
+  },
+  miniMap: {
+    width: '100%',
+    height: 180,
   },
 });

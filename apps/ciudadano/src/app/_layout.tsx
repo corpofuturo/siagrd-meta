@@ -57,6 +57,7 @@ function RootNavigator() {
         }}
       />
       <Stack.Screen name="incidente/[id]" options={{ headerShown: false }} />
+      <Stack.Screen name="chat/[id]" options={{ headerShown: false }} />
     </Stack>
   );
 }

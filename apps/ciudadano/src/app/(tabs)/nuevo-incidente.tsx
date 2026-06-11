@@ -15,6 +15,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/hooks/useAuth';
+import { MunicipioPicker } from '@/ui/components/MunicipioPicker';
 
 const BACKEND = 'https://backend-production-60016.up.railway.app/api/v1';
 
@@ -46,8 +47,10 @@ export default function NuevoIncidente() {
   const [tipoSeleccionado, setTipoSeleccionado] = useState<TipoAmenaza | null>(null);
   const [descripcion, setDescripcion] = useState('');
   const [municipio, setMunicipio] = useState('');
+  const [municipioNombre, setMunicipioNombre] = useState('');
   const [vereda, setVereda] = useState('');
   const [foto, setFoto] = useState<string | null>(null);
+  const [fotoAutorizada, setFotoAutorizada] = useState(false);
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [loadingGps, setLoadingGps] = useState(false);
   const [loadingEnvio, setLoadingEnvio] = useState(false);
@@ -58,13 +61,33 @@ export default function NuevoIncidente() {
     setTipoSeleccionado(null);
     setDescripcion('');
     setMunicipio('');
+    setMunicipioNombre('');
     setVereda('');
     setFoto(null);
+    setFotoAutorizada(false);
     setCoords(null);
     setStepResult(null);
   }
 
-  async function pickImage() {
+  async function tomarFotoCamara() {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permiso requerido', 'Se necesita acceso a la cámara para tomar fotos.');
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.7,
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
+    if (!result.canceled && result.assets.length > 0) {
+      setFoto(result.assets[0].uri);
+      setFotoAutorizada(false);
+    }
+  }
+
+  async function seleccionarDeGaleria() {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert('Permiso requerido', 'Se necesita acceso a la galería para agregar fotos.');
@@ -77,6 +100,7 @@ export default function NuevoIncidente() {
     });
     if (!result.canceled && result.assets.length > 0) {
       setFoto(result.assets[0].uri);
+      setFotoAutorizada(false);
     }
   }
 
@@ -99,6 +123,10 @@ export default function NuevoIncidente() {
 
   async function handleRegistrar() {
     if (!municipio.trim() || !tipoSeleccionado) return;
+    if (foto && !fotoAutorizada) {
+      Alert.alert('Autorización requerida', 'Marque el chulo de autorización para incluir la foto en el reporte.');
+      return;
+    }
     setLoadingEnvio(true);
 
     const body = {
@@ -187,11 +215,13 @@ export default function NuevoIncidente() {
         <Text style={styles.label}>
           Municipio <Text style={styles.required}>*</Text>
         </Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Municipio (requerido)"
+        <MunicipioPicker
           value={municipio}
-          onChangeText={setMunicipio}
+          onChange={(codigo, nombre) => {
+            setMunicipio(codigo);
+            setMunicipioNombre(nombre);
+          }}
+          placeholder="Seleccionar municipio (requerido)"
         />
 
         <Text style={styles.label}>Vereda / Sector</Text>
@@ -202,20 +232,51 @@ export default function NuevoIncidente() {
           onChangeText={setVereda}
         />
 
-        <Text style={styles.label}>Foto</Text>
+        <Text style={styles.label}>Foto (opcional)</Text>
         {foto ? (
           <View style={styles.previewContainer}>
             <Image source={{ uri: foto }} style={styles.preview} />
-            <TouchableOpacity style={styles.deleteBtn} onPress={() => setFoto(null)}>
-              <Ionicons name="trash" size={16} color="#fff" />
-              <Text style={styles.deleteBtnText}>Eliminar foto</Text>
+            <TouchableOpacity
+              style={[styles.checkRow]}
+              onPress={() => setFotoAutorizada(!fotoAutorizada)}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.checkbox, fotoAutorizada && styles.checkboxActivo]}>
+                {fotoAutorizada && <Ionicons name="checkmark" size={14} color="#fff" />}
+              </View>
+              <Text style={styles.checkLabel}>
+                Autorizo incluir esta foto en el reporte
+              </Text>
             </TouchableOpacity>
+            <View style={styles.fotoAcciones}>
+              <TouchableOpacity style={styles.fotoBtnSecundario} onPress={tomarFotoCamara}>
+                <Ionicons name="camera" size={15} color="#3B82F6" />
+                <Text style={styles.fotoBtnSecundarioTexto}>Nueva foto</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.fotoBtnSecundario} onPress={seleccionarDeGaleria}>
+                <Ionicons name="images" size={15} color="#3B82F6" />
+                <Text style={styles.fotoBtnSecundarioTexto}>Galería</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.fotoBtnSecundario, styles.fotoBtnEliminar]}
+                onPress={() => { setFoto(null); setFotoAutorizada(false); }}
+              >
+                <Ionicons name="trash" size={15} color="#DC2626" />
+                <Text style={[styles.fotoBtnSecundarioTexto, { color: '#DC2626' }]}>Eliminar</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         ) : (
-          <TouchableOpacity style={styles.actionBtn} onPress={pickImage}>
-            <Ionicons name="image" size={20} color="#3B82F6" />
-            <Text style={styles.actionBtnText}>Agregar foto</Text>
-          </TouchableOpacity>
+          <View style={styles.fotoBotonesVacio}>
+            <TouchableOpacity style={styles.actionBtn} onPress={tomarFotoCamara}>
+              <Ionicons name="camera" size={20} color="#3B82F6" />
+              <Text style={styles.actionBtnText}>Tomar foto</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionBtn} onPress={seleccionarDeGaleria}>
+              <Ionicons name="images" size={20} color="#3B82F6" />
+              <Text style={styles.actionBtnText}>Desde galería</Text>
+            </TouchableOpacity>
+          </View>
         )}
 
         <Text style={styles.label}>Ubicación GPS</Text>
@@ -243,9 +304,9 @@ export default function NuevoIncidente() {
         )}
 
         <TouchableOpacity
-          style={[styles.submitBtn, !municipio.trim() && styles.submitBtnDisabled]}
+          style={[styles.submitBtn, (!municipio.trim() || (foto && !fotoAutorizada)) && styles.submitBtnDisabled]}
           onPress={handleRegistrar}
-          disabled={!municipio.trim() || loadingEnvio}
+          disabled={!municipio.trim() || loadingEnvio || (!!foto && !fotoAutorizada)}
         >
           {loadingEnvio ? (
             <ActivityIndicator size="small" color="#fff" />
@@ -411,6 +472,57 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#fff',
     fontWeight: '500',
+  },
+  fotoBotonesVacio: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  fotoAcciones: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  fotoBtnSecundario: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#3B82F6',
+  },
+  fotoBtnEliminar: {
+    borderColor: '#DC2626',
+  },
+  fotoBtnSecundarioTexto: {
+    fontSize: 13,
+    color: '#3B82F6',
+    fontWeight: '500',
+  },
+  checkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 6,
+  },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: '#3B82F6',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+  },
+  checkboxActivo: {
+    backgroundColor: '#3B82F6',
+    borderColor: '#3B82F6',
+  },
+  checkLabel: {
+    fontSize: 13,
+    color: '#374151',
+    flex: 1,
   },
   submitBtn: {
     backgroundColor: '#2563EB',

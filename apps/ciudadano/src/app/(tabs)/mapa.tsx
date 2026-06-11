@@ -39,6 +39,7 @@ const CAPAS: { key: Capa; label: string }[] = [
 export default function MapaRiesgosScreen() {
   const mapRef = useRef<MapView>(null);
   const [loading, setLoading] = useState(true);
+  const [mapMounted, setMapMounted] = useState(false);
   const [region, setRegion] = useState(DEFAULT_REGION);
   const [eventos, setEventos] = useState<any[]>([]);
   const [capa, setCapa] = useState<Capa>('ACTIVOS');
@@ -126,6 +127,8 @@ export default function MapaRiesgosScreen() {
         fetchEventos(),
       ]);
       setLoading(false);
+      // Defer MapView mount to avoid freezing UI thread on Android
+      setTimeout(() => setMapMounted(true), 350);
     })();
   }, []);
 
@@ -143,7 +146,7 @@ export default function MapaRiesgosScreen() {
     return true;
   });
 
-  if (loading) {
+  if (loading || !mapMounted) {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" color="#F97316" />

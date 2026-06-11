@@ -151,6 +151,13 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="chats"
+        options={{
+          title: 'Chats',
+          tabBarIcon: ({ focused }) => tabIcon(focused, 'chatbubbles-outline'),
+        }}
+      />
+      <Tabs.Screen
         name="perfil"
         options={{
           title: 'Perfil',
@@ -160,6 +167,7 @@ export default function TabsLayout() {
       <Tabs.Screen name="index" options={{ href: null }} />
       <Tabs.Screen name="alertas" options={{ href: null }} />
       <Tabs.Screen name="autoproteccion" options={{ href: null }} />
+      <Tabs.Screen name="chats" options={{ href: null }} />
     </Tabs>
   );
 }

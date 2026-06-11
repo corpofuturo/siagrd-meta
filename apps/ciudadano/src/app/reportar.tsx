@@ -100,11 +100,14 @@ function CampoTexto({ label, placeholder, value, onChange, multiline, requerido 
 
 interface SeccionFotoProps {
   fotoUri: string | null;
-  onCambiar: () => void;
+  fotoAutorizada: boolean;
+  onTomarFoto: () => void;
+  onGaleria: () => void;
   onEliminar: () => void;
+  onToggleAutorizacion: () => void;
 }
 
-function SeccionFoto({ fotoUri, onCambiar, onEliminar }: SeccionFotoProps) {
+function SeccionFoto({ fotoUri, fotoAutorizada, onTomarFoto, onGaleria, onEliminar, onToggleAutorizacion }: SeccionFotoProps) {
   return (
     <View style={styles.seccion}>
       <Text style={styles.seccionTitulo}>Foto (opcional)</Text>
@@ -112,7 +115,7 @@ function SeccionFoto({ fotoUri, onCambiar, onEliminar }: SeccionFotoProps) {
         <>
           <Image source={{ uri: fotoUri }} style={styles.fotoPreview} resizeMode="cover" />
           <View style={styles.fotoBotones}>
-            <TouchableOpacity style={styles.fotoBtn} onPress={onCambiar} activeOpacity={0.8}>
+            <TouchableOpacity style={styles.fotoBtn} onPress={onTomarFoto} activeOpacity={0.8}>
               <Ionicons name="camera-outline" size={18} color="#6D28D9" />
               <Text style={styles.fotoBtnTexto}>Cambiar Foto</Text>
             </TouchableOpacity>
@@ -121,12 +124,25 @@ function SeccionFoto({ fotoUri, onCambiar, onEliminar }: SeccionFotoProps) {
               <Text style={[styles.fotoBtnTexto, styles.fotoBtnEliminarTexto]}>Eliminar</Text>
             </TouchableOpacity>
           </View>
+          {/* Checkbox de autorización */}
+          <TouchableOpacity style={styles.checkboxRow} onPress={onToggleAutorizacion} activeOpacity={0.7}>
+            <View style={[styles.checkbox, fotoAutorizada && styles.checkboxActivo]}>
+              {fotoAutorizada && <Ionicons name="checkmark" size={14} color="#FFF" />}
+            </View>
+            <Text style={styles.checkboxLabel}>Autorizo incluir esta foto en el reporte</Text>
+          </TouchableOpacity>
         </>
       ) : (
-        <TouchableOpacity style={styles.fotoVacioBtn} onPress={onCambiar} activeOpacity={0.8}>
-          <Ionicons name="camera-outline" size={24} color="#6D28D9" />
-          <Text style={styles.fotoVacioBtnTexto}>Tomar Foto</Text>
-        </TouchableOpacity>
+        <View style={styles.fotoBotones}>
+          <TouchableOpacity style={[styles.fotoVacioBtn, { flex: 1 }]} onPress={onTomarFoto} activeOpacity={0.8}>
+            <Ionicons name="camera-outline" size={24} color="#6D28D9" />
+            <Text style={styles.fotoVacioBtnTexto}>Tomar Foto</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.fotoVacioBtn, { flex: 1 }]} onPress={onGaleria} activeOpacity={0.8}>
+            <Ionicons name="images-outline" size={24} color="#6D28D9" />
+            <Text style={styles.fotoVacioBtnTexto}>Desde galería</Text>
+          </TouchableOpacity>
+        </View>
       )}
     </View>
   );
@@ -201,6 +217,7 @@ export default function ReportarScreen() {
   const [tipoSeleccionado, setTipoSeleccionado] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [fotoUri, setFotoUri] = useState<string | null>(null);
+  const [fotoAutorizada, setFotoAutorizada] = useState(false);
   const [coordenada, setCoordenada] = useState<Coordenada | null>(null);
   const [obteniendo, setObteniendo] = useState(false);
   const [enviando, setEnviando] = useState(false);
@@ -217,7 +234,7 @@ export default function ReportarScreen() {
     });
   }, []);
 
-  // Foto
+  // Foto — cámara
   const tomarFoto = async () => {
     const permiso = await ImagePicker.requestCameraPermissionsAsync();
     if (!permiso.granted) {
@@ -232,6 +249,26 @@ export default function ReportarScreen() {
     });
     if (!result.canceled && result.assets[0]) {
       setFotoUri(result.assets[0].uri);
+      setFotoAutorizada(false);
+    }
+  };
+
+  // Foto — galería
+  const seleccionarDeGaleria = async () => {
+    const permiso = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permiso.granted) {
+      Alert.alert('Permiso requerido', 'Necesitamos acceso a la galería para seleccionar la foto.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.7,
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
+    if (!result.canceled && result.assets[0]) {
+      setFotoUri(result.assets[0].uri);
+      setFotoAutorizada(false);
     }
   };
 
@@ -246,6 +283,10 @@ export default function ReportarScreen() {
   // Enviar
   const enviar = async () => {
     if (enviando) return;
+    if (fotoUri && !fotoAutorizada) {
+      Alert.alert('Autorización requerida', 'Debes autorizar el uso de la foto antes de enviar el reporte.');
+      return;
+    }
     setEnviando(true);
     try {
       if (online) {
@@ -342,8 +383,11 @@ export default function ReportarScreen() {
         {/* Foto */}
         <SeccionFoto
           fotoUri={fotoUri}
-          onCambiar={tomarFoto}
-          onEliminar={() => setFotoUri(null)}
+          fotoAutorizada={fotoAutorizada}
+          onTomarFoto={tomarFoto}
+          onGaleria={seleccionarDeGaleria}
+          onEliminar={() => { setFotoUri(null); setFotoAutorizada(false); }}
+          onToggleAutorizacion={() => setFotoAutorizada((v) => !v)}
         />
 
         {/* GPS */}
@@ -361,9 +405,9 @@ export default function ReportarScreen() {
 
         {/* Botón enviar */}
         <TouchableOpacity
-          style={[styles.enviarBtn, enviando && styles.enviarBtnDisabled]}
+          style={[styles.enviarBtn, (enviando || (!!fotoUri && !fotoAutorizada)) && styles.enviarBtnDisabled]}
           onPress={enviar}
-          disabled={enviando}
+          disabled={enviando || (!!fotoUri && !fotoAutorizada)}
           activeOpacity={0.85}
         >
           {enviando ? (
@@ -612,6 +656,34 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: '#6D28D9',
+  },
+
+  // Checkbox autorización
+  checkboxRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 4,
+  },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: '#6D28D9',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFF',
+  },
+  checkboxActivo: {
+    backgroundColor: '#6D28D9',
+    borderColor: '#6D28D9',
+  },
+  checkboxLabel: {
+    flex: 1,
+    fontSize: 13,
+    color: '#374151',
+    lineHeight: 18,
   },
 
   // GPS
