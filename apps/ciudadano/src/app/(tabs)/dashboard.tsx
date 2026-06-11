@@ -10,34 +10,44 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
+import { API_BASE } from '../../constants';
 
-const BACKEND = 'https://backend-production-60016.up.railway.app/api/v1';
+const BACKEND = API_BASE;
 const OFFLINE_QUEUE_KEY = 'satam_incidente_queue';
 
-type EstadoIncidente = 'ABIERTO' | 'EN_ATENCION' | 'CERRADO';
-type NivelIncidente = 'BAJO' | 'MEDIO' | 'ALTO' | 'CRITICO';
+type EstadoIncidente = 'PENDIENTE' | 'CONFIRMADO' | 'EN_CURSO' | 'CONTROLADO' | 'CERRADO' | 'FALSO_POSITIVO' | 'CANCELADO';
+type NivelIncidente = 'VERDE' | 'AMARILLO' | 'NARANJA' | 'ROJO';
 
 interface Incidente {
   id: number | string;
   codigo: string;
   tipo: string;
+  tipo_amenaza?: string;
   municipio: string;
+  municipio_nombre?: string;
   nivel: NivelIncidente;
+  nivel_alerta?: string;
   estado: EstadoIncidente;
+  titulo?: string;
   _offline?: boolean;
 }
 
 const ESTADO_COLORS: Record<EstadoIncidente, string> = {
-  ABIERTO: '#3B82F6',
-  EN_ATENCION: '#F59E0B',
-  CERRADO: '#6B7280',
+  PENDIENTE: '#6B7280',
+  CONFIRMADO: '#3B82F6',
+  EN_CURSO: '#F59E0B',
+  CONTROLADO: '#22C55E',
+  CERRADO: '#4B5563',
+  FALSO_POSITIVO: '#9CA3AF',
+  CANCELADO: '#9CA3AF',
 };
 
 const NIVEL_COLORS: Record<NivelIncidente, string> = {
-  BAJO: '#22C55E',
-  MEDIO: '#EAB308',
-  ALTO: '#F97316',
-  CRITICO: '#EF4444',
+  VERDE: '#22C55E',
+  AMARILLO: '#EAB308',
+  NARANJA: '#F97316',
+  ROJO: '#EF4444',
 };
 
 function Badge({ label, color }: { label: string; color: string }) {
@@ -52,8 +62,18 @@ function IncidenteCard({ item }: { item: Incidente }) {
   const estadoColor = ESTADO_COLORS[item.estado] ?? '#6B7280';
   const nivelColor = NIVEL_COLORS[item.nivel] ?? '#6B7280';
 
+  const handlePress = () => {
+    if (!item._offline) {
+      router.push(`/incidente/${item.id}`);
+    }
+  };
+
   return (
-    <View style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={handlePress}
+      activeOpacity={item._offline ? 1 : 0.75}
+    >
       <View style={styles.cardHeader}>
         <Text style={styles.cardCodigo}>{item.codigo}</Text>
         {item._offline && (
@@ -68,7 +88,7 @@ function IncidenteCard({ item }: { item: Incidente }) {
         <Badge label={item.nivel} color={nivelColor} />
         <Badge label={item.estado.replace('_', ' ')} color={estadoColor} />
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -92,7 +112,7 @@ export default function DashboardScreen() {
   const fetchIncidentes = useCallback(async () => {
     setError(null);
     try {
-      const token = await AsyncStorage.getItem('access_token');
+      const token = await SecureStore.getItemAsync('satam_access_token');
       const response = await fetch(`${BACKEND}/incidentes?limit=50`, {
         headers: {
           Authorization: `Bearer ${token ?? ''}`,
@@ -105,9 +125,16 @@ export default function DashboardScreen() {
       }
 
       const data = await response.json();
-      const remoteList: Incidente[] = Array.isArray(data)
+      const rawList: any[] = Array.isArray(data)
         ? data
         : data.results ?? data.data ?? [];
+      const remoteList: Incidente[] = rawList.map((i) => ({
+        ...i,
+        tipo: i.tipo ?? i.tipo_amenaza ?? '',
+        nivel: (i.nivel_alerta ?? i.nivel ?? 'AMARILLO') as NivelIncidente,
+        estado: (i.estado ?? 'CERRADO') as EstadoIncidente,
+        municipio: i.titulo ?? i.municipio ?? '',
+      }));
 
       const offlineList = await loadOfflineQueue();
 

@@ -12,11 +12,20 @@ function RootNavigator() {
     if (loading) return;
 
     const inLoginScreen = segments[0] === 'login';
+    const inTabs = segments[0] === '(tabs)';
+    const rol = (session as any)?.user?.rol ?? 'ciudadano';
+    const isAdmin = rol !== 'ciudadano';
 
     if (!session && !inLoginScreen) {
       router.replace('/login');
     } else if (session && inLoginScreen) {
-      router.replace('/(tabs)');
+      router.replace(isAdmin ? '/(tabs)/dashboard' : '/(tabs)');
+    } else if (session && isAdmin && inTabs) {
+      // sesión restaurada: ADMIN no debe quedar en index
+      const currentTab = segments[1];
+      if (!currentTab || currentTab === 'index') {
+        router.replace('/(tabs)/dashboard');
+      }
     }
   }, [session, loading, segments, router]);
 
@@ -47,6 +56,7 @@ function RootNavigator() {
           gestureEnabled: false,
         }}
       />
+      <Stack.Screen name="incidente/[id]" options={{ headerShown: false }} />
     </Stack>
   );
 }

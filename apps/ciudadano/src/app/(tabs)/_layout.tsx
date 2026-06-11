@@ -41,7 +41,7 @@ function SyncIcon({ focused, count }: { focused: boolean; count: number }) {
 
 export default function TabsLayout() {
   const { session } = useAuth();
-  const rol = session?.user?.rol ?? 'ciudadano';
+  const rol = (session as any)?.user?.rol ?? 'ciudadano';
   const isCiudadano = rol === 'ciudadano';
   const [syncCount, setSyncCount] = useState(0);
 

@@ -1,27 +1,15 @@
-/**
- * MapaRiesgosScreen — Sin login requerido.
- * Muestra alertas activas del Meta como marcadores según nivel de riesgo.
- */
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   View,
   Text,
   ActivityIndicator,
   StyleSheet,
-  Platform,
+  TouchableOpacity,
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const CACHE_KEY = 'satam_alertas_cache';
-
-const PIN_COLOR: Record<string, string> = {
-  ROJO: '#EF4444',
-  NARANJA: '#F97316',
-  AMARILLO: '#EAB308',
-  VERDE: '#22C55E',
-};
+import * as SecureStore from 'expo-secure-store';
+import { API_BASE } from '../../constants';
 
 const DEFAULT_REGION = {
   latitude: 3.5,
@@ -30,57 +18,130 @@ const DEFAULT_REGION = {
   longitudeDelta: 4,
 };
 
+const PIN_COLOR: Record<string, string> = {
+  ROJO: '#EF4444',
+  NARANJA: '#F97316',
+  AMARILLO: '#EAB308',
+  VERDE: '#22C55E',
+};
+
+const ESTADOS_ACTIVOS = ['EN_CURSO', 'CONFIRMADO', 'PENDIENTE'];
+const ESTADOS_CERRADOS = ['CERRADO', 'CONTROLADO', 'FALSO_POSITIVO', 'CANCELADO'];
+
+type Capa = 'TODOS' | 'ACTIVOS' | 'CERRADOS' | 'MES';
+const CAPAS: { key: Capa; label: string }[] = [
+  { key: 'ACTIVOS', label: 'Activos' },
+  { key: 'TODOS', label: 'Todos' },
+  { key: 'MES', label: 'Este mes' },
+  { key: 'CERRADOS', label: 'Cerrados' },
+];
+
 export default function MapaRiesgosScreen() {
   const mapRef = useRef<MapView>(null);
   const [loading, setLoading] = useState(true);
-  const [permisoDenegado, setPermisoDenegado] = useState(false);
   const [region, setRegion] = useState(DEFAULT_REGION);
-  const [alertas, setAlertas] = useState<any[]>([]);
+  const [eventos, setEventos] = useState<any[]>([]);
+  const [capa, setCapa] = useState<Capa>('ACTIVOS');
+  const [error, setError] = useState<string | null>(null);
+
+  const getLocationSafe = useCallback(async (): Promise<Location.LocationObject | null> => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') return null;
+      // Timeout 5s — no bloquea si el GPS tarda
+      const result = await Promise.race<Location.LocationObject | null>([
+        Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced }),
+        new Promise<null>((res) => setTimeout(() => res(null), 5000)),
+      ]);
+      return result;
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const fetchEventos = useCallback(async () => {
+    try {
+      const token = await SecureStore.getItemAsync('satam_access_token');
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      // Intentar endpoint optimizado con lat/lon ya incluidos
+      const mapaRes = await fetch(`${API_BASE}/incidentes/mapa`, { headers });
+      if (mapaRes.ok) {
+        const data = await mapaRes.json();
+        const list: any[] = Array.isArray(data) ? data : data.data ?? [];
+        setEventos(list.filter((e) => e.latitud != null && e.longitud != null));
+        return;
+      }
+
+      // Fallback: cruzar incidentes con municipios
+      const [inciRes, muniRes] = await Promise.all([
+        fetch(`${API_BASE}/incidentes?limit=200`, { headers }),
+        fetch(`${API_BASE}/municipios?departamento=50`, { headers }),
+      ]);
+      if (!inciRes.ok) throw new Error('Sin datos');
+
+      const inciData = await inciRes.json();
+      const incis: any[] = Array.isArray(inciData) ? inciData : inciData.data ?? inciData.results ?? [];
+
+      const muniMap: Record<string, { latitud: number; longitud: number; nombre: string }> = {};
+      if (muniRes.ok) {
+        const muniData = await muniRes.json();
+        const munis: any[] = Array.isArray(muniData) ? muniData : muniData.data ?? [];
+        for (const m of munis) {
+          if (m.id && m.latitud != null && m.longitud != null) {
+            muniMap[m.id] = { latitud: Number(m.latitud), longitud: Number(m.longitud), nombre: m.nombre };
+          }
+        }
+      }
+
+      const merged = incis
+        .map((i) => {
+          const muni = muniMap[i.municipio_id];
+          if (!muni) return null;
+          return { ...i, latitud: muni.latitud, longitud: muni.longitud, municipio_nombre: muni.nombre };
+        })
+        .filter(Boolean);
+
+      setEventos(merged);
+    } catch {
+      setError('No se pudieron cargar los eventos.');
+    }
+  }, []);
 
   useEffect(() => {
     (async () => {
-      // Solicitar permiso de ubicación
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        setPermisoDenegado(true);
-      } else {
-        try {
-          const loc = await Location.getCurrentPositionAsync({
-            accuracy: Location.Accuracy.Balanced,
-          });
-          setRegion({
-            latitude: loc.coords.latitude,
-            longitude: loc.coords.longitude,
-            latitudeDelta: 1.5,
-            longitudeDelta: 1.5,
-          });
-        } catch {
-          // Usar región por defecto si falla obtener ubicación
-        }
-      }
-
-      // Leer alertas del cache
-      try {
-        const raw = await AsyncStorage.getItem(CACHE_KEY);
-        if (raw) {
-          const data = JSON.parse(raw);
-          const lista = Array.isArray(data) ? data : data?.alertas ?? [];
-          const conCoords = lista.filter(
-            (a: any) =>
-              a.latitud != null &&
-              a.longitud != null &&
-              !isNaN(parseFloat(a.latitud)) &&
-              !isNaN(parseFloat(a.longitud))
-          );
-          setAlertas(conCoords);
-        }
-      } catch {
-        // Cache corrupto — ignorar
-      }
-
+      setLoading(true);
+      await Promise.all([
+        getLocationSafe().then((loc) => {
+          if (loc) {
+            setRegion({
+              latitude: loc.coords.latitude,
+              longitude: loc.coords.longitude,
+              latitudeDelta: 1.5,
+              longitudeDelta: 1.5,
+            });
+          }
+        }),
+        fetchEventos(),
+      ]);
       setLoading(false);
     })();
   }, []);
+
+  const eventosFiltrados = eventos.filter((ev) => {
+    const estado: string = ev.estado ?? '';
+    if (capa === 'ACTIVOS') return ESTADOS_ACTIVOS.includes(estado);
+    if (capa === 'CERRADOS') return ESTADOS_CERRADOS.includes(estado);
+    if (capa === 'MES') {
+      const ts = ev.created_at ?? ev.fecha_inicio;
+      if (!ts) return false;
+      const f = new Date(ts);
+      const now = new Date();
+      return f.getFullYear() === now.getFullYear() && f.getMonth() === now.getMonth();
+    }
+    return true;
+  });
 
   if (loading) {
     return (
@@ -91,25 +152,22 @@ export default function MapaRiesgosScreen() {
     );
   }
 
-  if (permisoDenegado) {
-    return (
-      <View style={styles.centered}>
-        <Text style={styles.denegadoTitle}>Permiso de ubicación denegado</Text>
-        <Text style={styles.denegadoMsg}>
-          Para ver tu posición en el mapa, ve a Configuración del dispositivo
-          › Aplicaciones › SIAGRD › Permisos › Ubicación y actívalo.
-        </Text>
-        {Platform.OS === 'ios' && (
-          <Text style={styles.denegadoMsg}>
-            En iOS: Ajustes › Privacidad y seguridad › Localización › SIAGRD.
-          </Text>
-        )}
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
+      <View style={styles.capaBar}>
+        {CAPAS.map(({ key, label }) => (
+          <TouchableOpacity
+            key={key}
+            style={[styles.capaBtn, capa === key && styles.capaBtnActive]}
+            onPress={() => setCapa(key)}
+          >
+            <Text style={[styles.capaBtnText, capa === key && styles.capaBtnTextActive]}>
+              {label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
       <MapView
         ref={mapRef}
         style={styles.mapa}
@@ -117,22 +175,34 @@ export default function MapaRiesgosScreen() {
         showsUserLocation
         showsMyLocationButton
       >
-        {alertas.map((alerta, idx) => {
-          const nivel = (alerta.nivel ?? 'VERDE').toUpperCase();
+        {eventosFiltrados.map((ev, idx) => {
+          const lat = parseFloat(ev.latitud);
+          const lon = parseFloat(ev.longitud);
+          if (isNaN(lat) || isNaN(lon)) return null;
+          const nivel = (ev.nivel_alerta ?? 'AMARILLO').toUpperCase();
           return (
             <Marker
-              key={alerta.id ?? idx}
-              coordinate={{
-                latitude: parseFloat(alerta.latitud),
-                longitude: parseFloat(alerta.longitud),
-              }}
-              title={alerta.titulo ?? alerta.municipio_nombre ?? 'Alerta'}
-              description={`Nivel: ${nivel}`}
-              pinColor={PIN_COLOR[nivel] ?? PIN_COLOR.VERDE}
+              key={ev.id ?? idx}
+              coordinate={{ latitude: lat, longitude: lon }}
+              title={ev.titulo ?? ev.tipo_amenaza ?? 'Evento'}
+              description={`${ev.estado} · ${ev.municipio_nombre ?? ''}`}
+              pinColor={PIN_COLOR[nivel] ?? PIN_COLOR.AMARILLO}
             />
           );
         })}
       </MapView>
+
+      <View style={styles.contador}>
+        <Text style={styles.contadorText}>
+          {eventosFiltrados.length} evento{eventosFiltrados.length !== 1 ? 's' : ''}
+        </Text>
+      </View>
+
+      {error && (
+        <View style={styles.errorBanner}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -146,23 +216,46 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 32,
-    gap: 16,
   },
-  loadingText: {
-    color: '#9CA3AF',
-    fontSize: 14,
-    marginTop: 12,
+  loadingText: { color: '#9CA3AF', fontSize: 14, marginTop: 12 },
+  capaBar: {
+    flexDirection: 'row',
+    backgroundColor: '#0A0E1A',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    gap: 6,
   },
-  denegadoTitle: {
-    color: '#F87171',
-    fontSize: 18,
-    fontWeight: '700',
-    textAlign: 'center',
+  capaBtn: {
+    flex: 1,
+    paddingVertical: 7,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#374151',
+    alignItems: 'center',
   },
-  denegadoMsg: {
-    color: '#D1D5DB',
-    fontSize: 14,
-    textAlign: 'center',
-    lineHeight: 22,
+  capaBtnActive: { backgroundColor: '#2563EB', borderColor: '#2563EB' },
+  capaBtnText: { color: '#9CA3AF', fontSize: 11, fontWeight: '600' },
+  capaBtnTextActive: { color: '#FFFFFF' },
+  contador: {
+    position: 'absolute',
+    bottom: 20,
+    left: 16,
+    backgroundColor: 'rgba(10,14,26,0.88)',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
+  contadorText: { color: '#F9FAFB', fontSize: 12, fontWeight: '600' },
+  errorBanner: {
+    position: 'absolute',
+    bottom: 60,
+    left: 16,
+    right: 16,
+    backgroundColor: 'rgba(239,68,68,0.15)',
+    borderRadius: 8,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#EF4444',
+  },
+  errorText: { color: '#FCA5A5', fontSize: 12, textAlign: 'center' },
 });
