@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '../lib/supabase.js';
+import { db } from '../lib/db.js';
 import { logger } from '../utils/logger.js';
 import type {
   SyncPayload,
@@ -24,27 +24,30 @@ async function procesarInsert(
     return false;
   }
 
-  // Verificar duplicado por registro_id
-  const { data: existente } = await supabaseAdmin
-    .from(evento.tabla)
-    .select('id')
-    .eq('id', evento.registro_id)
-    .maybeSingle();
+  try {
+    // Verificar duplicado por registro_id — idempotencia
+    const tabla = evento.tabla as 'incidentes' | 'actualizaciones_incidente' | 'reportes_ciudadanos' | 'damnificados';
+    const existente = await db`
+      SELECT id FROM ${db(tabla)} WHERE id = ${evento.registro_id} LIMIT 1
+    `;
+    if (existente.length > 0) {
+      logger.info({ evento_id: evento.id, registro_id: evento.registro_id }, 'INSERT duplicado ignorado');
+      return true;
+    }
 
-  if (existente) {
-    logger.info({ evento_id: evento.id, registro_id: evento.registro_id }, 'INSERT duplicado ignorado');
+    const payload = { id: evento.registro_id, ...evento.payload };
+    const columns = Object.keys(payload);
+    const values = Object.values(payload);
+
+    await db`INSERT INTO ${db(tabla)} ${db(
+      [Object.fromEntries(columns.map((c, i) => [c, values[i]]))],
+    )}`;
     return true;
-  }
-
-  const { error } = await supabaseAdmin
-    .from(evento.tabla)
-    .insert({ id: evento.registro_id, ...evento.payload });
-
-  if (error) {
-    fallidos.push({ id: evento.id, error: error.message });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Error desconocido';
+    fallidos.push({ id: evento.id, error: msg });
     return false;
   }
-  return true;
 }
 
 async function procesarUpdate(
@@ -57,44 +60,61 @@ async function procesarUpdate(
     return false;
   }
 
-  // Detectar conflicto: servidor más nuevo que cliente
-  const { data: serverRecord } = await supabaseAdmin
-    .from(evento.tabla)
-    .select('updated_at')
-    .eq('id', evento.registro_id)
-    .maybeSingle();
+  try {
+    const tabla = evento.tabla as 'incidentes' | 'actualizaciones_incidente' | 'reportes_ciudadanos' | 'damnificados';
 
-  if (serverRecord?.updated_at) {
-    const serverTs = new Date(serverRecord.updated_at).getTime();
-    if (serverTs > evento.timestamp_local) {
-      // Conflicto detectado — guardar en conflictos_sync, last-write-wins servidor
-      await supabaseAdmin.from('conflictos_sync').insert({
-        evento_id: evento.id,
-        tabla: evento.tabla,
-        registro_id: evento.registro_id,
-        payload_cliente: evento.payload,
-        timestamp_cliente: evento.timestamp_local,
-        resolucion: 'SERVER_WINS',
-      }).then(() => {});
+    // Detectar conflicto: servidor más nuevo que cliente
+    const serverRows = await db`
+      SELECT updated_at FROM ${db(tabla)} WHERE id = ${evento.registro_id} LIMIT 1
+    `;
 
-      conflictos.push({
-        id: evento.id,
-        resolucion: 'SERVER_WINS — servidor más reciente que cliente',
-      });
-      return true;
+    if (serverRows.length > 0 && serverRows[0].updated_at) {
+      const serverTs = new Date(serverRows[0].updated_at as string).getTime();
+      if (serverTs > evento.timestamp_local) {
+        // Guardar conflicto y aplicar SERVER_WINS
+        await db`
+          INSERT INTO conflictos_sync
+            (evento_id, tabla, registro_id, payload_cliente, timestamp_cliente, resolucion)
+          VALUES
+            (${evento.id}, ${evento.tabla}, ${evento.registro_id},
+             ${JSON.stringify(evento.payload)}, ${evento.timestamp_local}, 'SERVER_WINS')
+          ON CONFLICT DO NOTHING
+        `;
+        conflictos.push({
+          id: evento.id,
+          resolucion: 'SERVER_WINS — servidor más reciente que cliente',
+        });
+        return true;
+      }
     }
-  }
 
-  const { error } = await supabaseAdmin
-    .from(evento.tabla)
-    .update({ ...evento.payload, updated_at: new Date().toISOString() })
-    .eq('id', evento.registro_id);
-
-  if (error) {
-    fallidos.push({ id: evento.id, error: error.message });
+    const updateData = { ...evento.payload, updated_at: new Date().toISOString() };
+    await db`UPDATE ${db(tabla)} SET ${db(updateData)} WHERE id = ${evento.registro_id}`;
+    return true;
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Error desconocido';
+    fallidos.push({ id: evento.id, error: msg });
     return false;
   }
-  return true;
+}
+
+async function procesarDelete(
+  evento: SyncEvento,
+  fallidos: SyncResponse['fallidos'],
+): Promise<boolean> {
+  if (!evento.registro_id) {
+    fallidos.push({ id: evento.id, error: 'DELETE requiere registro_id' });
+    return false;
+  }
+  try {
+    const tabla = evento.tabla as 'incidentes' | 'actualizaciones_incidente' | 'reportes_ciudadanos' | 'damnificados';
+    await db`DELETE FROM ${db(tabla)} WHERE id = ${evento.registro_id}`;
+    return true;
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Error desconocido';
+    fallidos.push({ id: evento.id, error: msg });
+    return false;
+  }
 }
 
 /**
@@ -110,18 +130,13 @@ export async function procesarSync(
   const conflictos: SyncResponse['conflictos'] = [];
   let procesados = 0;
 
-  // Ordenar por timestamp_local ASC
   const eventosOrdenados = [...payload.eventos].sort(
     (a, b) => a.timestamp_local - b.timestamp_local,
   );
 
   for (const evento of eventosOrdenados) {
-    // Validar tabla permitida
     if (!TABLAS_PERMITIDAS.has(evento.tabla)) {
-      fallidos.push({
-        id: evento.id,
-        error: `Tabla '${evento.tabla}' no permitida en sync`,
-      });
+      fallidos.push({ id: evento.id, error: `Tabla '${evento.tabla}' no permitida en sync` });
       continue;
     }
 
@@ -132,12 +147,7 @@ export async function procesarSync(
       } else if (evento.operacion === 'UPDATE') {
         ok = await procesarUpdate(evento, conflictos, fallidos);
       } else if (evento.operacion === 'DELETE') {
-        const { error } = await supabaseAdmin
-          .from(evento.tabla)
-          .delete()
-          .eq('id', evento.registro_id!);
-        ok = !error;
-        if (error) fallidos.push({ id: evento.id, error: error.message });
+        ok = await procesarDelete(evento, fallidos);
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Error desconocido';
@@ -146,47 +156,38 @@ export async function procesarSync(
 
     if (ok) procesados++;
 
-    // Registrar en sync_queue
-    await supabaseAdmin.from('sync_queue').insert({
-      device_id: payload.device_id,
-      user_id: userId,
-      evento_id: evento.id,
-      tabla: evento.tabla,
-      operacion: evento.operacion,
-      procesado: ok,
-      error: ok ? null : fallidos.find((f) => f.id === evento.id)?.error,
-    }).then(() => {});
+    // Registrar en sync_queue (sin bloquear)
+    db`
+      INSERT INTO sync_queue
+        (device_id, user_id, evento_id, tabla, operacion, procesado, error)
+      VALUES
+        (${payload.device_id}, ${userId}, ${evento.id}, ${evento.tabla},
+         ${evento.operacion}, ${ok}, ${ok ? null : (fallidos.find((f) => f.id === evento.id)?.error ?? null)})
+      ON CONFLICT DO NOTHING
+    `.catch((e: unknown) => {
+      logger.warn({ err: e }, 'Error registrando en sync_queue');
+    });
   }
 
-  // Obtener incidentes nuevos desde last_sync_timestamp
+  // Incidentes nuevos desde last_sync_timestamp
   let incidentes_nuevos: Incidente[] = [];
   if (payload.last_sync_timestamp) {
     const since = new Date(payload.last_sync_timestamp).toISOString();
-    const { data } = await supabaseAdmin
-      .from('incidentes')
-      .select('*')
-      .gt('updated_at', since)
-      .order('updated_at', { ascending: false })
-      .limit(100);
-    incidentes_nuevos = (data as Incidente[]) ?? [];
+    incidentes_nuevos = await db<Incidente[]>`
+      SELECT * FROM incidentes
+      WHERE updated_at > ${since}
+      ORDER BY updated_at DESC
+      LIMIT 100
+    `;
   }
 
   // Alertas activas
-  const { data: alertasData } = await supabaseAdmin
-    .from('alertas')
-    .select('*')
-    .eq('activa', true)
-    .order('created_at', { ascending: false });
-  const alertas_activas = (alertasData as Alerta[]) ?? [];
+  const alertas_activas = await db<Alerta[]>`
+    SELECT * FROM alertas WHERE activa = true ORDER BY created_at DESC
+  `;
 
   logger.info(
-    {
-      device_id: payload.device_id,
-      user_id: userId,
-      procesados,
-      fallidos: fallidos.length,
-      conflictos: conflictos.length,
-    },
+    { device_id: payload.device_id, user_id: userId, procesados, fallidos: fallidos.length, conflictos: conflictos.length },
     'Sync procesado',
   );
 
