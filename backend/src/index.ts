@@ -6,7 +6,7 @@ import multipart from '@fastify/multipart';
 
 import { logger } from './utils/logger.js';
 import { AppError } from './utils/errors.js';
-import { initFCM } from './services/notifications.service.js';
+import { initFCM, processNotificationQueue } from './services/notifications.service.js';
 
 import bcrypt from 'bcryptjs';
 import { db } from './lib/db.js';
@@ -23,6 +23,9 @@ import { reportesRoutes } from './routes/reportes.js';
 import { usuariosRoutes } from './routes/usuarios.js';
 import { municipiosRoutes } from './routes/municipios.js';
 import { webhooksRoutes } from './routes/webhooks.js';
+import { chatRoutes } from './routes/chat.js';
+import { estadisticasRoutes } from './routes/estadisticas.js';
+import { informesRoutes } from './routes/informes.js';
 
 // Validación temprana de variables de entorno obligatorias
 const REQUIRED_ENV = ['JWT_SECRET', 'DATABASE_URL'] as const;
@@ -141,6 +144,9 @@ async function bootstrap(): Promise<void> {
   await app.register(usuariosRoutes, { prefix: '/api/v1' });
   await app.register(municipiosRoutes, { prefix: '/api/v1' });
   await app.register(webhooksRoutes, { prefix: '/api/v1' });
+  await app.register(chatRoutes, { prefix: '/api/v1' });
+  await app.register(estadisticasRoutes, { prefix: '/api/v1' });
+  await app.register(informesRoutes, { prefix: '/api/v1' });
 
   // Inicializar FCM (modo graceful si no configurado)
   initFCM();
@@ -151,6 +157,13 @@ async function bootstrap(): Promise<void> {
 
   // Seed usuarios demo si no existen (no bloquea el startup)
   seedDemoUsers().catch((err) => logger.warn({ err }, 'seedDemoUsers falló — continuando sin seed'));
+
+  // Worker de cola durable de notificaciones — ejecuta cada 30 segundos
+  setInterval(() => {
+    processNotificationQueue().catch((err) =>
+      logger.error({ err }, 'Error en worker de notificaciones'),
+    );
+  }, 30_000);
 }
 
 bootstrap().catch((err) => {
