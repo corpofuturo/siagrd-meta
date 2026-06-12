@@ -2,15 +2,26 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  Modal,
   RefreshControl,
+  ScrollView,
   StyleSheet,
   Text,
+  TextInput,
+  TouchableOpacity,
   View,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import * as SecureStore from 'expo-secure-store';
+import { useAuth } from '../../context/AuthContext';
 import { API_BASE } from '../../constants';
 
 type NivelAlerta = 'VERDE' | 'AMARILLO' | 'NARANJA' | 'ROJO';
+
+const TIPOS_AMENAZA = [
+  'INUNDACION', 'DESLIZAMIENTO', 'SISMO', 'INCENDIO_FORESTAL',
+  'VENDAVAL', 'GRANIZADA', 'SEQUIA', 'REMOCION', 'OTRO',
+];
 
 interface Alerta {
   id: number | string;
@@ -34,10 +45,15 @@ const NIVEL_COLORS: Record<NivelAlerta, string> = {
   ROJO: '#EF4444',
 };
 
-async function apiFetch(path: string) {
+async function apiFetch(path: string, opts?: RequestInit) {
   const token = await SecureStore.getItemAsync('satam_access_token');
   const res = await fetch(`${API_BASE}${path}`, {
-    headers: { Authorization: `Bearer ${token ?? ''}` },
+    ...opts,
+    headers: {
+      Authorization: `Bearer ${token ?? ''}`,
+      'Content-Type': 'application/json',
+      ...(opts?.headers ?? {}),
+    },
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
@@ -86,17 +102,170 @@ function AlertaCard({ item }: { item: Alerta }) {
   );
 }
 
+function CrearAlertaModal({
+  visible,
+  onClose,
+  onCreated,
+}: {
+  visible: boolean;
+  onClose: () => void;
+  onCreated: () => void;
+}) {
+  const [titulo, setTitulo] = useState('');
+  const [tipo, setTipo] = useState(TIPOS_AMENAZA[0]);
+  const [nivel, setNivel] = useState<NivelAlerta>('AMARILLO');
+  const [descripcion, setDescripcion] = useState('');
+  const [instrucciones, setInstrucciones] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const reset = () => {
+    setTitulo(''); setTipo(TIPOS_AMENAZA[0]); setNivel('AMARILLO');
+    setDescripcion(''); setInstrucciones(''); setErr(null);
+  };
+
+  const handleClose = () => { reset(); onClose(); };
+
+  const handleGuardar = async () => {
+    if (!titulo.trim()) { setErr('El título es obligatorio'); return; }
+    setSaving(true); setErr(null);
+    try {
+      await apiFetch('/alertas', {
+        method: 'POST',
+        body: JSON.stringify({
+          titulo: titulo.trim(),
+          tipo,
+          nivel,
+          descripcion: descripcion.trim() || undefined,
+          instrucciones_ciudadano: instrucciones.trim() || undefined,
+        }),
+      });
+      reset();
+      onCreated();
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : 'Error al crear alerta');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const NIVELES: NivelAlerta[] = ['VERDE', 'AMARILLO', 'NARANJA', 'ROJO'];
+
+  return (
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={handleClose}>
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Nueva Alerta</Text>
+            <TouchableOpacity onPress={handleClose}>
+              <Ionicons name="close" size={24} color="#9CA3AF" />
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+            {/* Título */}
+            <Text style={styles.fieldLabel}>Título *</Text>
+            <TextInput
+              style={styles.input}
+              value={titulo}
+              onChangeText={setTitulo}
+              placeholder="Ej: Alerta por inundación río Guatiquía"
+              placeholderTextColor="#4B5563"
+            />
+
+            {/* Tipo */}
+            <Text style={styles.fieldLabel}>Tipo de amenaza</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow}>
+              {TIPOS_AMENAZA.map((t) => (
+                <TouchableOpacity
+                  key={t}
+                  style={[styles.chip, tipo === t && styles.chipSelected]}
+                  onPress={() => setTipo(t)}
+                >
+                  <Text style={[styles.chipText, tipo === t && styles.chipTextSelected]}>
+                    {t.replace('_', ' ')}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+            {/* Nivel */}
+            <Text style={styles.fieldLabel}>Nivel de alerta</Text>
+            <View style={styles.nivelRow}>
+              {NIVELES.map((n) => {
+                const color = NIVEL_COLORS[n];
+                const selected = nivel === n;
+                return (
+                  <TouchableOpacity
+                    key={n}
+                    style={[styles.nivelChip, { borderColor: color }, selected && { backgroundColor: color + '33' }]}
+                    onPress={() => setNivel(n)}
+                  >
+                    <Text style={[styles.nivelChipText, { color }]}>{n}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            {/* Descripción */}
+            <Text style={styles.fieldLabel}>Descripción</Text>
+            <TextInput
+              style={[styles.input, styles.inputMultiline]}
+              value={descripcion}
+              onChangeText={setDescripcion}
+              placeholder="Descripción de la situación..."
+              placeholderTextColor="#4B5563"
+              multiline
+              numberOfLines={3}
+            />
+
+            {/* Instrucciones ciudadano */}
+            <Text style={styles.fieldLabel}>Instrucciones al ciudadano</Text>
+            <TextInput
+              style={[styles.input, styles.inputMultiline]}
+              value={instrucciones}
+              onChangeText={setInstrucciones}
+              placeholder="¿Qué debe hacer la comunidad?..."
+              placeholderTextColor="#4B5563"
+              multiline
+              numberOfLines={3}
+            />
+
+            {!!err && <Text style={styles.errText}>{err}</Text>}
+          </ScrollView>
+
+          <TouchableOpacity
+            style={[styles.btnGuardar, saving && { opacity: 0.6 }]}
+            onPress={handleGuardar}
+            disabled={saving}
+          >
+            {saving
+              ? <ActivityIndicator color="#FFF" size="small" />
+              : <Text style={styles.btnGuardarText}>Crear alerta</Text>
+            }
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
 export default function AlertasScreen() {
+  const { session } = useAuth();
+  const rol: string = (session?.user ?? (session as any))?.rol ?? '';
+  const canCreate = rol === 'ADMIN' || rol === 'admin' || rol === 'CDGRD' || rol === 'cdgrd';
+
   const [alertas, setAlertas] = useState<Alerta[]>([]);
   const [nivelMaximo, setNivelMaximo] = useState<NivelAlerta | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const fetchData = useCallback(async () => {
     setError(null);
     try {
-      const data = await apiFetch('/alertas');
+      const data = await apiFetch('/alertas?activa=false');
       const list: Alerta[] = Array.isArray(data)
         ? data
         : data.results ?? data.data ?? [];
@@ -126,9 +295,7 @@ export default function AlertasScreen() {
     setRefreshing(false);
   }, [fetchData]);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  useEffect(() => { load(); }, [load]);
 
   const nivelColor = nivelMaximo ? NIVEL_COLORS[nivelMaximo] : '#22C55E';
   const nivelLabel = nivelMaximo ?? 'VERDE';
@@ -177,106 +344,95 @@ export default function AlertasScreen() {
           }
         />
       )}
+
+      {canCreate && (
+        <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)}>
+          <Ionicons name="add" size={28} color="#FFF" />
+        </TouchableOpacity>
+      )}
+
+      <CrearAlertaModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onCreated={() => { setModalVisible(false); load(); }}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#0A0E1A',
-  },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: 80,
-  },
-  errorText: {
-    color: '#EF4444',
-    fontSize: 14,
-    textAlign: 'center',
-    paddingHorizontal: 24,
-  },
-  emptyText: {
-    color: '#6B7280',
-    fontSize: 14,
-  },
-  listContent: {
-    padding: 16,
-    paddingBottom: 80,
-  },
+  container: { flex: 1, backgroundColor: '#0A0E1A' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 80 },
+  errorText: { color: '#EF4444', fontSize: 14, textAlign: 'center', paddingHorizontal: 24 },
+  emptyText: { color: '#6B7280', fontSize: 14 },
+  listContent: { padding: 16, paddingBottom: 100 },
   nivelMaxCard: {
-    borderRadius: 14,
-    borderWidth: 2,
-    padding: 20,
-    alignItems: 'center',
-    marginBottom: 20,
+    borderRadius: 14, borderWidth: 2, padding: 20,
+    alignItems: 'center', marginBottom: 20,
   },
-  nivelMaxLabel: {
-    color: '#9CA3AF',
-    fontSize: 13,
-    marginBottom: 6,
-  },
-  nivelMaxValue: {
-    fontSize: 32,
-    fontWeight: '800',
-    letterSpacing: 2,
-  },
-  card: {
-    backgroundColor: '#1F2937',
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 12,
-    gap: 6,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  cardFecha: {
-    color: '#6B7280',
-    fontSize: 12,
-    marginLeft: 'auto',
-  },
-  cardTipo: {
-    color: '#F9FAFB',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  cardMunicipio: {
-    color: '#9CA3AF',
-    fontSize: 12,
-  },
-  cardDesc: {
-    color: '#D1D5DB',
-    fontSize: 13,
-    lineHeight: 18,
-  },
-  badge: {
-    borderRadius: 6,
-    borderWidth: 1,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-  },
-  badgeText: {
-    fontSize: 11,
-    fontWeight: '600',
-    letterSpacing: 0.3,
-  },
+  nivelMaxLabel: { color: '#9CA3AF', fontSize: 13, marginBottom: 6 },
+  nivelMaxValue: { fontSize: 32, fontWeight: '800', letterSpacing: 2 },
+  card: { backgroundColor: '#1F2937', borderRadius: 12, padding: 14, marginBottom: 12, gap: 6 },
+  cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  cardFecha: { color: '#6B7280', fontSize: 12, marginLeft: 'auto' },
+  cardTipo: { color: '#F9FAFB', fontSize: 14, fontWeight: '600' },
+  cardMunicipio: { color: '#9CA3AF', fontSize: 12 },
+  cardDesc: { color: '#D1D5DB', fontSize: 13, lineHeight: 18 },
+  badge: { borderRadius: 6, borderWidth: 1, paddingHorizontal: 8, paddingVertical: 3 },
+  badgeText: { fontSize: 11, fontWeight: '600', letterSpacing: 0.3 },
   activaBadge: {
-    backgroundColor: '#EF444433',
-    borderColor: '#EF4444',
-    borderWidth: 1,
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    backgroundColor: '#EF444433', borderColor: '#EF4444',
+    borderWidth: 1, borderRadius: 6, paddingHorizontal: 6, paddingVertical: 2,
   },
-  activaBadgeText: {
-    color: '#EF4444',
-    fontSize: 9,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+  activaBadgeText: { color: '#EF4444', fontSize: 9, fontWeight: '700', letterSpacing: 0.5 },
+
+  // FAB
+  fab: {
+    position: 'absolute', bottom: 24, right: 24,
+    width: 56, height: 56, borderRadius: 28,
+    backgroundColor: '#3B82F6', alignItems: 'center', justifyContent: 'center',
+    elevation: 6,
   },
+
+  // Modal
+  modalOverlay: {
+    flex: 1, backgroundColor: '#00000088',
+    justifyContent: 'flex-end',
+  },
+  modalContainer: {
+    backgroundColor: '#111827', borderTopLeftRadius: 20, borderTopRightRadius: 20,
+    maxHeight: '90%', paddingBottom: 32,
+  },
+  modalHeader: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    padding: 20, borderBottomWidth: 1, borderBottomColor: '#1F2937',
+  },
+  modalTitle: { color: '#F9FAFB', fontSize: 18, fontWeight: '700' },
+  modalBody: { paddingHorizontal: 20, paddingTop: 16 },
+  fieldLabel: { color: '#9CA3AF', fontSize: 12, fontWeight: '600', marginBottom: 6, marginTop: 14 },
+  input: {
+    backgroundColor: '#1F2937', borderRadius: 10, color: '#F9FAFB',
+    paddingHorizontal: 14, paddingVertical: 12, fontSize: 14,
+  },
+  inputMultiline: { minHeight: 72, textAlignVertical: 'top' },
+  chipRow: { flexDirection: 'row', marginBottom: 4 },
+  chip: {
+    borderRadius: 20, borderWidth: 1, borderColor: '#374151',
+    paddingHorizontal: 12, paddingVertical: 6, marginRight: 8, marginBottom: 4,
+  },
+  chipSelected: { backgroundColor: '#3B82F633', borderColor: '#3B82F6' },
+  chipText: { color: '#9CA3AF', fontSize: 12 },
+  chipTextSelected: { color: '#3B82F6', fontWeight: '600' },
+  nivelRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
+  nivelChip: {
+    borderWidth: 2, borderRadius: 8, paddingHorizontal: 14, paddingVertical: 8, flex: 1,
+    alignItems: 'center',
+  },
+  nivelChipText: { fontSize: 12, fontWeight: '700' },
+  errText: { color: '#EF4444', fontSize: 13, marginTop: 12, textAlign: 'center' },
+  btnGuardar: {
+    backgroundColor: '#3B82F6', marginHorizontal: 20, marginTop: 16,
+    borderRadius: 12, paddingVertical: 14, alignItems: 'center',
+  },
+  btnGuardarText: { color: '#FFF', fontWeight: '700', fontSize: 15 },
 });
