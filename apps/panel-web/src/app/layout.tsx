@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'SIAGRD Meta — Sistema de Alertas Tempranas',
-  description: 'Sistema Integrado de Alertas Tempranas y Gestión del Riesgo — Departamento del Meta, Colombia',
+  title: 'SIAGRD Meta — S.A.T. - A.M.',
+  description: 'Sistema de Alertas Tempranas de Amenazas Múltiples — Departamento del Meta, Colombia',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -75,7 +75,7 @@ export default function LoginPage() {
             SIAGRD META
           </h1>
           <p className="text-[#8B9CC8] text-sm mt-1">
-            Panel de Coordinación CDGRD
+            Sistema de Alertas Tempranas de Amenazas Múltiples
           </p>
         </div>
 

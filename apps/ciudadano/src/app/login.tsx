@@ -97,7 +97,7 @@ export default function LoginScreen() {
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
           <Text style={styles.logo}>S.A.T. - A.M.</Text>
-          <Text style={styles.subtitle}>Sistema de Alerta Temprana{'\n'}Amazonía y Meta</Text>
+          <Text style={styles.subtitle}>Sistema de Alertas Tempranas{'\n'}de Amenazas Múltiples</Text>
         </View>
 
         <View style={styles.card}>
