@@ -10,6 +10,7 @@ import {
   Image,
   Alert,
 } from 'react-native';
+import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
@@ -46,8 +47,11 @@ export default function NuevoIncidente() {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [tipoSeleccionado, setTipoSeleccionado] = useState<TipoAmenaza | null>(null);
   const [descripcion, setDescripcion] = useState('');
+  // municipio guarda el codigo DANE para el picker (value/highlight)
   const [municipio, setMunicipio] = useState('');
   const [municipioNombre, setMunicipioNombre] = useState('');
+  // municipioId guarda el UUID que requiere el backend
+  const [municipioId, setMunicipioId] = useState('');
   const [vereda, setVereda] = useState('');
   const [foto, setFoto] = useState<string | null>(null);
   const [fotoAutorizada, setFotoAutorizada] = useState(false);
@@ -56,17 +60,20 @@ export default function NuevoIncidente() {
   const [loadingEnvio, setLoadingEnvio] = useState(false);
   const [stepResult, setStepResult] = useState<StepResult | null>(null);
 
-  function resetForm() {
-    setStep(1);
-    setTipoSeleccionado(null);
-    setDescripcion('');
-    setMunicipio('');
-    setMunicipioNombre('');
-    setVereda('');
-    setFoto(null);
-    setFotoAutorizada(false);
-    setCoords(null);
-    setStepResult(null);
+  // Bloquear acceso anónimo
+  if (!session) {
+    return (
+      <View style={styles.blockedContainer}>
+        <Ionicons name="lock-closed" size={48} color="#6B7280" />
+        <Text style={styles.blockedTitle}>Inicia sesión</Text>
+        <Text style={styles.blockedBody}>
+          Solo usuarios registrados pueden reportar incidentes.
+        </Text>
+        <TouchableOpacity style={styles.loginBtn} onPress={() => router.push('/login' as any)}>
+          <Text style={styles.loginBtnText}>Ir al login</Text>
+        </TouchableOpacity>
+      </View>
+    );
   }
 
   async function tomarFotoCamara() {
@@ -122,22 +129,28 @@ export default function NuevoIncidente() {
   }
 
   async function handleRegistrar() {
-    if (!municipio.trim() || !tipoSeleccionado) return;
+    if (!municipioId || !tipoSeleccionado) return;
     if (foto && !fotoAutorizada) {
       Alert.alert('Autorización requerida', 'Marque el chulo de autorización para incluir la foto en el reporte.');
       return;
     }
     setLoadingEnvio(true);
 
+    const tipoLabel = TIPOS.find((t) => t.key === tipoSeleccionado)?.label ?? tipoSeleccionado;
+
     const body = {
       tipo_amenaza: tipoSeleccionado,
-      descripcion: descripcion.trim(),
-      municipio_codigo: municipio.trim(),
-      ...(coords ? { latitud: coords.lat, longitud: coords.lng } : {}),
+      titulo: `${tipoLabel} en ${municipioNombre}`,
+      descripcion: descripcion.trim() || `${tipoLabel} reportado en ${municipioNombre}`,
+      municipio_id: municipioId,
+      lat: coords?.lat ?? 0,
+      lng: coords?.lng ?? 0,
+      nivel_alerta: 'VERDE' as const,
+      ...(vereda.trim() ? { vereda: vereda.trim() } : {}),
     };
 
     try {
-      const response = await fetch(`${BACKEND}/incidentes/`, {
+      const response = await fetch(`${BACKEND}/incidentes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -150,14 +163,15 @@ export default function NuevoIncidente() {
         setStepResult('ok');
         setStep(3);
       } else {
-        throw new Error('Respuesta no exitosa');
+        const err = await response.json().catch(() => ({}));
+        throw new Error((err as any)?.detail ?? `HTTP ${response.status}`);
       }
-    } catch {
+    } catch (err) {
       const queue = await AsyncStorage.getItem('satam_incidente_queue');
-      const items = queue ? JSON.parse(queue) : [];
+      const items: any[] = queue ? JSON.parse(queue) : [];
       items.push({
-        id: crypto.randomUUID(),
-        timestamp: +new Date(),
+        id: `offline-${Date.now()}`,
+        timestamp: Date.now(),
         sincronizado: false,
         ...body,
       });
@@ -217,9 +231,10 @@ export default function NuevoIncidente() {
         </Text>
         <MunicipioPicker
           value={municipio}
-          onChange={(codigo, nombre) => {
+          onChange={(codigo, nombre, id) => {
             setMunicipio(codigo);
             setMunicipioNombre(nombre);
+            setMunicipioId(id);
           }}
           placeholder="Seleccionar municipio (requerido)"
         />
@@ -304,9 +319,9 @@ export default function NuevoIncidente() {
         )}
 
         <TouchableOpacity
-          style={[styles.submitBtn, (!municipio.trim() || (foto && !fotoAutorizada)) ? styles.submitBtnDisabled : null]}
+          style={[styles.submitBtn, (!municipioId || (foto && !fotoAutorizada)) ? styles.submitBtnDisabled : null]}
           onPress={handleRegistrar}
-          disabled={!municipio.trim() || loadingEnvio || (!!foto && !fotoAutorizada)}
+          disabled={!municipioId || loadingEnvio || (!!foto && !fotoAutorizada)}
         >
           {loadingEnvio ? (
             <ActivityIndicator size="small" color="#fff" />
@@ -318,6 +333,7 @@ export default function NuevoIncidente() {
     );
   }
 
+  // step === 3: resultado
   return (
     <View style={styles.container}>
       <View style={styles.resultContainer}>
@@ -334,8 +350,8 @@ export default function NuevoIncidente() {
             ? 'El incidente fue enviado exitosamente al servidor.'
             : 'Sin conexión. El incidente se sincronizará automáticamente cuando haya red.'}
         </Text>
-        <TouchableOpacity style={styles.submitBtn} onPress={resetForm}>
-          <Text style={styles.submitBtnText}>Nuevo incidente</Text>
+        <TouchableOpacity style={styles.submitBtn} onPress={() => router.back()}>
+          <Text style={styles.submitBtnText}>Volver</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -350,6 +366,36 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 40,
+  },
+  blockedContainer: {
+    flex: 1,
+    backgroundColor: '#F9FAFB',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 32,
+    gap: 12,
+  },
+  blockedTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  blockedBody: {
+    fontSize: 14,
+    color: '#6B7280',
+    textAlign: 'center',
+  },
+  loginBtn: {
+    backgroundColor: '#2563EB',
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    marginTop: 8,
+  },
+  loginBtnText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 15,
   },
   title: {
     fontSize: 22,

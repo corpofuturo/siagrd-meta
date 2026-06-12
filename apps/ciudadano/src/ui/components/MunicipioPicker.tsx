@@ -17,7 +17,7 @@ import type { Municipio } from '../../hooks/useMunicipios';
 
 interface MunicipioPickerProps {
   value: string;
-  onChange: (codigo: string, nombre: string) => void;
+  onChange: (codigo: string, nombre: string, id: string) => void;
   placeholder?: string;
 }
 
@@ -49,7 +49,7 @@ export function MunicipioPicker({ value, onChange, placeholder = 'Seleccionar mu
         (index) => {
           if (index === 0) return;
           const municipio = municipios[index - 1];
-          onChange(municipio.codigo, municipio.nombre);
+          onChange(municipio.codigo, municipio.nombre, municipio.id);
         }
       );
     } else {
@@ -59,7 +59,7 @@ export function MunicipioPicker({ value, onChange, placeholder = 'Seleccionar mu
   }
 
   function seleccionarAndroid(municipio: Municipio) {
-    onChange(municipio.codigo, municipio.nombre);
+    onChange(municipio.codigo, municipio.nombre, municipio.id);
     setModalVisible(false);
     setFiltro('');
   }

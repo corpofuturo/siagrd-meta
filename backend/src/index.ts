@@ -44,11 +44,14 @@ for (const key of REQUIRED_ENV) {
 const IS_DEV = process.env.NODE_ENV !== 'production';
 const PORT = parseInt(process.env.PORT ?? '3000', 10);
 
-const ALLOWED_ORIGINS = [
-  /^https:\/\/.*\.gov\.co$/,
-  /^https:\/\/.*\.netlify\.app$/,
-  'https://siagrd-panel-web.netlify.app',
-];
+const corsOriginsEnv = process.env.CORS_ORIGINS;
+const ALLOWED_ORIGINS: (string | RegExp)[] = corsOriginsEnv
+  ? corsOriginsEnv.split(',').map((s) => s.trim()).filter(Boolean)
+  : [
+      /^https:\/\/.*\.gov\.co$/,
+      /^https:\/\/.*\.netlify\.app$/,
+      'https://siagrd-panel-web.netlify.app',
+    ];
 
 async function seedDemoUsers(): Promise<void> {
   const seeds = [

@@ -6,6 +6,7 @@ import {
 import { router, useLocalSearchParams } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { API_BASE } from '../../../constants';
+import { useAuth } from '../../../hooks/useAuth';
 
 interface Organismo {
   id: string;
@@ -16,6 +17,7 @@ interface Organismo {
   telefono?: string;
   director_nombre?: string;
   director_apellido?: string;
+  director_id?: string;
 }
 
 interface Usuario {
@@ -48,6 +50,10 @@ function RolBadge({ rol }: { rol: string }) {
 
 export default function OrganismoDetalleScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { session } = useAuth();
+  const userId = session?.user?.id;
+  const rol = session?.user?.rol;
+
   const [organismo, setOrganismo] = useState<Organismo | null>(null);
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,6 +67,10 @@ export default function OrganismoDetalleScreen() {
   const [documento, setDocumento] = useState('');
   const [celular, setCelular] = useState('');
   const [password, setPassword] = useState('');
+
+  const isAdmin = rol === 'ADMIN' || rol === 'CDGRD';
+  const isDirector = organismo?.director_id != null && organismo.director_id === userId;
+  const canAddUsers = isAdmin || isDirector;
 
   const fetchData = useCallback(async () => {
     try {
@@ -131,7 +141,6 @@ export default function OrganismoDetalleScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Text style={styles.backArrow}>←</Text>
@@ -182,12 +191,12 @@ export default function OrganismoDetalleScreen() {
         />
       )}
 
-      {/* FAB */}
-      <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)} activeOpacity={0.85}>
-        <Text style={styles.fabIcon}>+</Text>
-      </TouchableOpacity>
+      {canAddUsers && (
+        <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)} activeOpacity={0.85}>
+          <Text style={styles.fabIcon}>+</Text>
+        </TouchableOpacity>
+      )}
 
-      {/* Modal agregar usuario */}
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>

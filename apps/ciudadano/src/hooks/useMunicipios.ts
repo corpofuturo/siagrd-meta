@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const BACKEND = 'https://backend-production-60016.up.railway.app/api/v1';
-const CACHE_KEY = 'satam_municipios_cache_v2';
+const CACHE_KEY = 'satam_municipios_cache_v3';
 const TTL_MS = 24 * 60 * 60 * 1000; // 24 horas
 
 export interface Municipio {
-  codigo: string;
+  id: string;        // UUID — usado en POST /incidentes como municipio_id
+  codigo: string;    // código DANE — usado para identificar en el picker
   nombre: string;
   latitud?: number;
   longitud?: number;
@@ -33,57 +34,42 @@ export function useMunicipios(): UseMunicipiosResult {
 
     async function load() {
       try {
-        // Revisar caché primero
         const cached = await AsyncStorage.getItem(CACHE_KEY);
         if (cached) {
           const entry: CacheEntry = JSON.parse(cached);
           const age = Date.now() - entry.timestamp;
           if (age < TTL_MS && entry.data.length > 0) {
-            if (!cancelled) {
-              setMunicipios(entry.data);
-              setLoading(false);
-            }
+            if (!cancelled) { setMunicipios(entry.data); setLoading(false); }
             return;
           }
         }
 
-        // Fetch desde la API — por ahora hardcodeado a Meta (50) hasta config dinámica
+        // Filtrar solo departamento 50 = Meta
         const response = await fetch(`${BACKEND}/municipios?departamento=50`);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const json = await response.json();
-        // La API devuelve { data: [...], total: N } — normalizar a Municipio[]
         const raw: any[] = Array.isArray(json) ? json : (json.data ?? []);
         const data: Municipio[] = raw.map((m: any) => ({
+          id: String(m.id),
           codigo: m.codigo_dane ?? m.codigo ?? String(m.id),
           nombre: m.nombre,
           latitud: m.latitud != null ? Number(m.latitud) : undefined,
           longitud: m.longitud != null ? Number(m.longitud) : undefined,
         }));
 
-        // Guardar en caché
         const entry: CacheEntry = { timestamp: Date.now(), data };
         await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(entry));
 
-        if (!cancelled) {
-          setMunicipios(data);
-          setError(null);
-        }
+        if (!cancelled) { setMunicipios(data); setError(null); }
       } catch (err) {
-        // Si falla la red, intentar usar caché expirado como fallback
         try {
           const cached = await AsyncStorage.getItem(CACHE_KEY);
           if (cached) {
             const entry: CacheEntry = JSON.parse(cached);
-            if (!cancelled && entry.data.length > 0) {
-              setMunicipios(entry.data);
-            }
+            if (!cancelled && entry.data.length > 0) setMunicipios(entry.data);
           }
-        } catch {
-          // nada
-        }
-        if (!cancelled) {
-          setError('No se pudieron cargar los municipios.');
-        }
+        } catch { /* nada */ }
+        if (!cancelled) setError('No se pudieron cargar los municipios.');
       } finally {
         if (!cancelled) setLoading(false);
       }

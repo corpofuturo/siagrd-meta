@@ -1,10 +1,10 @@
-FROM node:20-alpine
+# ── Stage 1: builder ──────────────────────────────────────────────────────
+FROM node:20-alpine AS builder
 RUN apk add --no-cache libc6-compat python3 make g++
 RUN npm install -g pnpm@9
 
 WORKDIR /app
 
-# Manifiestos del monorepo (incluye .npmrc con shamefully-hoist=true)
 COPY .npmrc pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY package.json ./package.json
 COPY backend/package.json ./backend/package.json
@@ -22,9 +22,18 @@ COPY backend/tsconfig.json ./backend/tsconfig.json
 
 RUN pnpm --filter backend run build
 
-# Mover dist a /app/dist para que coincida con el start command de Railway
-RUN cp -r backend/dist dist
+# ── Stage 2: runner ───────────────────────────────────────────────────────
+FROM node:20-alpine AS runner
+RUN apk add --no-cache wget
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=3000
+
+COPY --from=builder /app/backend/dist ./dist
+COPY --from=builder /app/backend/node_modules ./node_modules
+COPY --from=builder /app/node_modules/.pnpm ./node_modules/.pnpm
 
 EXPOSE 3000
-ENV NODE_ENV=production
+
 CMD ["node", "dist/index.js"]

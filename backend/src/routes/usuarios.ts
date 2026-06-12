@@ -77,6 +77,35 @@ export async function usuariosRoutes(app: FastifyInstance): Promise<void> {
     return reply.send({ data: row });
   });
 
+  // POST /usuarios — crear un único usuario (ADMIN o CDGRD)
+  app.post('/usuarios', { preHandler: authMiddleware }, async (request, reply) => {
+    const user = request.user!;
+    if (!['ADMIN', 'CDGRD'].includes(user.rol)) throw new ForbiddenError('Sin acceso');
+
+    const { email, nombre, apellido, password, rol, documento, celular, municipio_id } = request.body as Record<string, string | undefined>;
+    if (!email?.trim() || !nombre?.trim() || !apellido?.trim() || !password?.trim()) {
+      throw new ValidationError('email, nombre, apellido y password son requeridos');
+    }
+
+    const rolFinal = VALID_ROLES.includes(rol as typeof VALID_ROLES[number]) ? (rol as typeof VALID_ROLES[number]) : 'CIUDADANO';
+
+    const [existing] = await db`SELECT id FROM profiles WHERE email = ${email.toLowerCase().trim()}`;
+    if (existing) throw new ValidationError('El correo ya está registrado');
+
+    const password_hash = await bcrypt.hash(password, 10);
+    const [created] = await db`
+      INSERT INTO profiles (email, password_hash, nombre, apellido, rol, documento, celular, municipio_id, activo)
+      VALUES (
+        ${email.toLowerCase().trim()}, ${password_hash},
+        ${nombre.trim()}, ${apellido.trim()}, ${rolFinal},
+        ${documento?.trim() || null}, ${celular?.trim() || null}, ${municipio_id || null},
+        true
+      )
+      RETURNING id, email, nombre, apellido, rol
+    `;
+    return reply.status(201).send({ data: created });
+  });
+
   // POST /bulk-import — importación masiva de usuarios (solo ADMIN)
   app.post<{ Body: z.infer<typeof bulkImportSchema> }>('/usuarios/bulk-import', { preHandler: authMiddleware }, async (request, reply) => {
     const user = request.user!;

@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity,
+  View, Text, FlatList, TouchableOpacity, Modal, TextInput,
   ActivityIndicator, StyleSheet, Platform,
-  Alert,
+  Alert, ScrollView,
 } from 'react-native';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { API_BASE } from '../../constants';
+import { useAuth } from '../../hooks/useAuth';
 
 interface Usuario {
   id: string;
@@ -26,6 +27,12 @@ interface Resumen {
 type Tab = 'Socorro' | 'Ciudadanos' | 'Comités';
 const TABS: Tab[] = ['Socorro', 'Ciudadanos', 'Comités'];
 
+const TAB_ROL: Record<Tab, string> = {
+  Socorro: 'SOCORRO',
+  Ciudadanos: 'CIUDADANO',
+  Comités: 'CDGRD',
+};
+
 const ROL_COLORS: Record<string, string> = {
   ADMIN: '#A78BFA', CDGRD: '#F59E0B', SOCORRO: '#22C55E', CIUDADANO: '#9CA3AF',
 };
@@ -44,13 +51,22 @@ function RolBadge({ rol }: { rol: string }) {
   );
 }
 
+const EMPTY_FORM = { email: '', nombre: '', apellido: '', password: '', documento: '', celular: '' };
+
 export default function GruposScreen() {
+  const { session } = useAuth();
+  const rol = session?.user?.rol;
+  const canManage = rol === 'ADMIN' || rol === 'CDGRD';
+
   const [resumen, setResumen] = useState<Resumen | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>('Socorro');
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [loadingResumen, setLoadingResumen] = useState(true);
   const [loadingList, setLoadingList] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState(EMPTY_FORM);
 
   const fetchResumen = useCallback(async () => {
     try {
@@ -91,6 +107,42 @@ export default function GruposScreen() {
 
   const handleRefresh = () => { setRefreshing(true); fetchTab(activeTab); };
 
+  const handleAddUser = async () => {
+    if (!form.email.trim() || !form.nombre.trim() || !form.apellido.trim() || !form.password.trim()) {
+      Alert.alert('Requerido', 'Email, nombre, apellido y contraseña son obligatorios');
+      return;
+    }
+    setSaving(true);
+    try {
+      const headers = await getHeaders();
+      const res = await fetch(`${API_BASE}/usuarios`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          email: form.email.trim(),
+          nombre: form.nombre.trim(),
+          apellido: form.apellido.trim(),
+          password: form.password,
+          rol: TAB_ROL[activeTab],
+          ...(form.documento.trim() ? { documento: form.documento.trim() } : {}),
+          ...(form.celular.trim() ? { celular: form.celular.trim() } : {}),
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error((err as any)?.detail ?? `HTTP ${res.status}`);
+      }
+      setModalVisible(false);
+      setForm(EMPTY_FORM);
+      fetchTab(activeTab);
+      fetchResumen();
+    } catch (e: any) {
+      Alert.alert('Error', e?.message ?? 'No se pudo agregar el usuario');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const metricas: { label: string; value: number | undefined; color: string }[] = [
     { label: 'Total Usuarios', value: resumen?.total_usuarios, color: '#2563EB' },
     { label: 'Socorro', value: resumen?.total_socorro, color: '#22C55E' },
@@ -117,7 +169,6 @@ export default function GruposScreen() {
         <Text style={styles.headerTitle}>Grupos de Usuarios</Text>
       </View>
 
-      {/* Métricas */}
       {loadingResumen ? (
         <View style={styles.metricsRow}>
           <ActivityIndicator size="small" color="#2563EB" />
@@ -133,7 +184,6 @@ export default function GruposScreen() {
         </View>
       )}
 
-      {/* Tabs */}
       <View style={styles.tabRow}>
         {TABS.map((t) => (
           <TouchableOpacity
@@ -161,6 +211,49 @@ export default function GruposScreen() {
           }
         />
       )}
+
+      {canManage && (
+        <TouchableOpacity style={styles.fab} onPress={() => { setForm(EMPTY_FORM); setModalVisible(true); }} activeOpacity={0.85}>
+          <Text style={styles.fabIcon}>+</Text>
+        </TouchableOpacity>
+      )}
+
+      <Modal visible={modalVisible} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <Text style={styles.modalTitle}>Agregar a {activeTab}</Text>
+
+              <Text style={styles.label}>Email *</Text>
+              <TextInput style={styles.input} placeholder="correo@ejemplo.com" placeholderTextColor="#6B7280" value={form.email} onChangeText={(v) => setForm((f) => ({ ...f, email: v }))} keyboardType="email-address" autoCapitalize="none" />
+
+              <Text style={styles.label}>Nombre *</Text>
+              <TextInput style={styles.input} placeholder="Nombre" placeholderTextColor="#6B7280" value={form.nombre} onChangeText={(v) => setForm((f) => ({ ...f, nombre: v }))} />
+
+              <Text style={styles.label}>Apellido *</Text>
+              <TextInput style={styles.input} placeholder="Apellido" placeholderTextColor="#6B7280" value={form.apellido} onChangeText={(v) => setForm((f) => ({ ...f, apellido: v }))} />
+
+              <Text style={styles.label}>Documento</Text>
+              <TextInput style={styles.input} placeholder="Cédula" placeholderTextColor="#6B7280" value={form.documento} onChangeText={(v) => setForm((f) => ({ ...f, documento: v }))} keyboardType="numeric" />
+
+              <Text style={styles.label}>Celular</Text>
+              <TextInput style={styles.input} placeholder="Celular" placeholderTextColor="#6B7280" value={form.celular} onChangeText={(v) => setForm((f) => ({ ...f, celular: v }))} keyboardType="phone-pad" />
+
+              <Text style={styles.label}>Contraseña *</Text>
+              <TextInput style={styles.input} placeholder="Contraseña temporal" placeholderTextColor="#6B7280" value={form.password} onChangeText={(v) => setForm((f) => ({ ...f, password: v }))} secureTextEntry />
+
+              <View style={styles.modalBtns}>
+                <TouchableOpacity style={styles.cancelBtn} onPress={() => setModalVisible(false)}>
+                  <Text style={styles.cancelBtnText}>Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.saveBtn} onPress={handleAddUser} disabled={saving}>
+                  {saving ? <ActivityIndicator size="small" color="#FFF" /> : <Text style={styles.saveBtnText}>Agregar</Text>}
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -192,7 +285,7 @@ const styles = StyleSheet.create({
   tabBtnActive: { backgroundColor: '#2563EB' },
   tabBtnText: { color: '#9CA3AF', fontSize: 13, fontWeight: '600' },
   tabBtnTextActive: { color: '#FFF' },
-  listContent: { padding: 16, gap: 8, paddingBottom: 40 },
+  listContent: { padding: 16, gap: 8, paddingBottom: 100 },
   userItem: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     backgroundColor: '#1F2937', borderRadius: 12, padding: 12, gap: 10,
@@ -204,4 +297,21 @@ const styles = StyleSheet.create({
   badgeText: { fontSize: 10, fontWeight: '700' },
   emptyBox: { paddingTop: 60, alignItems: 'center' },
   emptyText: { color: '#6B7280', fontSize: 14 },
+  fab: {
+    position: 'absolute', bottom: 24, right: 24,
+    width: 56, height: 56, borderRadius: 28,
+    backgroundColor: '#2563EB', alignItems: 'center', justifyContent: 'center',
+    elevation: 6, shadowColor: '#2563EB', shadowOpacity: 0.4, shadowRadius: 8, shadowOffset: { width: 0, height: 4 },
+  },
+  fabIcon: { color: '#FFF', fontSize: 28, fontWeight: '300', marginTop: -2 },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
+  modalCard: { backgroundColor: '#111827', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, maxHeight: '90%' },
+  modalTitle: { color: '#F9FAFB', fontSize: 18, fontWeight: '700', marginBottom: 16 },
+  label: { color: '#9CA3AF', fontSize: 12, fontWeight: '600', marginBottom: 4, marginTop: 10 },
+  input: { backgroundColor: '#1F2937', borderRadius: 10, padding: 12, color: '#F9FAFB', fontSize: 14, borderWidth: 1, borderColor: '#374151' },
+  modalBtns: { flexDirection: 'row', gap: 10, marginTop: 20, marginBottom: 8 },
+  cancelBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: '#1F2937', alignItems: 'center' },
+  cancelBtnText: { color: '#9CA3AF', fontWeight: '600' },
+  saveBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: '#2563EB', alignItems: 'center' },
+  saveBtnText: { color: '#FFF', fontWeight: '700' },
 });

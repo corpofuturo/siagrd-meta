@@ -6,6 +6,7 @@ import {
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { API_BASE } from '../../constants';
+import { useAuth } from '../../hooks/useAuth';
 
 interface Comite {
   id: string;
@@ -46,6 +47,9 @@ function TipoBadge({ tipo }: { tipo: string }) {
 const EMPTY_FORM = { nombre: '', tipo: 'CDGRD' as TipoComite, municipio: '', presidente: '', secretario: '', correo: '', telefono: '', direccion: '' };
 
 export default function ComitesScreen() {
+  const { session } = useAuth();
+  const canManage = session?.user?.rol === 'ADMIN' || session?.user?.rol === 'CDGRD';
+
   const [comites, setComites] = useState<Comite[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -146,9 +150,11 @@ export default function ComitesScreen() {
         />
       )}
 
-      <TouchableOpacity style={styles.fab} onPress={openCreate} activeOpacity={0.85}>
-        <Text style={styles.fabIcon}>+</Text>
-      </TouchableOpacity>
+      {canManage && (
+        <TouchableOpacity style={styles.fab} onPress={openCreate} activeOpacity={0.85}>
+          <Text style={styles.fabIcon}>+</Text>
+        </TouchableOpacity>
+      )}
 
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>

@@ -6,6 +6,7 @@ import {
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { API_BASE } from '../../constants';
+import { useAuth } from '../../hooks/useAuth';
 
 interface JAL {
   id: string;
@@ -27,6 +28,10 @@ async function getHeaders(): Promise<Record<string, string>> {
 const EMPTY_FORM = { nombre: '', barrio_vereda: '', municipio_id: '', presidente: '', correo: '', telefono: '' };
 
 export default function JALScreen() {
+  const { session } = useAuth();
+  const rol = session?.user?.rol;
+  const canCreate = rol === 'ADMIN' || rol === 'CDGRD';
+
   const [jals, setJals] = useState<JAL[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -57,6 +62,7 @@ export default function JALScreen() {
   const openCreate = () => { setEditTarget(null); setForm(EMPTY_FORM); setModalVisible(true); };
 
   const openEdit = (j: JAL) => {
+    if (!canCreate) return;
     setEditTarget(j);
     setForm({
       nombre: j.nombre, barrio_vereda: j.barrio_vereda ?? '',
@@ -96,9 +102,11 @@ export default function JALScreen() {
       {(item.municipio_nombre || item.municipio || item.municipio_id) && <Text style={styles.itemSub}>📍 {item.municipio_nombre ?? item.municipio ?? item.municipio_id}</Text>}
       {item.presidente && <Text style={styles.itemSub}>Presidente: {item.presidente}</Text>}
       {item.correo && <Text style={styles.itemSub}>✉️ {item.correo}</Text>}
-      <TouchableOpacity style={styles.editBtn} onPress={() => openEdit(item)}>
-        <Text style={styles.editBtnText}>Editar</Text>
-      </TouchableOpacity>
+      {canCreate && (
+        <TouchableOpacity style={styles.editBtn} onPress={() => openEdit(item)}>
+          <Text style={styles.editBtnText}>Editar</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 
@@ -127,9 +135,11 @@ export default function JALScreen() {
         />
       )}
 
-      <TouchableOpacity style={styles.fab} onPress={openCreate} activeOpacity={0.85}>
-        <Text style={styles.fabIcon}>+</Text>
-      </TouchableOpacity>
+      {canCreate && (
+        <TouchableOpacity style={styles.fab} onPress={openCreate} activeOpacity={0.85}>
+          <Text style={styles.fabIcon}>+</Text>
+        </TouchableOpacity>
+      )}
 
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
