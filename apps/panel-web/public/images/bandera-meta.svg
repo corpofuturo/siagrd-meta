@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" role="img" aria-label="Bandera del Departamento del Meta">
+  <!-- 17 franjas horizontales iguales: 9 verdes y 8 blancas -->
+  <!-- Cada franja: 600/17 ≈ 35.29px de alto -->
+  <!-- Franja 1 - Verde -->
+  <rect x="0" y="0"       width="900" height="35.29" fill="#2D7A27"/>
+  <!-- Franja 2 - Blanca -->
+  <rect x="0" y="35.29"   width="900" height="35.29" fill="#FFFFFF"/>
+  <!-- Franja 3 - Verde -->
+  <rect x="0" y="70.59"   width="900" height="35.29" fill="#2D7A27"/>
+  <!-- Franja 4 - Blanca -->
+  <rect x="0" y="105.88"  width="900" height="35.29" fill="#FFFFFF"/>
+  <!-- Franja 5 - Verde -->
+  <rect x="0" y="141.18"  width="900" height="35.29" fill="#2D7A27"/>
+  <!-- Franja 6 - Blanca -->
+  <rect x="0" y="176.47"  width="900" height="35.29" fill="#FFFFFF"/>
+  <!-- Franja 7 - Verde -->
+  <rect x="0" y="211.76"  width="900" height="35.29" fill="#2D7A27"/>
+  <!-- Franja 8 - Blanca -->
+  <rect x="0" y="247.06"  width="900" height="35.29" fill="#FFFFFF"/>
+  <!-- Franja 9 - Verde -->
+  <rect x="0" y="282.35"  width="900" height="35.29" fill="#2D7A27"/>
+  <!-- Franja 10 - Blanca -->
+  <rect x="0" y="317.65"  width="900" height="35.29" fill="#FFFFFF"/>
+  <!-- Franja 11 - Verde -->
+  <rect x="0" y="352.94"  width="900" height="35.29" fill="#2D7A27"/>
+  <!-- Franja 12 - Blanca -->
+  <rect x="0" y="388.24"  width="900" height="35.29" fill="#FFFFFF"/>
+  <!-- Franja 13 - Verde -->
+  <rect x="0" y="423.53"  width="900" height="35.29" fill="#2D7A27"/>
+  <!-- Franja 14 - Blanca -->
+  <rect x="0" y="458.82"  width="900" height="35.29" fill="#FFFFFF"/>
+  <!-- Franja 15 - Verde -->
+  <rect x="0" y="494.12"  width="900" height="35.29" fill="#2D7A27"/>
+  <!-- Franja 16 - Blanca -->
+  <rect x="0" y="529.41"  width="900" height="35.29" fill="#FFFFFF"/>
+  <!-- Franja 17 - Verde (última, cubre hasta el final) -->
+  <rect x="0" y="564.71"  width="900" height="35.29" fill="#2D7A27"/>
+</svg>
