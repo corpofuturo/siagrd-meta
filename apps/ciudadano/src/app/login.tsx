@@ -13,6 +13,29 @@ import {
 import { useRouter } from 'expo-router';
 import { useAuth } from '../hooks/useAuth';
 
+function BanderaColombia({ size = 56 }: { size?: number }) {
+  const h = Math.round(size * 0.667);
+  return (
+    <View style={{ width: size, height: h, borderRadius: 3, overflow: 'hidden', borderWidth: 0.5, borderColor: 'rgba(255,255,255,0.2)', elevation: 3 }}>
+      <View style={{ flex: 2, backgroundColor: '#FCD116' }} />
+      <View style={{ flex: 1, backgroundColor: '#003087' }} />
+      <View style={{ flex: 1, backgroundColor: '#CE1126' }} />
+    </View>
+  );
+}
+
+function BanderaMeta({ size = 56 }: { size?: number }) {
+  const h = Math.round(size * 0.667);
+  const colors = ['#2D7A27','#FFFFFF','#2D7A27','#FFFFFF','#2D7A27','#FFFFFF','#2D7A27',
+                  '#FFFFFF','#2D7A27','#FFFFFF','#2D7A27','#FFFFFF','#2D7A27','#FFFFFF',
+                  '#2D7A27','#FFFFFF','#2D7A27'];
+  return (
+    <View style={{ width: size, height: h, borderRadius: 3, overflow: 'hidden', borderWidth: 0.5, borderColor: 'rgba(255,255,255,0.2)', elevation: 3 }}>
+      {colors.map((c, i) => <View key={i} style={{ flex: 1, backgroundColor: c }} />)}
+    </View>
+  );
+}
+
 type Mode = 'login' | 'register';
 
 export default function LoginScreen() {
@@ -59,14 +82,22 @@ export default function LoginScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
+    <View style={styles.outer}>
+      <View style={styles.flagLeft}>
+        <BanderaColombia size={56} />
+      </View>
+      <View style={styles.flagRight}>
+        <BanderaMeta size={56} />
+      </View>
+
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
-          <Text style={styles.logo}>SATAM</Text>
-          <Text style={styles.subtitle}>Sistema de Alerta Temprana</Text>
+          <Text style={styles.logo}>S.A.T. - A.M.</Text>
+          <Text style={styles.subtitle}>Sistema de Alerta Temprana{'\n'}Amazonía y Meta</Text>
         </View>
 
         <View style={styles.card}>
@@ -164,16 +195,20 @@ export default function LoginScreen() {
           )}
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0A0E1A' },
+  outer: { flex: 1, backgroundColor: '#0A0E1A' },
+  flagLeft: { position: 'absolute', top: 48, left: 16, zIndex: 10 },
+  flagRight: { position: 'absolute', top: 48, right: 16, zIndex: 10 },
+  container: { flex: 1 },
   scroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingVertical: 40 },
   header: { alignItems: 'center', marginBottom: 40 },
-  logo: { fontSize: 42, fontWeight: '700', color: '#60A5FA', letterSpacing: 4 },
-  subtitle: { fontSize: 14, color: '#9CA3AF', marginTop: 6, letterSpacing: 1 },
+  logo: { fontSize: 36, fontWeight: '700', color: '#60A5FA', letterSpacing: 3 },
+  subtitle: { fontSize: 13, color: '#9CA3AF', marginTop: 6, letterSpacing: 1, textAlign: 'center', lineHeight: 20 },
   card: { backgroundColor: '#1F2937', borderRadius: 12, padding: 24, gap: 14 },
   tabs: { flexDirection: 'row', backgroundColor: '#111827', borderRadius: 8, padding: 4 },
   tab: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 6 },
