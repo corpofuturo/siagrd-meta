@@ -114,6 +114,9 @@ export default function PerfilScreen() {
           <MenuItem icon="business-outline" label="Organismos de Socorro" desc="Cruz Roja, Bomberos, Defensa Civil..." onPress={() => router.push('/admin/organismos' as any)} />
           <MenuItem icon="people-outline" label="Comités GRD" desc="CONGRD, CDGRD, SDGRD, CMGRD" onPress={() => router.push('/admin/comites' as any)} />
           <MenuItem icon="home-outline" label="Juntas de Acción Comunal" desc="Gestión de JAC / JAL" onPress={() => router.push('/admin/jal' as any)} />
+          {isAdmin && (
+            <MenuItem icon="business-outline" label="Alcaldías" desc="Gestión de alcaldías municipales" onPress={() => router.push('/admin/alcaldias' as any)} />
+          )}
           <MenuItem icon="person-add-outline" label="Grupos de Usuarios" desc="Socorro, Ciudadanos, Comités" onPress={() => router.push('/admin/grupos' as any)} />
           {isAdmin && (
             <MenuItem icon="bar-chart-outline" label="Estadísticas" desc="Reportes y análisis" onPress={() => openPanel('/estadisticas')} />
