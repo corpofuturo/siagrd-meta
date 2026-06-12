@@ -23,6 +23,8 @@ export async function gruposRoutes(app: FastifyInstance): Promise<void> {
 
     const [jalCount] = await db`SELECT COUNT(*) AS total FROM juntas_accion_comunal WHERE activo = true`;
     const [comitesCount] = await db`SELECT COUNT(*) AS total FROM comites_gestion_riesgo WHERE activo = true`;
+    const [alcaldiasCount] = await db`SELECT COUNT(*) AS total FROM alcaldias WHERE activo = true`;
+    const [gobernacionCount] = await db`SELECT COUNT(*) AS total FROM gobernacion WHERE activo = true`;
 
     return reply.send({
       socorro: Number(counts.socorro),
@@ -30,6 +32,8 @@ export async function gruposRoutes(app: FastifyInstance): Promise<void> {
       ciudadanos_registrados: Number(counts.ciudadanos_registrados),
       jal: Number(jalCount.total),
       comites: Number(comitesCount.total),
+      alcaldias: Number(alcaldiasCount.total),
+      gobernacion: Number(gobernacionCount.total),
     });
   });
 

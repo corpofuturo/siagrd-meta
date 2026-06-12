@@ -354,6 +354,16 @@ export async function incidentesRoutes(app: FastifyInstance): Promise<void> {
         nivel_alerta?: string;
       };
 
+      // Validar que el estado sea un valor del enum EstadoEvento si se provee
+      if (estado) {
+        const ESTADOS_VALIDOS: string[] = [
+          'PENDIENTE', 'CONFIRMADO', 'EN_CURSO', 'CONTROLADO', 'CERRADO', 'CANCELADO', 'FALSO_POSITIVO',
+        ];
+        if (!ESTADOS_VALIDOS.includes(estado)) {
+          throw new ValidationError(`estado inválido. Valores aceptados: ${ESTADOS_VALIDOS.join(', ')}`);
+        }
+      }
+
       const [updated] = await db`
         UPDATE incidentes
         SET

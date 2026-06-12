@@ -1,4 +1,4 @@
-export type RolUsuario = 'ADMIN' | 'CDGRD' | 'CMGRD' | 'SOCORRO' | 'CIUDADANO';
+export type RolUsuario = 'ADMIN' | 'CDGRD' | 'CMGRD' | 'SOCORRO' | 'CIUDADANO' | 'ALCALDIA' | 'GOBERNACION';
 export type TipoAmenaza =
   | 'INUNDACION'
   | 'REMOCION'

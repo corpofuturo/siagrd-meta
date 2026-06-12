@@ -30,6 +30,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: '/organismos',    icon: '🛡️', label: 'Organismos de Socorro' },
       { href: '/comites',       icon: '🏛️', label: 'Comités GRD' },
       { href: '/jal',           icon: '🏘️', label: 'Juntas de Acción Comunal' },
+      { href: '/alcaldias',     icon: '🏫', label: 'Alcaldías' },
       { href: '/grupos',        icon: '👥', label: 'Grupos de Usuarios' },
     ],
   },

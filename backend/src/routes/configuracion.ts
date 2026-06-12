@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { db } from '../lib/db.js';
 import { authMiddleware } from '../middleware/auth.js';
-import { ForbiddenError, ValidationError } from '../utils/errors.js';
+import { ForbiddenError, NotFoundError, ValidationError } from '../utils/errors.js';
 import type { RolUsuario } from '../types/domain.js';
 
 const ROLES_ADMIN: RolUsuario[] = ['ADMIN', 'CDGRD'];
@@ -40,6 +40,12 @@ export async function configuracionRoutes(app: FastifyInstance): Promise<void> {
       if (body[k] !== undefined) updates[k] = body[k];
     }
     if (Object.keys(updates).length === 0) throw new ValidationError('Sin campos para actualizar');
+
+    // Validar que departamento_id exista en tabla departamentos
+    if (updates.departamento_id) {
+      const [dep] = await db`SELECT id FROM departamentos WHERE id = ${updates.departamento_id as string}`;
+      if (!dep) throw new NotFoundError('departamento_id no existe en la tabla departamentos');
+    }
 
     updates.updated_at = new Date();
 

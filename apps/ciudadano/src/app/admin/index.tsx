@@ -13,6 +13,7 @@ const CARDS: AdminCard[] = [
   { icon: '🛡️', title: 'Organismos de Socorro', desc: 'Cruz Roja, Bomberos, Defensa Civil, Policía…', route: '/admin/organismos' },
   { icon: '🏛️', title: 'Comités GRD', desc: 'CONGRD, CDGRD, SDGRD, CMGRD', route: '/admin/comites' },
   { icon: '🏘️', title: 'Juntas de Acción Comunal', desc: 'Gestión de JAC / JAL por municipio', route: '/admin/jal' },
+  { icon: '🏢', title: 'Alcaldías', desc: 'Gestión de alcaldías municipales', route: '/admin/alcaldias' },
   { icon: '👥', title: 'Grupos de Usuarios', desc: 'Socorro, Ciudadanos, Comités', route: '/admin/grupos' },
   { icon: '⚙️', title: 'Configuración del Sistema', desc: 'Departamento, DANE, UNGRD', route: '/admin/configuracion' },
 ];

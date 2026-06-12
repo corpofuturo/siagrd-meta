@@ -30,6 +30,7 @@ import { configuracionRoutes } from './routes/configuracion.js';
 import { comitesRoutes } from './routes/comites.js';
 import { jalRoutes } from './routes/jal.js';
 import { gruposRoutes } from './routes/grupos.js';
+import { alcaldiasRoutes } from './routes/alcaldias.js';
 
 // Validación temprana de variables de entorno obligatorias
 const REQUIRED_ENV = ['JWT_SECRET', 'DATABASE_URL'] as const;
@@ -145,6 +146,7 @@ async function bootstrap(): Promise<void> {
   await app.register(comitesRoutes, { prefix: '/api/v1' });
   await app.register(jalRoutes, { prefix: '/api/v1' });
   await app.register(gruposRoutes, { prefix: '/api/v1' });
+  await app.register(alcaldiasRoutes, { prefix: '/api/v1' });
 
   // Inicializar FCM (modo graceful si no configurado)
   initFCM();

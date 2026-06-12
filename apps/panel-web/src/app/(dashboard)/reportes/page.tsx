@@ -12,7 +12,7 @@ interface ReporteCiudadano {
   lng?: number;
   municipio?: string;
   foto_url?: string;
-  estado: 'PENDIENTE' | 'VINCULADO' | 'DESCARTADO';
+  estado: 'PENDIENTE' | 'REVISADO' | 'CORROBORADO' | 'VINCULADO' | 'DESCARTADO';
   incidente_id?: string;
   created_at: string;
 }
@@ -51,7 +51,7 @@ export default function ReportesPage() {
     fetchReportes();
   }, [fetchReportes]);
 
-  async function descartar(id: string) {
+  async function patchEstado(id: string, estado: 'CORROBORADO' | 'DESCARTADO') {
     setAccionando(id);
     try {
       const token = getToken();
@@ -61,13 +61,16 @@ export default function ReportesPage() {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        body: JSON.stringify({ estado: 'DESCARTADO' }),
+        body: JSON.stringify({ estado }),
       });
       setReportes((prev) => prev.filter((r) => r.id !== id));
     } finally {
       setAccionando(null);
     }
   }
+
+  function descartar(id: string) { return patchEstado(id, 'DESCARTADO'); }
+  function corroborar(id: string) { return patchEstado(id, 'CORROBORADO'); }
 
   function tiempoRelativo(fecha: string): string {
     const diff = Date.now() - new Date(fecha).getTime();
@@ -153,6 +156,14 @@ export default function ReportesPage() {
                 <div className="flex gap-2">
                   <button
                     disabled={accionando === reporte.id}
+                    onClick={() => corroborar(reporte.id)}
+                    className="px-3 py-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white rounded text-xs font-bold transition-colors disabled:opacity-40"
+                  >
+                    Corroborar
+                  </button>
+
+                  <button
+                    disabled={accionando === reporte.id}
                     onClick={() => {
                       window.location.href = `/incidentes/nuevo?reporte_id=${reporte.id}`;
                     }}
@@ -166,7 +177,7 @@ export default function ReportesPage() {
                     onClick={() => descartar(reporte.id)}
                     className="px-3 py-1.5 bg-[#1E2535] hover:bg-[#2D3748] border border-[#2D3748] text-[#8B9CC8] rounded text-xs transition-colors disabled:opacity-40"
                   >
-                    Descartar
+                    Rechazar
                   </button>
 
                   {(reporte.lat && reporte.lng) && (

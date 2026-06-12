@@ -41,9 +41,13 @@ const TIPOS: TipoOption[] = [
 
 type StepResult = 'ok' | 'local';
 
+const ROLES_EVENTO = ['ADMIN', 'CDGRD', 'CMGRD', 'SOCORRO', 'ALCALDIA', 'GOBERNACION'] as const;
+
 export default function NuevoIncidente() {
   const { session } = useAuth();
   const token = session?.access_token ?? null;
+  const userRol: string = (session?.user as any)?.rol ?? 'CIUDADANO';
+  const esCiudadano = !ROLES_EVENTO.includes(userRol as any);
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [tipoSeleccionado, setTipoSeleccionado] = useState<TipoAmenaza | null>(null);
@@ -187,7 +191,7 @@ export default function NuevoIncidente() {
   if (step === 1) {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Nuevo incidente</Text>
+        <Text style={styles.title}>{esCiudadano ? 'Enviar Reporte' : 'Nuevo Incidente'}</Text>
         <Text style={styles.subtitle}>Selecciona el tipo de amenaza</Text>
         <View style={styles.grid}>
           {TIPOS.map((tipo) => (
@@ -327,7 +331,7 @@ export default function NuevoIncidente() {
           {loadingEnvio ? (
             <ActivityIndicator size="small" color="#fff" />
           ) : (
-            <Text style={styles.submitBtnText}>Registrar incidente</Text>
+            <Text style={styles.submitBtnText}>{esCiudadano ? 'Enviar Reporte' : 'Registrar Incidente'}</Text>
           )}
         </TouchableOpacity>
       </ScrollView>
@@ -344,12 +348,16 @@ export default function NuevoIncidente() {
           color={stepResult === 'ok' ? '#16A34A' : '#EA580C'}
         />
         <Text style={styles.resultTitle}>
-          {stepResult === 'ok' ? 'Incidente registrado' : 'Guardado localmente'}
+          {stepResult === 'ok'
+            ? (esCiudadano ? 'Reporte enviado' : 'Incidente registrado')
+            : 'Guardado localmente'}
         </Text>
         <Text style={styles.resultBody}>
           {stepResult === 'ok'
-            ? 'El incidente fue enviado exitosamente al servidor.'
-            : 'Sin conexión. El incidente se sincronizará automáticamente cuando haya red.'}
+            ? (esCiudadano
+                ? 'Tu reporte fue enviado exitosamente. Las autoridades lo revisarán.'
+                : 'El incidente fue registrado exitosamente en el servidor.')
+            : 'Sin conexión. El reporte se sincronizará automáticamente cuando haya red.'}
         </Text>
         <TouchableOpacity style={styles.submitBtn} onPress={() => router.back()}>
           <Text style={styles.submitBtnText}>Volver</Text>

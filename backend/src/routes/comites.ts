@@ -116,7 +116,7 @@ export async function comitesRoutes(app: FastifyInstance): Promise<void> {
     if (!existing) throw new NotFoundError('Comité no encontrado');
 
     const body = request.body as Record<string, unknown>;
-    const allowed = ['tipo', 'nombre', 'municipio_id', 'presidente', 'secretario', 'correo', 'telefono', 'direccion', 'activo'];
+    const allowed = ['tipo', 'nombre', 'municipio_id', 'presidente', 'lider_id', 'secretario', 'correo', 'telefono', 'direccion', 'activo'];
     const updates: Record<string, unknown> = {};
     for (const k of allowed) {
       if (body[k] !== undefined) updates[k] = body[k];

@@ -89,7 +89,7 @@ export async function jalRoutes(app: FastifyInstance): Promise<void> {
     if (!existing) throw new NotFoundError('JAL/JAC no encontrada');
 
     const body = request.body as Record<string, unknown>;
-    const allowed = ['nombre', 'barrio_vereda', 'municipio_id', 'presidente', 'correo', 'telefono', 'activo'];
+    const allowed = ['nombre', 'barrio_vereda', 'municipio_id', 'presidente', 'responsable_id', 'correo', 'telefono', 'activo'];
     const updates: Record<string, unknown> = {};
     for (const k of allowed) {
       if (body[k] !== undefined) updates[k] = body[k];
@@ -107,6 +107,84 @@ export async function jalRoutes(app: FastifyInstance): Promise<void> {
     `;
 
     return reply.send(updated);
+  });
+
+  // ── GET /jal/:id/usuarios ────────────────────────────────────────────────────
+  app.get('/jal/:id/usuarios', { preHandler: authMiddleware }, async (request, reply) => {
+    const user = request.user!;
+    const { id } = request.params as { id: string };
+
+    const [jal] = await db`SELECT id, responsable_id FROM juntas_accion_comunal WHERE id = ${id}`;
+    if (!jal) throw new NotFoundError('JAL/JAC no encontrada');
+
+    const esResponsable = jal.responsable_id === user.id;
+    if (!ROLES_ADMIN.includes(user.rol) && !esResponsable) {
+      throw new ForbiddenError('Sin acceso a usuarios de esta JAL');
+    }
+
+    const rows = await db`
+      SELECT id, email, nombre, apellido, documento, celular, rol, activo, created_at
+      FROM profiles
+      WHERE jal_id = ${id}
+      ORDER BY apellido, nombre
+    `;
+
+    return reply.send({ data: rows, total: rows.length });
+  });
+
+  // ── POST /jal/:id/usuarios ───────────────────────────────────────────────────
+  app.post('/jal/:id/usuarios', { preHandler: authMiddleware }, async (request, reply) => {
+    const user = request.user!;
+    const { id } = request.params as { id: string };
+
+    const [jal] = await db`SELECT id, responsable_id, municipio_id FROM juntas_accion_comunal WHERE id = ${id} AND activo = true`;
+    if (!jal) throw new NotFoundError('JAL/JAC no encontrada o inactiva');
+
+    const esResponsable = jal.responsable_id === user.id;
+    if (!ROLES_ADMIN.includes(user.rol) && !esResponsable) {
+      throw new ForbiddenError('Solo el responsable de la JAL o un administrador puede asignar usuarios');
+    }
+
+    const body = request.body as {
+      email: string;
+      nombre: string;
+      apellido: string;
+      documento?: string;
+      celular?: string;
+      password: string;
+    };
+
+    if (!body?.email?.trim()) throw new ValidationError('email es requerido');
+    if (!body?.nombre?.trim()) throw new ValidationError('nombre es requerido');
+    if (!body?.apellido?.trim()) throw new ValidationError('apellido es requerido');
+    if (!body?.password || body.password.length < 6) throw new ValidationError('password mínimo 6 caracteres');
+
+    const emailLower = body.email.trim().toLowerCase();
+    const [existing] = await db`SELECT id FROM profiles WHERE email = ${emailLower}`;
+    if (existing) throw new ValidationError('El correo ya está registrado');
+
+    const bcrypt = await import('bcryptjs');
+    const hash = await bcrypt.default.hash(body.password, 10);
+
+    const [nuevo] = await db`
+      INSERT INTO profiles (email, password_hash, nombre, apellido, documento, celular, rol, municipio_id, jal_id, activo, created_at)
+      VALUES (
+        ${emailLower},
+        ${hash},
+        ${body.nombre.trim()},
+        ${body.apellido.trim()},
+        ${body.documento ?? null},
+        ${body.celular ?? null},
+        'CIUDADANO',
+        ${jal.municipio_id ?? null},
+        ${id},
+        true,
+        NOW()
+      )
+      RETURNING id, email, nombre, apellido, documento, celular, rol, municipio_id, jal_id, activo, created_at
+    `;
+
+    return reply.status(201).send(nuevo);
   });
 
   // ── DELETE /jal/:id ──────────────────────────────────────────────────────────
