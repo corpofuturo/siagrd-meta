@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import { API_BASE } from '../../constants';
+import { API_BASE } from '../../../constants';
 
 interface Organismo {
   id: string;
@@ -121,7 +121,6 @@ export default function OrganismosScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
           <Text style={styles.backArrow}>←</Text>
@@ -149,12 +148,10 @@ export default function OrganismosScreen() {
         />
       )}
 
-      {/* FAB */}
       <TouchableOpacity style={styles.fab} onPress={() => setModalVisible(true)} activeOpacity={0.85}>
         <Text style={styles.fabIcon}>+</Text>
       </TouchableOpacity>
 
-      {/* Modal crear */}
       <Modal visible={modalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
