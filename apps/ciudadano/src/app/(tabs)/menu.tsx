@@ -34,6 +34,7 @@ const ALL_ITEMS: MenuItem[] = [
 export default function MenuScreen() {
   const { session } = useAuth();
   const rol: string = (session as any)?.user?.rol ?? 'operador';
+  console.log('[menu] session.user.rol =', rol, '| session user =', JSON.stringify((session as any)?.user));
 
   const items = ALL_ITEMS.filter(
     (item) => !item.roles || item.roles.includes(rol)

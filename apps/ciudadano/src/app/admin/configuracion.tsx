@@ -78,7 +78,7 @@ export default function ConfiguracionScreen() {
       const res = await fetch(`${API_BASE}/configuracion`, { headers });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data: Config = await res.json();
-      setForm(data);
+      setForm(data ?? {});
     } catch (e: any) {
       Alert.alert('Error', e?.message ?? 'No se pudo cargar la configuración');
     } finally {

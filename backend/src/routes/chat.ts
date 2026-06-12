@@ -140,7 +140,7 @@ export async function chatRoutes(app: FastifyInstance): Promise<void> {
         SELECT c.id, c.tipo, c.nombre, c.incidente_id, c.municipio_id, c.created_at
         FROM chats c
         JOIN incidentes i ON i.id = c.incidente_id
-        WHERE c.tipo = ANY(${tipos}::text[])
+        WHERE c.tipo = ANY(${tipos}::tipo_chat[])
           AND c.activo = true
           AND c.municipio_id = ${user.municipio_id}
           AND i.estado NOT IN ('CERRADO', 'CANCELADO', 'FALSO_POSITIVO')
@@ -150,7 +150,7 @@ export async function chatRoutes(app: FastifyInstance): Promise<void> {
       rows = await db`
         SELECT c.id, c.tipo, c.nombre, c.incidente_id, c.municipio_id, c.created_at
         FROM chats c
-        WHERE c.tipo = ANY(${tipos}::text[])
+        WHERE c.tipo = ANY(${tipos}::tipo_chat[])
           AND c.activo = true
         ORDER BY c.created_at DESC
         LIMIT 100

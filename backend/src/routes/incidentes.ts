@@ -5,7 +5,7 @@ import { ForbiddenError, NotFoundError, ValidationError } from '../utils/errors.
 import type { EstadoEvento, RolUsuario } from '../types/domain.js';
 import { transicionarEstado } from '../services/estado-evento.service.js';
 
-const ROLES_ESCRITURA: RolUsuario[] = ['CDGRD', 'CMGRD', 'SOCORRO'];
+const ROLES_ESCRITURA: RolUsuario[] = ['ADMIN', 'CDGRD', 'CMGRD', 'SOCORRO'];
 const ROLES_ADMIN: RolUsuario[] = ['ADMIN', 'CDGRD'];
 
 export async function incidentesRoutes(app: FastifyInstance): Promise<void> {
