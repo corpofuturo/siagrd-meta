@@ -1,7 +1,7 @@
 // Constantes globales de la app ciudadana SIAGRD Meta
 
 export const API_BASE =
-  process.env.EXPO_PUBLIC_API_BASE ?? 'https://backend-production-60016.up.railway.app/api/v1';
+  process.env.EXPO_PUBLIC_API_BASE ?? 'https://api.satam.corpofuturo.org/api/v1';
 
 /** TTL cache de alertas: 15 minutos en milisegundos */
 export const CACHE_ALERTAS_TTL_MS = 900_000;
