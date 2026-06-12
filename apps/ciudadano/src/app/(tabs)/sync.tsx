@@ -10,8 +10,10 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
+import { API_BASE } from '../../constants';
+import { getToken } from '../../services/auth.service';
 
-const BACKEND = 'https://backend-production-60016.up.railway.app/api/v1';
+const BACKEND = API_BASE;
 const QUEUE_KEY = 'satam_incidente_queue';
 
 interface QueueItem {
@@ -52,14 +54,18 @@ export default function SyncScreen() {
     if (pending.length === 0) return;
     setSyncing(true);
 
+    const token = await getToken();
     const updatedQueue = [...queue];
     const failed: string[] = [];
 
     for (const item of pending) {
       try {
-        const response = await fetch(`${BACKEND}/incidentes/`, {
+        const response = await fetch(`${BACKEND}/incidentes`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
           body: JSON.stringify(item),
         });
         if (response.ok) {

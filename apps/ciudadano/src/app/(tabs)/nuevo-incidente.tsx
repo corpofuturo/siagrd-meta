@@ -17,8 +17,9 @@ import * as Location from 'expo-location';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/hooks/useAuth';
 import { MunicipioPicker } from '@/ui/components/MunicipioPicker';
+import { API_BASE } from '@/constants';
 
-const BACKEND = 'https://backend-production-60016.up.railway.app/api/v1';
+const BACKEND = API_BASE;
 
 type TipoAmenaza = 'INUNDACION' | 'REMOCION' | 'SISMO' | 'INCENDIO' | 'VENDAVAL' | 'OTRO';
 

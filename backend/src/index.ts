@@ -8,7 +8,6 @@ import { logger } from './utils/logger.js';
 import { AppError } from './utils/errors.js';
 import { initFCM, processNotificationQueue } from './services/notifications.service.js';
 
-import bcrypt from 'bcryptjs';
 import { db } from './lib/db.js';
 import { healthRoutes } from './routes/health.js';
 import { syncRoutes } from './routes/sync.js';
@@ -53,20 +52,6 @@ const ALLOWED_ORIGINS: (string | RegExp)[] = corsOriginsEnv
       'https://siagrd-panel-web.netlify.app',
     ];
 
-async function seedDemoUsers(): Promise<void> {
-  const seeds = [
-    { email: 'admin',   password: 'admin',   nombre: 'Administrador', apellido: 'SATAM', rol: 'ADMIN'   },
-    { email: 'bombero', password: 'bombero', nombre: 'Bombero',       apellido: 'Demo',  rol: 'SOCORRO' },
-  ];
-  for (const u of seeds) {
-    const [existing] = await db`SELECT id FROM profiles WHERE email = ${u.email}`;
-    if (!existing) {
-      const hash = await bcrypt.hash(u.password, 10);
-      await db`INSERT INTO profiles (email, password_hash, nombre, apellido, rol, activo) VALUES (${u.email}, ${hash}, ${u.nombre}, ${u.apellido}, ${u.rol}, true)`;
-      logger.info(`Usuario demo creado: ${u.email}`);
-    }
-  }
-}
 
 async function bootstrap(): Promise<void> {
   const app = Fastify({
@@ -167,11 +152,6 @@ async function bootstrap(): Promise<void> {
   // Arrancar servidor primero — seed en background para no bloquear el startup
   await app.listen({ port: PORT, host: '0.0.0.0' });
   logger.info({ port: PORT, env: process.env.NODE_ENV ?? 'development' }, 'SIAGRD API iniciada');
-
-  // Seed usuarios demo solo si la variable está habilitada (nunca en producción sin SEED_DEMO_USERS=true)
-  if (process.env.SEED_DEMO_USERS === 'true') {
-    seedDemoUsers().catch((err) => logger.warn({ err }, 'seedDemoUsers falló — continuando sin seed'));
-  }
 
   // Worker de cola durable de notificaciones — ejecuta cada 30 segundos
   setInterval(() => {

@@ -131,6 +131,7 @@ export async function restoreSession(): Promise<Session | null> {
     });
     if (!response.ok) return null;
     const { data: user } = await response.json() as { data: SessionUser };
+    if (user?.rol) (user as any).rol = (user.rol as string).toLowerCase();
     return { access_token, refresh_token, user };
   } catch {
     return null;

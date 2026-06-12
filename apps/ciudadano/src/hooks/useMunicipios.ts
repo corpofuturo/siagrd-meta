@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE } from '../constants';
 
-const BACKEND = 'https://backend-production-60016.up.railway.app/api/v1';
+const BACKEND = API_BASE;
 const CACHE_KEY = 'satam_municipios_cache_v3';
 const TTL_MS = 24 * 60 * 60 * 1000; // 24 horas
 
