@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -42,7 +43,31 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0E1A] flex items-center justify-center p-4">
+    <div className="relative min-h-screen bg-[#0A0E1A] flex items-center justify-center p-4">
+      {/* Bandera Colombia — esquina superior izquierda */}
+      <div className="absolute top-3 left-3">
+        <Image
+          src="/images/bandera-colombia.svg"
+          alt="Bandera de Colombia"
+          width={120}
+          height={80}
+          unoptimized
+          className="w-14 h-auto sm:w-24 drop-shadow-md rounded-sm border border-white/20"
+        />
+      </div>
+
+      {/* Bandera Meta — esquina superior derecha */}
+      <div className="absolute top-3 right-3">
+        <Image
+          src="/images/bandera-meta.svg"
+          alt="Bandera del Meta"
+          width={120}
+          height={80}
+          unoptimized
+          className="w-14 h-auto sm:w-24 drop-shadow-md rounded-sm border border-white/20"
+        />
+      </div>
+
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
