@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../../hooks/useAuth';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
@@ -22,46 +21,10 @@ function tabIcon(focused: boolean, name: IoniconsName) {
   );
 }
 
-function SyncIcon({ focused, count }: { focused: boolean; count: number }) {
-  return (
-    <View>
-      <Ionicons
-        name="sync-outline"
-        size={24}
-        color={focused ? ACTIVE_COLOR : INACTIVE_COLOR}
-      />
-      {count > 0 && (
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>{count > 99 ? '99+' : count}</Text>
-        </View>
-      )}
-    </View>
-  );
-}
-
 export default function TabsLayout() {
   const { session } = useAuth();
   const rol = (session as any)?.user?.rol ?? 'ciudadano';
   const isCiudadano = rol === 'ciudadano';
-  const [syncCount, setSyncCount] = useState(0);
-
-  useEffect(() => {
-    if (isCiudadano) return;
-
-    async function loadCount() {
-      try {
-        const raw = await AsyncStorage.getItem('satam_reporte_queue');
-        const queue = raw ? JSON.parse(raw) : [];
-        setSyncCount(Array.isArray(queue) ? queue.length : 0);
-      } catch {
-        setSyncCount(0);
-      }
-    }
-
-    loadCount();
-    const interval = setInterval(loadCount, 5000);
-    return () => clearInterval(interval);
-  }, [isCiudadano]);
 
   const screenOptions = {
     headerShown: true,
@@ -88,6 +51,13 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
+          name="alertas"
+          options={{
+            title: 'Alertas',
+            tabBarIcon: ({ focused }) => tabIcon(focused, 'warning-outline'),
+          }}
+        />
+        <Tabs.Screen
           name="mapa"
           options={{
             title: 'Mapa',
@@ -98,8 +68,14 @@ export default function TabsLayout() {
           name="reportar"
           options={{
             title: 'Reportar',
-            href: '/reportar',
-            tabBarIcon: ({ focused }) => tabIcon(focused, 'warning-outline'),
+            tabBarIcon: ({ focused }) => tabIcon(focused, 'add-circle-outline'),
+          }}
+        />
+        <Tabs.Screen
+          name="autoproteccion"
+          options={{
+            title: 'Autoprotec.',
+            tabBarIcon: ({ focused }) => tabIcon(focused, 'shield-checkmark-outline'),
           }}
         />
         <Tabs.Screen
@@ -112,8 +88,8 @@ export default function TabsLayout() {
         <Tabs.Screen name="dashboard" options={{ href: null }} />
         <Tabs.Screen name="nuevo-incidente" options={{ href: null }} />
         <Tabs.Screen name="sync" options={{ href: null }} />
-        <Tabs.Screen name="alertas" options={{ href: null }} />
-        <Tabs.Screen name="autoproteccion" options={{ href: null }} />
+        <Tabs.Screen name="chats" options={{ href: null }} />
+        <Tabs.Screen name="menu" options={{ href: null }} />
       </Tabs>
     );
   }
@@ -128,26 +104,17 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="alertas"
+        options={{
+          title: 'Alertas',
+          tabBarIcon: ({ focused }) => tabIcon(focused, 'warning-outline'),
+        }}
+      />
+      <Tabs.Screen
         name="mapa"
         options={{
           title: 'Mapa',
           tabBarIcon: ({ focused }) => tabIcon(focused, 'map-outline'),
-        }}
-      />
-      <Tabs.Screen
-        name="nuevo-incidente"
-        options={{
-          title: 'Incidente',
-          tabBarIcon: ({ focused }) => tabIcon(focused, 'add-circle-outline'),
-        }}
-      />
-      <Tabs.Screen
-        name="sync"
-        options={{
-          title: 'Sync',
-          tabBarIcon: ({ focused }) => (
-            <SyncIcon focused={focused} count={syncCount} />
-          ),
         }}
       />
       <Tabs.Screen
@@ -158,6 +125,13 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="menu"
+        options={{
+          title: 'Más',
+          tabBarIcon: ({ focused }) => tabIcon(focused, 'menu-outline'),
+        }}
+      />
+      <Tabs.Screen
         name="perfil"
         options={{
           title: 'Perfil',
@@ -165,29 +139,12 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen name="index" options={{ href: null }} />
-      <Tabs.Screen name="alertas" options={{ href: null }} />
       <Tabs.Screen name="autoproteccion" options={{ href: null }} />
-      <Tabs.Screen name="chats" options={{ href: null }} />
+      <Tabs.Screen name="reportar" options={{ href: null }} />
+      <Tabs.Screen name="nuevo-incidente" options={{ href: null }} />
+      <Tabs.Screen name="sync" options={{ href: null }} />
     </Tabs>
   );
 }
 
-const styles = StyleSheet.create({
-  badge: {
-    position: 'absolute',
-    top: -4,
-    right: -8,
-    minWidth: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: '#EF4444',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 2,
-  },
-  badgeText: {
-    color: '#FFFFFF',
-    fontSize: 9,
-    fontWeight: 'bold',
-  },
-});
+const styles = StyleSheet.create({});

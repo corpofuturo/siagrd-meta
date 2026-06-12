@@ -1,244 +1,282 @@
-import { useEffect, useState, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-  View,
-  Text,
+  ActivityIndicator,
   FlatList,
-  StyleSheet,
   RefreshControl,
-  TouchableOpacity,
+  StyleSheet,
+  Text,
+  View,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { supabase, type Database } from '../../lib/supabase';
-import {
-  getAlertasCachedOrFetch,
-  getNivelMaximo,
-} from '../../services/alertas.service';
-import { MUNICIPIOS_META, NIVEL_COLORES, type NivelAlerta } from '../../constants';
+import * as SecureStore from 'expo-secure-store';
+import { API_BASE } from '../../constants';
 
-type Alerta = Database['public']['Tables']['alertas']['Row'];
+type NivelAlerta = 'VERDE' | 'AMARILLO' | 'NARANJA' | 'ROJO';
 
-const MUNICIPIO_KEY = '@siagrd:municipio';
-const DIAS_HISTORIAL = 30;
+interface Alerta {
+  id: number | string;
+  tipo: string;
+  municipio: string;
+  municipio_nombre?: string;
+  nivel: NivelAlerta;
+  nivel_alerta?: string;
+  fecha_inicio?: string;
+  created_at?: string;
+  activa?: boolean;
+  titulo?: string;
+  descripcion?: string;
+  estado?: string;
+}
 
-export default function AlertasScreen() {
-  const [alertaActiva, setAlertaActiva] = useState<Alerta | null>(null);
-  const [historial, setHistorial] = useState<Alerta[]>([]);
-  const [municipioNombre, setMunicipioNombre] = useState('Villavicencio');
-  const [municipioCodigo, setMunicipioCodigo] = useState('50001');
-  const [refreshing, setRefreshing] = useState(false);
-  const [offline, setOffline] = useState(false);
+const NIVEL_COLORS: Record<NivelAlerta, string> = {
+  VERDE: '#22C55E',
+  AMARILLO: '#EAB308',
+  NARANJA: '#F97316',
+  ROJO: '#EF4444',
+};
 
-  const cargar = useCallback(async () => {
-    try {
-      const codigo =
-        (await AsyncStorage.getItem(MUNICIPIO_KEY)) ?? '50001';
-      setMunicipioCodigo(codigo);
-      const mun = MUNICIPIOS_META.find((m) => m.codigo_dane === codigo);
-      setMunicipioNombre(mun?.nombre ?? 'Villavicencio');
+async function apiFetch(path: string) {
+  const token = await SecureStore.getItemAsync('satam_access_token');
+  const res = await fetch(`${API_BASE}${path}`, {
+    headers: { Authorization: `Bearer ${token ?? ''}` },
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
 
-      // Alerta activa del municipio (cache)
-      const activas = await getAlertasCachedOrFetch();
-      const activa =
-        activas.find((a) => a.municipio_codigo === codigo && a.activa) ?? null;
-      setAlertaActiva(activa);
-      setOffline(false);
-
-      // Historial 30 días (requiere conexión, falla silenciosa en offline)
-      const hace30dias = new Date(
-        Date.now() - DIAS_HISTORIAL * 24 * 60 * 60 * 1000
-      ).toISOString();
-
-      if (supabase) {
-        const { data } = await supabase
-          .from('alertas')
-          .select('*')
-          .eq('municipio_codigo', codigo)
-          .gte('created_at', hace30dias)
-          .order('created_at', { ascending: false });
-
-        if (data) setHistorial(data as Alerta[]);
-      }
-    } catch {
-      setOffline(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    cargar();
-  }, [cargar]);
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await cargar();
-    setRefreshing(false);
-  };
-
+function NivelBadge({ nivel }: { nivel: NivelAlerta }) {
+  const color = NIVEL_COLORS[nivel] ?? '#6B7280';
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitulo}>Alertas</Text>
-        <Text style={styles.headerMunicipio}>{municipioNombre}</Text>
-      </View>
-
-      {offline && (
-        <View style={styles.offlineBanner}>
-          <Text style={styles.offlineTexto}>
-            Sin conexión — mostrando datos guardados
-          </Text>
-        </View>
-      )}
-
-      <FlatList
-        data={historial}
-        keyExtractor={(item) => item.id}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        ListHeaderComponent={
-          <>
-            {/* Alerta activa destacada */}
-            {alertaActiva ? (
-              <AlertaCard alerta={alertaActiva} destacada />
-            ) : (
-              <View style={styles.sinAlertaCard}>
-                <Text style={styles.sinAlertaEmoji}>✅</Text>
-                <Text style={styles.sinAlertaTexto}>
-                  Sin alerta activa en {municipioNombre}
-                </Text>
-              </View>
-            )}
-
-            <Text style={styles.seccionTitulo}>
-              Historial últimos {DIAS_HISTORIAL} días
-            </Text>
-          </>
-        }
-        renderItem={({ item }) => <AlertaCard alerta={item} />}
-        ListEmptyComponent={
-          <Text style={styles.vacio}>Sin alertas en el período</Text>
-        }
-        contentContainerStyle={styles.lista}
-      />
+    <View style={[styles.badge, { backgroundColor: color + '33', borderColor: color }]}>
+      <Text style={[styles.badgeText, { color }]}>{nivel}</Text>
     </View>
   );
 }
 
-function AlertaCard({
-  alerta,
-  destacada = false,
-}: {
-  alerta: Alerta;
-  destacada?: boolean;
-}) {
-  const nivel = alerta.nivel as NivelAlerta;
-  const colores = NIVEL_COLORES[nivel];
-  const fecha = new Date(alerta.created_at).toLocaleDateString('es-CO', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
+function AlertaCard({ item }: { item: Alerta }) {
+  const nivel = (item.nivel ?? item.nivel_alerta ?? 'AMARILLO') as NivelAlerta;
+  const municipio = item.municipio_nombre ?? item.municipio ?? '';
+  const fecha = item.fecha_inicio ?? item.created_at;
+  const fechaStr = fecha
+    ? new Date(fecha).toLocaleDateString('es-CO', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      })
+    : '';
 
   return (
-    <View
-      style={[
-        styles.card,
-        { backgroundColor: colores.bg, borderColor: colores.bgLight },
-        destacada && styles.cardDestacada,
-      ]}
-    >
+    <View style={styles.card}>
       <View style={styles.cardHeader}>
-        <View
-          style={[styles.nivelBadge, { backgroundColor: colores.bgLight }]}
-        >
-          <Text style={[styles.nivelBadgeTexto, { color: colores.text }]}>
-            {nivel}
-          </Text>
-        </View>
-        <Text style={[styles.cardFecha, { color: colores.text }]}>{fecha}</Text>
+        <NivelBadge nivel={nivel} />
+        {item.activa && (
+          <View style={styles.activaBadge}>
+            <Text style={styles.activaBadgeText}>ACTIVA</Text>
+          </View>
+        )}
+        <Text style={styles.cardFecha}>{fechaStr}</Text>
       </View>
-      <Text style={[styles.cardTitulo, { color: colores.text }]}>
-        {alerta.titulo}
-      </Text>
-      <Text style={[styles.cardDescripcion, { color: colores.text }]}>
-        {alerta.descripcion}
-      </Text>
-      {alerta.activa && (
-        <View style={styles.activaBadge}>
-          <Text style={styles.activaBadgeTexto}>ACTIVA</Text>
+      <Text style={styles.cardTipo}>{item.titulo ?? item.tipo ?? ''}</Text>
+      {!!municipio && <Text style={styles.cardMunicipio}>{municipio}</Text>}
+      {!!item.descripcion && (
+        <Text style={styles.cardDesc} numberOfLines={2}>
+          {item.descripcion}
+        </Text>
+      )}
+    </View>
+  );
+}
+
+export default function AlertasScreen() {
+  const [alertas, setAlertas] = useState<Alerta[]>([]);
+  const [nivelMaximo, setNivelMaximo] = useState<NivelAlerta | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchData = useCallback(async () => {
+    setError(null);
+    try {
+      const data = await apiFetch('/alertas');
+      const list: Alerta[] = Array.isArray(data)
+        ? data
+        : data.results ?? data.data ?? [];
+
+      setAlertas(list);
+
+      const ORDEN: NivelAlerta[] = ['ROJO', 'NARANJA', 'AMARILLO', 'VERDE'];
+      const activas = list.filter((a) => a.activa);
+      const maximo = ORDEN.find((n) =>
+        activas.some((a) => (a.nivel ?? a.nivel_alerta) === n)
+      );
+      setNivelMaximo(maximo ?? null);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Error al cargar alertas.');
+    }
+  }, []);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    await fetchData();
+    setLoading(false);
+  }, [fetchData]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  }, [fetchData]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const nivelColor = nivelMaximo ? NIVEL_COLORS[nivelMaximo] : '#22C55E';
+  const nivelLabel = nivelMaximo ?? 'VERDE';
+
+  return (
+    <View style={styles.container}>
+      {loading ? (
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color="#3B82F6" />
         </View>
+      ) : error ? (
+        <View style={styles.center}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={alertas}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={({ item }) => <AlertaCard item={item} />}
+          contentContainerStyle={styles.listContent}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor="#3B82F6"
+              colors={['#3B82F6']}
+            />
+          }
+          ListHeaderComponent={
+            <View
+              style={[
+                styles.nivelMaxCard,
+                { backgroundColor: nivelColor + '22', borderColor: nivelColor },
+              ]}
+            >
+              <Text style={styles.nivelMaxLabel}>Nivel de alerta actual</Text>
+              <Text style={[styles.nivelMaxValue, { color: nivelColor }]}>
+                {nivelLabel}
+              </Text>
+            </View>
+          }
+          ListEmptyComponent={
+            <View style={styles.center}>
+              <Text style={styles.emptyText}>Sin alertas activas.</Text>
+            </View>
+          }
+        />
       )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F1117' },
-  header: {
-    paddingTop: 54,
-    paddingHorizontal: 20,
-    paddingBottom: 16,
-    backgroundColor: '#111827',
+  container: {
+    flex: 1,
+    backgroundColor: '#0A0E1A',
   },
-  headerTitulo: { fontSize: 28, fontWeight: '700', color: '#F9FAFB' },
-  headerMunicipio: { fontSize: 14, color: '#9CA3AF', marginTop: 2 },
-  offlineBanner: {
-    backgroundColor: '#374151',
-    padding: 10,
+  center: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
+    paddingTop: 80,
   },
-  offlineTexto: { color: '#D1D5DB', fontSize: 13 },
-  lista: { padding: 16, gap: 12 },
-  seccionTitulo: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#9CA3AF',
-    marginTop: 20,
-    marginBottom: 8,
+  errorText: {
+    color: '#EF4444',
+    fontSize: 14,
+    textAlign: 'center',
+    paddingHorizontal: 24,
   },
-  sinAlertaCard: {
-    backgroundColor: '#052E16',
-    borderRadius: 14,
-    padding: 24,
-    alignItems: 'center',
-    gap: 8,
-    borderWidth: 1,
-    borderColor: '#166534',
+  emptyText: {
+    color: '#6B7280',
+    fontSize: 14,
   },
-  sinAlertaEmoji: { fontSize: 36 },
-  sinAlertaTexto: { fontSize: 16, color: '#86EFAC', fontWeight: '600' },
-  card: {
-    borderRadius: 14,
+  listContent: {
     padding: 16,
-    borderWidth: 1,
-    gap: 8,
+    paddingBottom: 80,
   },
-  cardDestacada: { borderWidth: 2 },
+  nivelMaxCard: {
+    borderRadius: 14,
+    borderWidth: 2,
+    padding: 20,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  nivelMaxLabel: {
+    color: '#9CA3AF',
+    fontSize: 13,
+    marginBottom: 6,
+  },
+  nivelMaxValue: {
+    fontSize: 32,
+    fontWeight: '800',
+    letterSpacing: 2,
+  },
+  card: {
+    backgroundColor: '#1F2937',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 12,
+    gap: 6,
+  },
   cardHeader: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    gap: 8,
   },
-  nivelBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
-  },
-  nivelBadgeTexto: { fontSize: 12, fontWeight: '700', letterSpacing: 0.5 },
-  cardFecha: { fontSize: 12, opacity: 0.7 },
-  cardTitulo: { fontSize: 16, fontWeight: '700' },
-  cardDescripcion: { fontSize: 14, opacity: 0.85, lineHeight: 20 },
-  activaBadge: {
-    backgroundColor: '#EF4444',
-    alignSelf: 'flex-start',
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 20,
-  },
-  activaBadgeTexto: { color: '#FFF', fontSize: 11, fontWeight: '700' },
-  vacio: {
+  cardFecha: {
     color: '#6B7280',
-    textAlign: 'center',
-    marginTop: 30,
-    fontSize: 15,
+    fontSize: 12,
+    marginLeft: 'auto',
+  },
+  cardTipo: {
+    color: '#F9FAFB',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  cardMunicipio: {
+    color: '#9CA3AF',
+    fontSize: 12,
+  },
+  cardDesc: {
+    color: '#D1D5DB',
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  badge: {
+    borderRadius: 6,
+    borderWidth: 1,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  badgeText: {
+    fontSize: 11,
+    fontWeight: '600',
+    letterSpacing: 0.3,
+  },
+  activaBadge: {
+    backgroundColor: '#EF444433',
+    borderColor: '#EF4444',
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  activaBadgeText: {
+    color: '#EF4444',
+    fontSize: 9,
+    fontWeight: '700',
+    letterSpacing: 0.5,
   },
 });
