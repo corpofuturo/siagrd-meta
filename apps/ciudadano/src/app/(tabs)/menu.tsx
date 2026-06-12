@@ -26,9 +26,9 @@ const ALL_ITEMS: MenuItem[] = [
   { icon: '📝', title: 'Reportes Ciudadanos', desc: 'Revisar reportes recibidos', route: '/reportes' },
   { icon: '🏗️', title: 'Recursos', desc: 'Equipos y materiales disponibles', route: '/recursos' },
   { icon: '🗺️', title: 'Municipios', desc: 'Lista de municipios del Meta', route: '/municipios' },
-  { icon: '⚙️', title: 'Administración', desc: 'Panel de administración del sistema', route: '/admin', roles: ['admin', 'coordinador_departamental', 'coordinador_municipal'] },
-  { icon: '👤', title: 'Usuarios', desc: 'Gestión de usuarios del sistema', route: '/usuarios', roles: ['admin', 'coordinador_departamental', 'coordinador_municipal'] },
-  { icon: '📤', title: 'Exportaciones', desc: 'Descargar reportes en CSV', route: '/exportaciones', roles: ['admin', 'coordinador_departamental', 'coordinador_municipal'] },
+  { icon: '⚙️', title: 'Administración', desc: 'Panel de administración del sistema', route: '/admin', roles: ['admin', 'cdgrd', 'cmgrd'] },
+  { icon: '👤', title: 'Usuarios', desc: 'Gestión de usuarios del sistema', route: '/usuarios', roles: ['admin', 'cdgrd', 'cmgrd'] },
+  { icon: '📤', title: 'Exportaciones', desc: 'Descargar reportes en CSV', route: '/exportaciones', roles: ['admin', 'cdgrd', 'cmgrd'] },
 ];
 
 export default function MenuScreen() {

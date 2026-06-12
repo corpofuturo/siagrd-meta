@@ -71,7 +71,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       const password_hash = await bcrypt.hash(password, 10);
       const [user] = await db`
         INSERT INTO profiles (email, password_hash, nombre, apellido, rol, activo)
-        VALUES (${email}, ${password_hash}, ${nombre}, ${apellido ?? ''}, 'ciudadano', true)
+        VALUES (${email}, ${password_hash}, ${nombre}, ${apellido ?? ''}, 'CIUDADANO', true)
         RETURNING id, email, nombre, apellido, rol, municipio_id
       `;
 
@@ -167,8 +167,8 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     await db`
       INSERT INTO profiles (email, password_hash, nombre, apellido, rol, activo)
       VALUES
-        ('admin',   ${hash_admin},   'Administrador', 'SATAM', 'admin',    true),
-        ('bombero', ${hash_bombero}, 'Bombero',       'Demo',  'operador', true)
+        ('admin',   ${hash_admin},   'Administrador', 'SATAM', 'ADMIN',    true),
+        ('bombero', ${hash_bombero}, 'Bombero',       'Demo',  'SOCORRO',  true)
       ON CONFLICT (email) DO UPDATE
         SET password_hash = EXCLUDED.password_hash,
             rol           = EXCLUDED.rol,

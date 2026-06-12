@@ -42,6 +42,9 @@ async function handleAuthResponse(response: Response): Promise<Session> {
     throw new Error(body?.message ?? `Error ${response.status}`);
   }
   const session: Session = await response.json();
+  if (session.user?.rol) {
+    (session.user as any).rol = (session.user.rol as string).toLowerCase();
+  }
   await SecureStore.setItemAsync(KEYS.access, session.access_token);
   await SecureStore.setItemAsync(KEYS.refresh, session.refresh_token ?? '');
   return session;
