@@ -212,7 +212,7 @@ export async function incidentesRoutes(app: FastifyInstance): Promise<void> {
           ${tipo_amenaza}, ${descripcion ?? null}, ${nivel_alerta}, ${municipio_id}, ${titulo},
           ${user.id},
           ST_SetSRID(ST_MakePoint(${lngNum}, ${latNum}), 4326),
-          'ACTIVO',
+          'PENDIENTE',
           NOW(), NOW(), NOW()
         )
         RETURNING *
