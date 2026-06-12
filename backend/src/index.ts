@@ -49,8 +49,9 @@ const ALLOWED_ORIGINS: (string | RegExp)[] = corsOriginsEnv
   ? corsOriginsEnv.split(',').map((s) => s.trim()).filter(Boolean)
   : [
       /^https:\/\/.*\.gov\.co$/,
-      /^https:\/\/.*\.netlify\.app$/,
-      'https://siagrd-panel-web.netlify.app',
+      'http://13.140.174.122',
+      'http://13.140.174.122:80',
+      `http://13.140.174.122:${PORT}`,
     ];
 
 
