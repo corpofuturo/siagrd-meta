@@ -54,8 +54,8 @@ describe('transicionarEstado — estado-evento.service', () => {
     const incidente = { id: 'inc-1', estado: 'PENDIENTE', municipio_id: 'mun-1' };
     const actualizado = { id: 'inc-1', estado: 'CONFIRMADO' };
 
-    // llamadas en orden: SELECT incidente, INSERT transicion, UPDATE incidente
-    const db = makeDb([[incidente], [], [actualizado]]);
+    // llamadas: SELECT incidente, INSERT transicion, fragmento db`` anidado, UPDATE incidente
+    const db = makeDb([[incidente], [], [], [actualizado]]);
 
     const result = await transicionarEstado(db, 'inc-1', 'CONFIRMADO', actorCDGRD);
 
@@ -95,7 +95,8 @@ describe('transicionarEstado — estado-evento.service', () => {
     const informe = { id: 'inf-1' };
     const actualizado = { id: 'inc-1', estado: 'CERRADO' };
 
-    const db = makeDb([[incidente], [informe], [], [actualizado]]);
+    // llamadas: SELECT incidente, SELECT informe, INSERT transicion, fragmento db`` anidado, UPDATE incidente
+    const db = makeDb([[incidente], [informe], [], [], [actualizado]]);
 
     const result = await transicionarEstado(db, 'inc-1', 'CERRADO', actorADMIN);
 
@@ -115,7 +116,8 @@ describe('transicionarEstado — estado-evento.service', () => {
     const incidente = { id: 'inc-1', estado: 'PENDIENTE', municipio_id: 'mun-1' };
     const actualizado = { id: 'inc-1', estado: 'CANCELADO' };
 
-    const db = makeDb([[incidente], [], [actualizado]]);
+    // llamadas: SELECT incidente, INSERT transicion, fragmento db`` anidado, UPDATE incidente
+    const db = makeDb([[incidente], [], [], [actualizado]]);
 
     const result = await transicionarEstado(
       db, 'inc-1', 'CANCELADO', actorCDGRD, 'Falsa alarma confirmada',

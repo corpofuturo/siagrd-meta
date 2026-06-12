@@ -129,7 +129,11 @@ describe('GET /estadisticas/por-tipo', () => {
       { tipo: 'INUNDACION', mes: 3, año: 2023, total: 4 },
       { tipo: 'INCENDIO',   mes: 7, año: 2023, total: 2 },
     ];
-    (mockDb as any).mockResolvedValueOnce(rows);
+    // La query tiene 2 fragmentos db`` anidados que consumen slots antes del query real
+    (mockDb as any)
+      .mockResolvedValueOnce([])   // fragmento municipio_id (undefined → db``)
+      .mockResolvedValueOnce([])   // fragmento rol (CDGRD → db``)
+      .mockResolvedValueOnce(rows);
 
     const app = await buildApp();
     const response = await app.inject({

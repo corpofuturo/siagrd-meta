@@ -117,6 +117,11 @@ describe('POST /auth/login', () => {
 
 describe('POST /auth/refresh', () => {
   it('retorna 200 con nuevo access_token cuando refresh_token es válido', async () => {
+    // 1ª llamada: SELECT revoked_refresh_tokens → vacío (no revocado)
+    // 2ª llamada: DELETE fire-and-forget (limpiar expirados)
+    // 3ª llamada: SELECT profiles → usuario encontrado
+    (db as any).mockResolvedValueOnce([]);
+    (db as any).mockResolvedValueOnce([]);
     (db as any).mockResolvedValueOnce([{ id: 'user-1', email: 'test@test.com' }]);
 
     const app = await buildApp();

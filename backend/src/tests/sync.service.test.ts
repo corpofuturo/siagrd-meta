@@ -1,5 +1,21 @@
 import { describe, it, expect, vi } from 'vitest';
 
+vi.mock('../lib/db.js', () => {
+  const mockDb = vi.fn().mockResolvedValue([]);
+  (mockDb as any).array = vi.fn().mockImplementation((arr: any[]) => arr);
+  (mockDb as any).json = vi.fn().mockImplementation((v: any) => v);
+  (mockDb as any).unsafe = vi.fn().mockImplementation((s: string) => s);
+  // postgres identifier helper: db(tableName) or db(obj)
+  const tag = Object.assign(mockDb, {
+    __esModule: true,
+  });
+  return { db: tag };
+});
+
+vi.mock('../utils/logger.js', () => ({
+  logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+}));
+
 // Mock completo de supabase — todos los métodos terminales resuelven inmediatamente
 vi.mock('../lib/supabase.js', () => {
   const terminal = {

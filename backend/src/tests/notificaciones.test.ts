@@ -35,7 +35,10 @@ const basePayload: NotificationPayload = {
 
 describe('enqueueNotification', () => {
   beforeEach(() => {
+    (mockDb as any).mockReset();
     (mockDb as any).mockResolvedValue([]);
+    (mockDb as any).array = vi.fn().mockImplementation((arr: any[]) => arr);
+    (mockDb as any).json = vi.fn().mockImplementation((v: any) => v);
   });
 
   it('llama al INSERT con ON CONFLICT DO NOTHING (idempotencia)', async () => {

@@ -6,7 +6,7 @@ import { ForbiddenError, NotFoundError, ValidationError } from '../utils/errors.
 import type { RolUsuario } from '../types/domain.js';
 
 const ROLES_ADMIN: RolUsuario[] = ['ADMIN', 'CDGRD'];
-const ROLES_DIRECTOR: RolUsuario[] = ['ADMIN', 'CDGRD', 'SOCORRO'];
+const _ROLES_DIRECTOR: RolUsuario[] = ['ADMIN', 'CDGRD', 'SOCORRO'];
 
 export async function organismosRoutes(app: FastifyInstance): Promise<void> {
 

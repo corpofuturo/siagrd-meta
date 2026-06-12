@@ -8,6 +8,11 @@ const { mockDb } = vi.hoisted(() => {
 
 vi.mock('../lib/db.js', () => ({ db: mockDb }));
 
+vi.mock('../middleware/cache.js', () => ({
+  getCached: vi.fn().mockReturnValue(null),
+  setCached: vi.fn(),
+}));
+
 import Fastify from 'fastify';
 import { municipiosRoutes } from '../routes/municipios.js';
 

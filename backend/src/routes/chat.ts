@@ -9,7 +9,7 @@
  * Dependencia WS: @fastify/websocket (añadido al package.json — ejecutar npm install)
  */
 
-import type { FastifyInstance, FastifyRequest } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 // TODO: descomentar cuando @fastify/websocket esté instalado:
 // import websocketPlugin from '@fastify/websocket';
 import jwt from 'jsonwebtoken';
@@ -23,7 +23,7 @@ import type { AuthenticatedUser, RolUsuario } from '../types/domain.js';
 type TipoChat = 'PUBLICO_EVENTO' | 'OPERATIVO_EVENTO' | 'GENERAL';
 type TipoMensaje = 'TEXTO' | 'IMAGEN' | 'ALERTA_OFICIAL' | 'SISTEMA';
 
-const ROLES_OPERADORES: RolUsuario[] = ['SOCORRO', 'CMGRD', 'CDGRD', 'ADMIN'];
+const _ROLES_OPERADORES: RolUsuario[] = ['SOCORRO', 'CMGRD', 'CDGRD', 'ADMIN'];
 const ROLES_ALERTA_OFICIAL: RolUsuario[] = ['CMGRD', 'CDGRD', 'ADMIN'];
 
 /** Tipos de chat visibles según rol */
@@ -62,7 +62,7 @@ function getJwtSecret(): string {
   return s;
 }
 
-async function authenticateWsToken(token: string): Promise<AuthenticatedUser> {
+async function _authenticateWsToken(token: string): Promise<AuthenticatedUser> {
   let payload: { sub: string; email: string; anonymous?: boolean };
   try {
     payload = jwt.verify(token, getJwtSecret()) as any;

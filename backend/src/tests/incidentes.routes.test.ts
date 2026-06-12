@@ -204,7 +204,15 @@ describe('POST /incidentes', () => {
       method: 'POST',
       url: '/api/v1/incidentes',
       headers: { authorization: 'Bearer mock-token' },
-      payload: { tipo_amenaza: 'INUNDACION', descripcion: 'Desbordamiento río' },
+      payload: {
+        tipo_amenaza: 'INUNDACION',
+        descripcion: 'Desbordamiento río',
+        titulo: 'Desbordamiento río test',
+        lat: 4.1,
+        lng: -73.6,
+        nivel_alerta: 'AMARILLO',
+        municipio_id: 'muni-50001',
+      },
     });
 
     expect(response.statusCode).toBe(201);
