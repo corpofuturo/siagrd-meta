@@ -240,17 +240,23 @@ function ModalUsuarios({ alc, onClose }: { alc: Alcaldia; onClose: () => void })
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
 
-  const fetchUsuarios = useCallback(async () => {
+  const fetchUsuarios = useCallback(async (signal?: AbortSignal) => {
     setLoadingU(true);
     try {
-      const r = await fetch(`${API_URL}/api/v1/alcaldias/${alc.id}/usuarios`, { headers: authHeaders() });
+      const r = await fetch(`${API_URL}/api/v1/alcaldias/${alc.id}/usuarios`, { headers: authHeaders(), signal });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const d = await r.json();
       setUsuarios(Array.isArray(d) ? d : d.data ?? []);
-    } catch { setUsuarios([]); } finally { setLoadingU(false); }
+    } catch (ex: any) {
+      if (ex?.name !== 'AbortError') setUsuarios([]);
+    } finally { setLoadingU(false); }
   }, [alc.id]);
 
-  useEffect(() => { fetchUsuarios(); }, [fetchUsuarios]);
+  useEffect(() => {
+    const ac = new AbortController();
+    fetchUsuarios(ac.signal);
+    return () => ac.abort();
+  }, [fetchUsuarios]);
 
   async function crearUsuario(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -374,27 +380,39 @@ export default function AlcaldiasPage() {
   const [editando, setEditando] = useState<Alcaldia | null>(null);
   const [usuariosAlc, setUsuariosAlc] = useState<Alcaldia | null>(null);
 
-  const fetchAlcaldias = useCallback(async () => {
-    setLoading(true); setError(null);
-    try {
-      const params = new URLSearchParams();
-      if (filtroActivo !== '') params.set('activo', filtroActivo);
-      if (filtroMunicipio) params.set('municipio_id', filtroMunicipio);
-
-      const r = await fetch(`${API_URL}/api/v1/alcaldias?${params}`, { headers: authHeaders() });
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      const d = await r.json();
-      setAlcaldias(Array.isArray(d) ? d : d.data ?? []);
-    } catch (ex: any) { setError(ex.message); } finally { setLoading(false); }
-  }, [filtroActivo, filtroMunicipio]);
-
   useEffect(() => {
-    fetchAlcaldias();
-    fetch(`${API_URL}/api/v1/municipios?departamento=50`, { headers: authHeaders() })
+    const ac = new AbortController();
+    setLoading(true); setError(null);
+
+    const params = new URLSearchParams();
+    if (filtroActivo !== '') params.set('activo', filtroActivo);
+    if (filtroMunicipio) params.set('municipio_id', filtroMunicipio);
+
+    fetch(`${API_URL}/api/v1/alcaldias?${params}`, { headers: authHeaders(), signal: ac.signal })
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then(d => { setAlcaldias(Array.isArray(d) ? d : d.data ?? []); })
+      .catch(ex => { if (ex?.name !== 'AbortError') setError(ex.message); })
+      .finally(() => setLoading(false));
+
+    fetch(`${API_URL}/api/v1/municipios?departamento=50`, { headers: authHeaders(), signal: ac.signal })
       .then(r => r.json())
       .then(d => setMunicipios(Array.isArray(d) ? d : d.data ?? []))
       .catch(() => {});
-  }, [fetchAlcaldias]);
+
+    return () => ac.abort();
+  }, [filtroActivo, filtroMunicipio]);
+
+  function fetchAlcaldias() {
+    const params = new URLSearchParams();
+    if (filtroActivo !== '') params.set('activo', filtroActivo);
+    if (filtroMunicipio) params.set('municipio_id', filtroMunicipio);
+    setLoading(true); setError(null);
+    fetch(`${API_URL}/api/v1/alcaldias?${params}`, { headers: authHeaders() })
+      .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then(d => setAlcaldias(Array.isArray(d) ? d : d.data ?? []))
+      .catch(ex => setError(ex.message))
+      .finally(() => setLoading(false));
+  }
 
   async function desactivar(id: string, nombre: string) {
     if (!confirm(`¿Desactivar la alcaldía "${nombre}"?`)) return;
@@ -488,7 +506,7 @@ export default function AlcaldiasPage() {
                     {alc.lider_nombre ? (
                       <div>
                         <p className="text-[#F0F4FF]">{alc.lider_nombre} {alc.lider_apellido}</p>
-                        <p className="text-[#6B7280] font-mono">{alc.lider_email}</p>
+                        <p className="text-[#6B7280] font-mono">{alc.lider_email ?? '—'}</p>
                       </div>
                     ) : <span className="text-[#6B7280]">Sin líder</span>}
                   </td>

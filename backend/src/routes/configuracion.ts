@@ -9,7 +9,7 @@ const ROLES_ADMIN: RolUsuario[] = ['ADMIN', 'CDGRD'];
 export async function configuracionRoutes(app: FastifyInstance): Promise<void> {
 
   // ── GET /configuracion ───────────────────────────────────────────────────────
-  app.get('/configuracion', async (_request, reply) => {
+  app.get('/configuracion', { preHandler: authMiddleware }, async (_request, reply) => {
     const [row] = await db`
       SELECT c.*, m.nombre AS municipio_nombre_join
       FROM configuracion c

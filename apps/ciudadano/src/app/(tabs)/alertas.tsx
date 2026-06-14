@@ -56,7 +56,10 @@ async function apiFetch(path: string, opts?: RequestInit) {
       ...(opts?.headers ?? {}),
     },
   });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({})) as Record<string, unknown>;
+    throw new Error((body?.message as string) ?? `HTTP ${res.status}`);
+  }
   return res.json();
 }
 
@@ -271,8 +274,8 @@ function CrearAlertaModal({
 
 export default function AlertasScreen() {
   const { session } = useAuth();
-  const rol: string = (session?.user ?? (session as any))?.rol ?? '';
-  const canCreate = rol === 'ADMIN' || rol === 'admin' || rol === 'CDGRD' || rol === 'cdgrd';
+  const rol: string = ((session?.user as any)?.rol ?? '').toLowerCase();
+  const canCreate = rol === 'admin' || rol === 'cdgrd';
 
   const [alertas, setAlertas] = useState<Alerta[]>([]);
   const [nivelMaximo, setNivelMaximo] = useState<NivelAlerta | null>(null);
