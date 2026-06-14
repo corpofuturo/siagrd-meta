@@ -16,6 +16,13 @@ import { getToken } from '../../services/auth.service';
 const BACKEND = API_BASE;
 const QUEUE_KEY = 'satam_incidente_queue';
 
+// Claves de caché de datos de referencia — se invalidan al sincronizar
+const REF_CACHE_KEYS = [
+  'satam_municipios_cache_v3',
+  'satam_organismos_cache_v1',
+  'satam_grupos_socorro_cache_v1',
+];
+
 interface QueueItem {
   id: string;
   tipo_amenaza: string;
@@ -95,6 +102,9 @@ export default function SyncScreen() {
 
     setQueue(updatedQueue);
     setSyncing(false);
+
+    // Invalidar caché de referencia para que se refresque en próximo uso
+    await Promise.all(REF_CACHE_KEYS.map((k) => AsyncStorage.removeItem(k).catch(() => {})));
 
     if (failed.length > 0) {
       Alert.alert('Sincronización parcial', `${failed.length} incidente(s) no pudieron sincronizarse.`);

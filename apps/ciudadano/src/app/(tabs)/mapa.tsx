@@ -4,6 +4,7 @@ import * as Location from 'expo-location';
 import * as SecureStore from 'expo-secure-store';
 import { API_BASE } from '../../constants';
 import LeafletMap, { type MapEvento } from '../../components/LeafletMap';
+import { useMunicipios } from '../../hooks/useMunicipios';
 
 const DEFAULT_LAT = 3.5;
 const DEFAULT_LON = -73.0;
@@ -28,6 +29,8 @@ export default function MapaRiesgosScreen() {
   const [capa, setCapa] = useState<Capa>('TODOS');
   const [error, setError] = useState<string | null>(null);
 
+  const { municipios } = useMunicipios();
+
   const fetchEventos = useCallback(async () => {
     try {
       const token = await SecureStore.getItemAsync('satam_access_token');
@@ -42,23 +45,17 @@ export default function MapaRiesgosScreen() {
         return;
       }
 
-      const [inciRes, muniRes] = await Promise.all([
-        fetch(`${API_BASE}/incidentes?limit=200`, { headers }),
-        fetch(`${API_BASE}/municipios?departamento=50`, { headers }),
-      ]);
+      const inciRes = await fetch(`${API_BASE}/incidentes?limit=200`, { headers });
       if (!inciRes.ok) throw new Error('Sin datos');
 
       const inciData = await inciRes.json();
       const incis: any[] = Array.isArray(inciData) ? inciData : inciData.data ?? inciData.results ?? [];
 
+      // Usar municipios del caché local
       const muniMap: Record<string, { latitud: number; longitud: number; nombre: string }> = {};
-      if (muniRes.ok) {
-        const muniData = await muniRes.json();
-        const munis: any[] = Array.isArray(muniData) ? muniData : muniData.data ?? [];
-        for (const m of munis) {
-          if (m.id && m.latitud != null && m.longitud != null) {
-            muniMap[m.id] = { latitud: Number(m.latitud), longitud: Number(m.longitud), nombre: m.nombre };
-          }
+      for (const m of municipios) {
+        if (m.id && m.latitud != null && m.longitud != null) {
+          muniMap[m.id] = { latitud: Number(m.latitud), longitud: Number(m.longitud), nombre: m.nombre };
         }
       }
 
@@ -74,7 +71,7 @@ export default function MapaRiesgosScreen() {
     } catch {
       setError('No se pudieron cargar los eventos.');
     }
-  }, []);
+  }, [municipios]);
 
   useEffect(() => {
     (async () => {
