@@ -49,9 +49,8 @@ const ALLOWED_ORIGINS: (string | RegExp)[] = corsOriginsEnv
   ? corsOriginsEnv.split(',').map((s) => s.trim()).filter(Boolean)
   : [
       /^https:\/\/.*\.gov\.co$/,
-      'http://13.140.174.122',
-      'http://13.140.174.122:80',
-      `http://13.140.174.122:${PORT}`,
+      'https://panel.satam.corpofuturo.org',
+      'https://api.satam.corpofuturo.org',
     ];
 
 

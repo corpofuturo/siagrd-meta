@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://13.140.174.122';
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.satam.corpofuturo.org';
 
 interface Alcaldia {
   id: string;

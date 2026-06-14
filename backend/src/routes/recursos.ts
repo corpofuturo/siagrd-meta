@@ -49,8 +49,9 @@ export async function recursosRoutes(app: FastifyInstance): Promise<void> {
         throw new ForbiddenError('Sin permiso para modificar este recurso');
       }
 
+      const ALLOWED_FIELDS = new Set(['nombre', 'tipo', 'disponible', 'cantidad', 'municipio_id', 'organismo_id']);
       const body = request.body as Record<string, unknown>;
-      const fields = Object.entries(body).filter(([k]) => k !== 'id');
+      const fields = Object.entries(body).filter(([k]) => ALLOWED_FIELDS.has(k));
 
       if (fields.length === 0) {
         const [current] = await db`SELECT * FROM recursos WHERE id = ${id}`;

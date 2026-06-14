@@ -11,6 +11,13 @@ export async function webhooksRoutes(fastify: FastifyInstance): Promise<void> {
   fastify.register(async (pub) => {
     // POST /webhooks/telegram — recibe updates del bot; Telegram llama este endpoint sin auth
     pub.post('/webhooks/telegram', async (request, reply) => {
+      const telegramSecret = process.env.TELEGRAM_WEBHOOK_SECRET;
+      if (telegramSecret) {
+        const headerSecret = request.headers['x-telegram-bot-api-secret-token'];
+        if (headerSecret !== telegramSecret) {
+          return reply.code(403).send({ ok: false });
+        }
+      }
       const body = request.body as any;
 
       const message = body?.message;

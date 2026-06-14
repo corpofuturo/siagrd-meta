@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import type { IncidenteMapData } from '@/hooks/useRealtimeIncidentes';
 
 const PAGE_SIZE = 50;
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://backend-production-60016.up.railway.app';
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.satam.corpofuturo.org';
 
 const MUNICIPIOS_META = [
   'Villavicencio', 'Acacías', 'Barranca de Upía', 'Cabuyaro',

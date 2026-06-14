@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useChat, TipoMensaje, ChatMensaje, WsStatus } from '@/hooks/useChat';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://backend-production-60016.up.railway.app';
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.satam.corpofuturo.org';
 
 // Roles autorizados para ALERTA_OFICIAL
 const ROLES_ALERTA = ['CMGRD', 'CDGRD', 'ADMIN'];

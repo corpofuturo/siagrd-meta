@@ -66,7 +66,7 @@ const TRANSICIONES: Record<string, Transicion[]> = {
 // Solo COORDINADOR puede cancelar; OPERADOR puede hacer las demás transiciones operativas
 const ACCIONES_SOLO_COORDINADOR = new Set(['cancelar', 'falso_positivo', 'cerrar', 'reabrir']);
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://backend-production-60016.up.railway.app';
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.satam.corpofuturo.org';
 
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;

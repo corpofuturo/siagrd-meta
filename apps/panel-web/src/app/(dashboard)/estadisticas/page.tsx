@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://backend-production-60016.up.railway.app';
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.satam.corpofuturo.org';
 
 const TIPOS_AMENAZA = ['INUNDACION', 'DESLIZAMIENTO', 'INCENDIO', 'SISMO', 'VENDAVAL', 'OTRO'];
 const AÑOS = Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i);
