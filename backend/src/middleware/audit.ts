@@ -1,35 +1,26 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { supabaseAdmin } from '../lib/supabase.js';
+import { db } from '../lib/db.js';
 
 const WRITE_METHODS = new Set(['POST', 'PATCH', 'DELETE', 'PUT']);
 
-/**
- * Infiere el nombre de tabla a partir de la URL de la peticion.
- * Ejemplo: /alertas/123 -> alertas
- */
 function inferTable(url: string): string {
-  const segment = url.split('/').filter(Boolean)[0] ?? 'unknown';
-  return segment;
+  return url.split('/').filter(Boolean)[0] ?? 'unknown';
 }
 
 /**
- * Middleware de auditoria: registra en audit_log todas las operaciones
- * de escritura (POST/PATCH/DELETE/PUT) excepto el endpoint /health.
- * Si el insert falla, no bloquea la peticion.
+ * Registra en audit_log todas las operaciones de escritura (POST/PATCH/DELETE/PUT).
+ * Ley 1581/2012: no almacena IP para reportes anónimos.
+ * Si el insert falla, no bloquea la petición.
  */
 export async function auditMiddleware(app: FastifyInstance): Promise<void> {
   app.addHook(
     'onResponse',
     async (request: FastifyRequest, _reply: FastifyReply) => {
       const method = request.method.toUpperCase();
-
       if (!WRITE_METHODS.has(method)) return;
       if (request.url.startsWith('/health')) return;
 
-      const usuario_id: string | null =
-        (request as any).user?.id ?? null;
-
-      // Ley 1581/2012: no almacenar IP de reportantes anónimos en audit_log
+      const usuario_id: string | null = (request as any).user?.id ?? null;
       const esReporteAnonimo = (request as any).__reporte_anonimo === true;
       const ip: string | null = esReporteAnonimo
         ? null
@@ -37,21 +28,21 @@ export async function auditMiddleware(app: FastifyInstance): Promise<void> {
            request.ip ??
            null);
 
-      const user_agent = request.headers['user-agent'] ?? null;
-      const tabla = inferTable(request.url);
-
       try {
-        await supabaseAdmin.from('audit_log').insert({
-          tabla,
-          metodo: method,
-          url: request.url,
-          usuario_id,
-          ip,
-          user_agent,
-          timestamp: new Date().toISOString(),
-        });
+        await db`
+          INSERT INTO audit_log (tabla, metodo, url, usuario_id, ip, user_agent, timestamp)
+          VALUES (
+            ${inferTable(request.url)},
+            ${method},
+            ${request.url},
+            ${usuario_id},
+            ${ip},
+            ${request.headers['user-agent'] ?? null},
+            NOW()
+          )
+        `;
       } catch {
-        // No bloquear la peticion si falla el registro de auditoria
+        // No bloquear la petición si falla el registro
       }
     },
   );
