@@ -23,7 +23,7 @@ interface Municipio {
 
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
-  const match = document.cookie.match(/siagrd_token=([^;]+)/);
+  const match = document.cookie.match(/siagrd_access=([^;]+)/);
   return match ? match[1] : null;
 }
 

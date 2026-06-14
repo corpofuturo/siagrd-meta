@@ -8,7 +8,7 @@ export async function POST(): Promise<NextResponse> {
   const token = cookieStore.get('siagrd_token')?.value;
   const refreshToken = cookieStore.get('siagrd_refresh')?.value;
 
-  // Notificar al backend para revocar el refresh token
+  // Revocar refresh token en el backend
   if (token && refreshToken) {
     await fetch(`${API_URL}/api/v1/auth/logout`, {
       method: 'POST',
@@ -22,9 +22,10 @@ export async function POST(): Promise<NextResponse> {
 
   const response = NextResponse.json({ ok: true });
 
-  // Limpiar cookies server-side
-  response.cookies.set('siagrd_token', '', { maxAge: 0, path: '/' });
-  response.cookies.set('siagrd_refresh', '', { maxAge: 0, path: '/' });
+  // Limpiar las tres cookies
+  response.cookies.set('siagrd_token',  '', { maxAge: 0, path: '/' });
+  response.cookies.set('siagrd_access', '', { maxAge: 0, path: '/' });
+  response.cookies.set('siagrd_refresh','', { maxAge: 0, path: '/' });
 
   return response;
 }

@@ -31,9 +31,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   const response = NextResponse.json({ user: data.user });
 
-  // Cookies HttpOnly — no accesibles desde JavaScript
+  // Cookie httpOnly — para SSR/middleware (no accesible desde JS)
   response.cookies.set('siagrd_token', data.access_token, {
     httpOnly: true,
+    secure: IS_PROD,
+    sameSite: 'strict',
+    maxAge: COOKIE_MAX_AGE,
+    path: '/',
+  });
+  // Cookie accesible — para fetch client-side en el dashboard
+  // Secure+SameSite=strict protege contra CSRF y la mayoría de XSS
+  response.cookies.set('siagrd_access', data.access_token, {
+    httpOnly: false,
     secure: IS_PROD,
     sameSite: 'strict',
     maxAge: COOKIE_MAX_AGE,

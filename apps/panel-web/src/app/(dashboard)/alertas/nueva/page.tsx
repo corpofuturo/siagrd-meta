@@ -44,7 +44,7 @@ const PASOS = ['Tipo y Nivel', 'Municipios', 'Instrucciones', 'Área Geográfica
 
 function getToken(): string | undefined {
   if (typeof window === 'undefined') return undefined;
-  const match = document.cookie.match(/siagrd_token=([^;]+)/);
+  const match = document.cookie.match(/siagrd_access=([^;]+)/);
   return match ? match[1] : undefined;
 }
 

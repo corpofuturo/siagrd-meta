@@ -47,7 +47,7 @@ const NAV_SECTIONS: NavSection[] = [
 function getUserFromToken(): { nombre: string; email: string } | null {
   if (typeof window === 'undefined') return null;
   try {
-    const match = document.cookie.match(/siagrd_token=([^;]+)/);
+    const match = document.cookie.match(/siagrd_access=([^;]+)/);
     if (!match) return null;
     const payload = JSON.parse(atob(match[1].split('.')[1]));
     return {
@@ -75,9 +75,8 @@ export default function Sidebar({ open = false, onClose }: SidebarProps): React.
     return pathname?.startsWith(href) ?? false;
   }
 
-  function logout(): void {
-    document.cookie = 'siagrd_token=; Max-Age=0; path=/';
-    document.cookie = 'siagrd_refresh=; Max-Age=0; path=/';
+  async function logout(): Promise<void> {
+    await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
     router.push('/login');
   }
 

@@ -288,7 +288,7 @@ export default function AlertasScreen() {
   const fetchData = useCallback(async () => {
     setError(null);
     try {
-      const data = await apiFetch('/alertas?activa=false');
+      const data = await apiFetch('/alertas?activa=true');
       const list: Alerta[] = Array.isArray(data)
         ? data
         : data.results ?? data.data ?? [];
