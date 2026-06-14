@@ -42,7 +42,7 @@ export default function LoginPage() {
 
   return (
     <div
-      style={{ backgroundColor: '#0F1117', minHeight: '100vh' }}
+      style={{ backgroundColor: '#0A0E1A', minHeight: '100vh' }}
       className="relative flex items-center justify-center p-4"
     >
       {/* Bandera Colombia — esquina superior izquierda */}
@@ -112,7 +112,7 @@ export default function LoginPage() {
         <div style={{
           backgroundColor: '#1E293B',
           border: '1px solid #2D3748',
-          borderRadius: 16,
+          borderRadius: 20,
           padding: '28px 32px',
           boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
         }}>

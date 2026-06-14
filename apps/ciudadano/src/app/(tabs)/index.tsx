@@ -11,7 +11,8 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getToken } from '../../services/auth.service';
 
-const BACKEND = 'https://backend-production-60016.up.railway.app/api/v1';
+import { API_BASE } from '../../constants';
+const BACKEND = API_BASE;
 const CACHE_KEY = 'satam_alertas_cache';
 
 const NIVEL_COLORES: Record<string, string> = {

@@ -21,6 +21,9 @@ const REF_CACHE_KEYS = [
   'satam_municipios_cache_v3',
   'satam_organismos_cache_v1',
   'satam_grupos_socorro_cache_v1',
+  'satam_alertas_cache',
+  '@siagrd:alertas_cache',
+  '@siagrd:alertas_cache_ts',
 ];
 
 interface QueueItem {

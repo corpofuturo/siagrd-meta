@@ -5,11 +5,11 @@ import { useRouter } from 'next/navigation';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.satam.corpofuturo.org';
 
-const NIVEL_BADGE: Record<string, string> = {
-  VERDE: 'bg-[#16A34A] text-white',
-  AMARILLO: 'bg-[#D97706] text-white',
-  NARANJA: 'bg-[#EA580C] text-white',
-  ROJO: 'bg-[#DC2626] text-white',
+const NIVEL_BADGE: Record<string, { bg: string; border: string; text: string }> = {
+  VERDE:    { bg: '#22C55E22', border: '#22C55E', text: '#22C55E' },
+  AMARILLO: { bg: '#EAB30822', border: '#EAB308', text: '#EAB308' },
+  NARANJA:  { bg: '#F9731622', border: '#F97316', text: '#F97316' },
+  ROJO:     { bg: '#EF444422', border: '#EF4444', text: '#EF4444' },
 };
 
 interface Alerta {
@@ -91,7 +91,7 @@ export default function AlertasPage() {
           </h1>
           <button
             onClick={() => router.push('/alertas/nueva')}
-            className="px-4 py-2 bg-[#DC2626] hover:bg-[#B91C1C] text-white text-sm font-bold rounded font-display tracking-wider uppercase transition-colors"
+            className="px-4 py-2 bg-[#3B82F6] hover:bg-[#2563EB] text-white text-sm font-bold rounded font-display tracking-wider uppercase transition-colors"
           >
             + Nueva Alerta
           </button>
@@ -117,7 +117,7 @@ export default function AlertasPage() {
           </select>
         </div>
 
-        <div className="bg-[#111827] border border-[#2D3748] rounded-lg overflow-hidden">
+        <div className="bg-[#111827] border border-[#2D3748] rounded-lg overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[#2D3748] bg-[#1E2535]">
@@ -151,9 +151,21 @@ export default function AlertasPage() {
                   className={`border-b border-[#2D3748] ${idx % 2 === 0 ? '' : 'bg-[#0D1220]'}`}
                 >
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold font-display ${NIVEL_BADGE[alerta.nivel] ?? 'bg-[#1E2535] text-[#8B9CC8]'}`}>
-                      {alerta.nivel}
-                    </span>
+                    {(() => {
+                      const b = NIVEL_BADGE[alerta.nivel];
+                      return b ? (
+                        <span
+                          style={{ backgroundColor: b.bg, borderColor: b.border, color: b.text, border: `1px solid ${b.border}` }}
+                          className="px-2 py-0.5 rounded text-[10px] font-bold font-display"
+                        >
+                          {alerta.nivel}
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#1E2535] text-[#8B9CC8]">
+                          {alerta.nivel ?? '—'}
+                        </span>
+                      );
+                    })()}
                   </td>
                   <td className="px-4 py-3 text-[#F0F4FF] max-w-[180px] truncate">{alerta.titulo}</td>
                   <td className="px-4 py-3 text-[#8B9CC8] text-xs">{alerta.tipo_amenaza ?? '—'}</td>
@@ -175,7 +187,7 @@ export default function AlertasPage() {
                       <button
                         onClick={() => emitirAlerta(alerta.id, alerta.titulo)}
                         disabled={emitiendo === alerta.id}
-                        className="px-2 py-1 bg-[#DC2626] hover:bg-[#B91C1C] disabled:opacity-50 text-white text-[10px] font-bold rounded uppercase tracking-wider transition-colors"
+                        className="px-2 py-1 bg-[#3B82F6] hover:bg-[#2563EB] disabled:opacity-50 text-white text-[10px] font-bold rounded uppercase tracking-wider transition-colors"
                       >
                         {emitiendo === alerta.id ? '...' : 'Emitir'}
                       </button>

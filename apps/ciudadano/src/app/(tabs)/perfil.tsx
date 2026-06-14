@@ -34,7 +34,7 @@ const ROL_COLORS: Record<string, string> = {
   admin: '#A78BFA',
 };
 
-const PANEL_URL = 'http://13.140.174.122';
+const PANEL_URL = 'https://panel.satam.corpofuturo.org';
 
 interface MenuItemProps {
   icon: string;

@@ -2,7 +2,8 @@ import * as ImageManipulator from 'expo-image-manipulator';
 import { getToken } from './auth.service';
 import type { Coordenada } from './location.service';
 
-const BACKEND = 'https://backend-production-60016.up.railway.app/api/v1';
+import { API_BASE } from '../constants';
+const BACKEND = API_BASE;
 const FOTO_MAX_PX = 800;
 const FOTO_CALIDAD = 0.7;
 

@@ -59,7 +59,12 @@ function getUserFromToken(): { nombre: string; email: string } | null {
   }
 }
 
-export default function Sidebar(): React.ReactElement {
+interface SidebarProps {
+  open?: boolean;
+  onClose?: () => void;
+}
+
+export default function Sidebar({ open = false, onClose }: SidebarProps): React.ReactElement {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -72,11 +77,23 @@ export default function Sidebar(): React.ReactElement {
 
   function logout(): void {
     document.cookie = 'siagrd_token=; Max-Age=0; path=/';
+    document.cookie = 'siagrd_refresh=; Max-Age=0; path=/';
     router.push('/login');
   }
 
+  function handleNavClick() {
+    onClose?.();
+  }
+
   return (
-    <aside className="fixed left-0 top-12 bottom-0 w-[220px] bg-[#0D1120] border-r border-[#1E2535] flex flex-col z-40 overflow-y-auto">
+    <aside
+      className={`
+        fixed left-0 top-12 bottom-0 w-[220px] bg-[#0D1320] border-r border-[#1E2535]
+        flex flex-col z-40 overflow-y-auto transition-transform duration-200
+        ${open ? 'translate-x-0' : '-translate-x-full'}
+        md:translate-x-0
+      `}
+    >
       <nav className="flex-1 py-4 px-2">
         {NAV_SECTIONS.map((section) => (
           <div key={section.title} className="mb-4">
@@ -89,6 +106,7 @@ export default function Sidebar(): React.ReactElement {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={handleNavClick}
                   className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors mb-0.5 relative ${
                     active
                       ? 'bg-[#1E2535] text-[#F0F4FF] font-semibold'
