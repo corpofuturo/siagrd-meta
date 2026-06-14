@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
+  Alert,
   ActivityIndicator,
   FlatList,
   Modal,
@@ -68,7 +69,15 @@ function NivelBadge({ nivel }: { nivel: NivelAlerta }) {
   );
 }
 
-function AlertaCard({ item }: { item: Alerta }) {
+function AlertaCard({
+  item,
+  canEmitir,
+  onEmitir,
+}: {
+  item: Alerta;
+  canEmitir: boolean;
+  onEmitir: (id: string | number) => void;
+}) {
   const nivel = (item.nivel ?? item.nivel_alerta ?? 'AMARILLO') as NivelAlerta;
   const municipio = item.municipio_nombre ?? item.municipio ?? '';
   const fecha = item.fecha_inicio ?? item.created_at;
@@ -97,6 +106,14 @@ function AlertaCard({ item }: { item: Alerta }) {
         <Text style={styles.cardDesc} numberOfLines={2}>
           {item.descripcion}
         </Text>
+      )}
+      {canEmitir && !item.activa && (
+        <TouchableOpacity
+          style={styles.btnEmitir}
+          onPress={() => onEmitir(item.id)}
+        >
+          <Text style={styles.btnEmitirText}>Emitir alerta</Text>
+        </TouchableOpacity>
       )}
     </View>
   );
@@ -162,7 +179,7 @@ function CrearAlertaModal({
             </TouchableOpacity>
           </View>
 
-          <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+          <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 8 }}>
             {/* Título */}
             <Text style={styles.fieldLabel}>Título *</Text>
             <TextInput
@@ -234,16 +251,18 @@ function CrearAlertaModal({
             {!!err && <Text style={styles.errText}>{err}</Text>}
           </ScrollView>
 
-          <TouchableOpacity
-            style={[styles.btnGuardar, saving && { opacity: 0.6 }]}
-            onPress={handleGuardar}
-            disabled={saving}
-          >
-            {saving
-              ? <ActivityIndicator color="#FFF" size="small" />
-              : <Text style={styles.btnGuardarText}>Crear alerta</Text>
-            }
-          </TouchableOpacity>
+          <View style={styles.modalFooter}>
+            <TouchableOpacity
+              style={[styles.btnGuardar, saving && { opacity: 0.6 }]}
+              onPress={handleGuardar}
+              disabled={saving}
+            >
+              {saving
+                ? <ActivityIndicator color="#FFF" size="small" />
+                : <Text style={styles.btnGuardarText}>Crear alerta</Text>
+              }
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </Modal>
@@ -261,6 +280,7 @@ export default function AlertasScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [emitiendo, setEmitiendo] = useState<string | number | null>(null);
 
   const fetchData = useCallback(async () => {
     setError(null);
@@ -282,6 +302,31 @@ export default function AlertasScreen() {
       setError(e instanceof Error ? e.message : 'Error al cargar alertas.');
     }
   }, []);
+
+  const emitirAlerta = useCallback((id: string | number) => {
+    Alert.alert(
+      'Emitir alerta',
+      'La alerta se activará y se notificará a todos los ciudadanos en los municipios afectados. ¿Confirmar?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Emitir',
+          style: 'destructive',
+          onPress: async () => {
+            setEmitiendo(id);
+            try {
+              await apiFetch(`/alertas/${id}/emitir`, { method: 'POST' });
+              await fetchData();
+            } catch (e: unknown) {
+              Alert.alert('Error', e instanceof Error ? e.message : 'No se pudo emitir la alerta');
+            } finally {
+              setEmitiendo(null);
+            }
+          },
+        },
+      ],
+    );
+  }, [fetchData]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -314,7 +359,13 @@ export default function AlertasScreen() {
         <FlatList
           data={alertas}
           keyExtractor={(item) => String(item.id)}
-          renderItem={({ item }) => <AlertaCard item={item} />}
+          renderItem={({ item }) => (
+            <AlertaCard
+              item={item}
+              canEmitir={canCreate}
+              onEmitir={emitirAlerta}
+            />
+          )}
           contentContainerStyle={styles.listContent}
           refreshControl={
             <RefreshControl
@@ -401,14 +452,15 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     backgroundColor: '#111827', borderTopLeftRadius: 20, borderTopRightRadius: 20,
-    maxHeight: '90%', paddingBottom: 32,
+    maxHeight: '90%', flex: 0,
   },
   modalHeader: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     padding: 20, borderBottomWidth: 1, borderBottomColor: '#1F2937',
   },
   modalTitle: { color: '#F9FAFB', fontSize: 18, fontWeight: '700' },
-  modalBody: { paddingHorizontal: 20, paddingTop: 16 },
+  modalBody: { paddingHorizontal: 20, paddingTop: 16, flexShrink: 1 },
+  modalFooter: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 32 },
   fieldLabel: { color: '#9CA3AF', fontSize: 12, fontWeight: '600', marginBottom: 6, marginTop: 14 },
   input: {
     backgroundColor: '#1F2937', borderRadius: 10, color: '#F9FAFB',
@@ -431,8 +483,14 @@ const styles = StyleSheet.create({
   nivelChipText: { fontSize: 12, fontWeight: '700' },
   errText: { color: '#EF4444', fontSize: 13, marginTop: 12, textAlign: 'center' },
   btnGuardar: {
-    backgroundColor: '#3B82F6', marginHorizontal: 20, marginTop: 16,
+    backgroundColor: '#3B82F6',
     borderRadius: 12, paddingVertical: 14, alignItems: 'center',
   },
   btnGuardarText: { color: '#FFF', fontWeight: '700', fontSize: 15 },
+  btnEmitir: {
+    marginTop: 8, borderRadius: 8, paddingVertical: 8, paddingHorizontal: 14,
+    backgroundColor: '#DC262633', borderColor: '#DC2626', borderWidth: 1,
+    alignSelf: 'flex-start',
+  },
+  btnEmitirText: { color: '#EF4444', fontSize: 12, fontWeight: '700', letterSpacing: 0.3 },
 });

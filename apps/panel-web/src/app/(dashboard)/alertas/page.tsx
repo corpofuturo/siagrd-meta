@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://backend-production-60016.up.railway.app';
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://13.140.174.122';
 
 const NIVEL_BADGE: Record<string, string> = {
   VERDE: 'bg-[#16A34A] text-white',
@@ -33,6 +33,8 @@ export default function AlertasPage() {
   const router = useRouter();
   const [alertas, setAlertas] = useState<Alerta[]>([]);
   const [loading, setLoading] = useState(true);
+  const [emitiendo, setEmitiendo] = useState<string | null>(null);
+  const [emitirError, setEmitirError] = useState<string | null>(null);
   const [filtroActiva, setFiltroActiva] = useState('');
 
   const fetchAlertas = useCallback(async () => {
@@ -58,13 +60,26 @@ export default function AlertasPage() {
     fetchAlertas();
   }, [fetchAlertas]);
 
-  async function emitirAlerta(id: string) {
-    const token = getToken();
-    await fetch(`${API_URL}/api/v1/alertas/${id}/emitir`, {
-      method: 'POST',
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
-    fetchAlertas();
+  async function emitirAlerta(id: string, titulo: string) {
+    if (!confirm(`¿Emitir la alerta "${titulo}"?\n\nSe activará y se notificará a todos los ciudadanos en los municipios afectados. Esta acción no se puede deshacer.`)) return;
+    setEmitiendo(id);
+    setEmitirError(null);
+    try {
+      const token = getToken();
+      const res = await fetch(`${API_URL}/api/v1/alertas/${id}/emitir`, {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.message ?? `HTTP ${res.status}`);
+      }
+      await fetchAlertas();
+    } catch (e: unknown) {
+      setEmitirError(e instanceof Error ? e.message : 'Error al emitir la alerta');
+    } finally {
+      setEmitiendo(null);
+    }
   }
 
   return (
@@ -81,6 +96,13 @@ export default function AlertasPage() {
             + Nueva Alerta
           </button>
         </div>
+
+        {emitirError && (
+          <div className="mb-4 px-4 py-2 bg-[#DC2626]/10 border border-[#DC2626]/40 rounded text-[#FCA5A5] text-sm flex justify-between items-center">
+            <span>{emitirError}</span>
+            <button onClick={() => setEmitirError(null)} className="ml-4 text-[#DC2626] hover:text-[#F87171]">×</button>
+          </div>
+        )}
 
         {/* Filtros */}
         <div className="flex gap-3 mb-5">
@@ -151,10 +173,11 @@ export default function AlertasPage() {
                   <td className="px-4 py-3">
                     {!alerta.activa && (
                       <button
-                        onClick={() => emitirAlerta(alerta.id)}
-                        className="px-2 py-1 bg-[#DC2626] hover:bg-[#B91C1C] text-white text-[10px] font-bold rounded uppercase tracking-wider transition-colors"
+                        onClick={() => emitirAlerta(alerta.id, alerta.titulo)}
+                        disabled={emitiendo === alerta.id}
+                        className="px-2 py-1 bg-[#DC2626] hover:bg-[#B91C1C] disabled:opacity-50 text-white text-[10px] font-bold rounded uppercase tracking-wider transition-colors"
                       >
-                        Emitir
+                        {emitiendo === alerta.id ? '...' : 'Emitir'}
                       </button>
                     )}
                   </td>

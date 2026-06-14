@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { db } from '../lib/db.js';
 import { authMiddleware } from '../middleware/auth.js';
-import { ForbiddenError, NotFoundError } from '../utils/errors.js';
+import { ForbiddenError, NotFoundError, ValidationError } from '../utils/errors.js';
 import { enviarAlertaPush } from '../services/notifications.service.js';
 import type { RolUsuario } from '../types/domain.js';
 
@@ -47,6 +47,11 @@ export async function alertasRoutes(app: FastifyInstance): Promise<void> {
         municipios_afectados?: string[];
       };
 
+      const NIVELES_VALIDOS = ['VERDE', 'AMARILLO', 'NARANJA', 'ROJO'];
+      if (!titulo?.trim()) throw new ValidationError('titulo es requerido');
+      if (!tipo?.trim())   throw new ValidationError('tipo es requerido');
+      if (!NIVELES_VALIDOS.includes(nivel)) throw new ValidationError('nivel debe ser VERDE, AMARILLO, NARANJA o ROJO');
+
       const munis = municipios_afectados ?? [];
 
       const [row] = await db`
@@ -80,18 +85,21 @@ export async function alertasRoutes(app: FastifyInstance): Promise<void> {
       const [alerta] = await db`SELECT * FROM alertas WHERE id = ${id}`;
       if (!alerta) throw new NotFoundError('Alerta');
 
-      await enviarAlertaPush(
-        alerta.id,
-        alerta.nivel,
-        alerta.titulo,
-        alerta.municipios_afectados ?? [],
-      );
-
       await db`
         UPDATE alertas
         SET activa = true, emitida_at = NOW()
         WHERE id = ${id}
       `;
+
+      // Push best-effort: no revertir si falla
+      enviarAlertaPush(
+        alerta.id,
+        alerta.nivel,
+        alerta.titulo,
+        alerta.municipios_afectados ?? [],
+      ).catch((err: unknown) => {
+        app.log.error({ err, alertaId: alerta.id }, 'enviarAlertaPush falló (alerta ya emitida)');
+      });
 
       return reply.send({ ok: true, mensaje: 'Alerta emitida y notificaciones enviadas' });
     },
