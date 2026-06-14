@@ -40,7 +40,7 @@ ENV PORT=3001
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-COPY --from=builder /app/apps/panel-web/public ./public
+COPY --from=builder /app/apps/panel-web/public ./apps/panel-web/public
 COPY --from=builder --chown=nextjs:nodejs /app/apps/panel-web/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/apps/panel-web/.next/static ./apps/panel-web/.next/static
 

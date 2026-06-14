@@ -3,7 +3,6 @@
 export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
-import Image from 'next/image';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -17,7 +16,6 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      // Llamar a la API route interna — setea cookies HttpOnly server-side
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -34,7 +32,7 @@ export default function LoginPage() {
       const msg = err instanceof Error ? err.message : 'Error desconocido';
       setError(
         msg === 'Invalid login credentials' || msg.toLowerCase().includes('credencial')
-          ? 'Correo o contraseña incorrectos'
+          ? 'Usuario o contraseña incorrectos'
           : msg
       );
     } finally {
@@ -43,68 +41,147 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-[#0A0E1A] flex items-center justify-center p-4">
+    <div
+      style={{ backgroundColor: '#0F1117', minHeight: '100vh' }}
+      className="relative flex items-center justify-center p-4"
+    >
       {/* Bandera Colombia — esquina superior izquierda */}
-      <div className="absolute top-3 left-3">
-        <Image
+      <div style={{ position: 'absolute', top: 12, left: 12 }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src="/images/bandera-colombia.svg"
           alt="Bandera de Colombia"
-          width={120}
-          height={80}
-          unoptimized
-          className="w-14 h-auto sm:w-24 drop-shadow-md rounded-sm border border-white/20"
+          width={90}
+          style={{ display: 'block', borderRadius: 4, border: '1px solid rgba(255,255,255,0.15)' }}
         />
       </div>
 
       {/* Bandera Meta — esquina superior derecha */}
-      <div className="absolute top-3 right-3">
-        <Image
+      <div style={{ position: 'absolute', top: 12, right: 12 }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src="/images/bandera-meta.svg"
           alt="Bandera del Meta"
-          width={120}
-          height={80}
-          unoptimized
-          className="w-14 h-auto sm:w-24 drop-shadow-md rounded-sm border border-white/20"
+          width={90}
+          style={{ display: 'block', borderRadius: 4, border: '1px solid rgba(255,255,255,0.15)' }}
         />
       </div>
 
-      <div className="w-full max-w-sm">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <h1 className="font-display text-3xl font-bold tracking-widest text-[#F0F4FF] uppercase">
-            SIAGRD META
+      <div style={{ width: '100%', maxWidth: 400 }}>
+        {/* Título */}
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 64,
+            height: 64,
+            borderRadius: '50%',
+            backgroundColor: '#1E293B',
+            border: '2px solid #2D7A27',
+            marginBottom: 16,
+          }}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="#2D7A27" strokeWidth="2" strokeLinejoin="round"/>
+              <path d="M2 17l10 5 10-5" stroke="#2D7A27" strokeWidth="2" strokeLinejoin="round"/>
+              <path d="M2 12l10 5 10-5" stroke="#2D7A27" strokeWidth="2" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <h1 style={{
+            color: '#F0F4FF',
+            fontSize: 32,
+            fontWeight: 700,
+            letterSpacing: '0.15em',
+            margin: 0,
+            fontFamily: 'system-ui, sans-serif',
+          }}>
+            SATAM
           </h1>
-          <p className="text-[#8B9CC8] text-sm mt-1">
+          <p style={{
+            color: '#64748B',
+            fontSize: 12,
+            marginTop: 6,
+            letterSpacing: '0.05em',
+            fontFamily: 'system-ui, sans-serif',
+          }}>
             Sistema de Alertas Tempranas de Amenazas Múltiples
           </p>
         </div>
 
         {/* Card */}
-        <div className="bg-[#1E2535] border border-[#2D3748] rounded-lg p-6">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <div style={{
+          backgroundColor: '#1E293B',
+          border: '1px solid #2D3748',
+          borderRadius: 16,
+          padding: '28px 32px',
+          boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+        }}>
+          <h2 style={{
+            color: '#94A3B8',
+            fontSize: 11,
+            fontWeight: 600,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            marginBottom: 20,
+            marginTop: 0,
+            fontFamily: 'system-ui, sans-serif',
+          }}>
+            Acceso al Panel de Control
+          </h2>
+
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
               <label
                 htmlFor="email"
-                className="block text-xs font-medium text-[#8B9CC8] uppercase tracking-wider mb-1.5"
+                style={{
+                  display: 'block',
+                  color: '#94A3B8',
+                  fontSize: 11,
+                  fontWeight: 600,
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  marginBottom: 6,
+                  fontFamily: 'system-ui, sans-serif',
+                }}
               >
-                Correo electrónico
+                Usuario / Correo
               </label>
               <input
                 id="email"
-                type="email"
+                type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                autoComplete="email"
-                className="w-full bg-[#111827] border border-[#2D3748] rounded px-3 py-2 text-[#F0F4FF] text-sm placeholder-[#8B9CC8] focus:outline-none focus:border-[#8B9CC8] transition-colors"
-                placeholder="usuario@cdgrd.gov.co"
+                autoComplete="username"
+                placeholder="admin o usuario@cdgrd.gov.co"
+                style={{
+                  width: '100%',
+                  backgroundColor: '#0F172A',
+                  border: '1px solid #334155',
+                  borderRadius: 8,
+                  padding: '10px 14px',
+                  color: '#F0F4FF',
+                  fontSize: 14,
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                  fontFamily: 'system-ui, sans-serif',
+                }}
               />
             </div>
 
             <div>
               <label
                 htmlFor="password"
-                className="block text-xs font-medium text-[#8B9CC8] uppercase tracking-wider mb-1.5"
+                style={{
+                  display: 'block',
+                  color: '#94A3B8',
+                  fontSize: 11,
+                  fontWeight: 600,
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  marginBottom: 6,
+                  fontFamily: 'system-ui, sans-serif',
+                }}
               >
                 Contraseña
               </label>
@@ -115,26 +192,73 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="current-password"
-                className="w-full bg-[#111827] border border-[#2D3748] rounded px-3 py-2 text-[#F0F4FF] text-sm placeholder-[#8B9CC8] focus:outline-none focus:border-[#8B9CC8] transition-colors"
                 placeholder="••••••••"
+                style={{
+                  width: '100%',
+                  backgroundColor: '#0F172A',
+                  border: '1px solid #334155',
+                  borderRadius: 8,
+                  padding: '10px 14px',
+                  color: '#F0F4FF',
+                  fontSize: 14,
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                  fontFamily: 'system-ui, sans-serif',
+                }}
               />
             </div>
 
             {error && (
-              <p className="text-[#DC2626] text-xs bg-[#DC2626]/10 border border-[#DC2626]/30 rounded px-3 py-2">
+              <div style={{
+                backgroundColor: 'rgba(220,38,38,0.1)',
+                border: '1px solid rgba(220,38,38,0.3)',
+                borderRadius: 8,
+                padding: '8px 12px',
+                color: '#FCA5A5',
+                fontSize: 13,
+                fontFamily: 'system-ui, sans-serif',
+              }}>
                 {error}
-              </p>
+              </div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#DC2626] hover:bg-[#B91C1C] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2.5 rounded transition-colors font-display tracking-wider uppercase text-sm mt-2"
+              style={{
+                width: '100%',
+                backgroundColor: loading ? '#1a4d17' : '#2D7A27',
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: 8,
+                padding: '12px 0',
+                fontSize: 14,
+                fontWeight: 700,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                marginTop: 4,
+                opacity: loading ? 0.7 : 1,
+                fontFamily: 'system-ui, sans-serif',
+                transition: 'background-color 0.2s',
+              }}
             >
               {loading ? 'Ingresando...' : 'Ingresar'}
             </button>
           </form>
         </div>
+
+        {/* Footer */}
+        <p style={{
+          textAlign: 'center',
+          color: '#475569',
+          fontSize: 11,
+          marginTop: 20,
+          letterSpacing: '0.06em',
+          fontFamily: 'system-ui, sans-serif',
+        }}>
+          SIAGRD Meta — Gobernación del Meta
+        </p>
       </div>
     </div>
   );
