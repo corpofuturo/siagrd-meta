@@ -70,7 +70,7 @@ export async function alertasRoutes(app: FastifyInstance): Promise<void> {
           municipios_afectados, created_by, activa
         )
         VALUES (
-          ${tipo}, ${nivel}, ${titulo}, ${descripcion ?? null}, ${instrucciones_ciudadano ?? null},
+          ${tipo}, ${nivel}, ${titulo}, ${descripcion ?? null}, ${instrucciones_ciudadano ?? ''},
           ${db.array(munis)}::uuid[], ${user.id}, false
         )
         RETURNING *
