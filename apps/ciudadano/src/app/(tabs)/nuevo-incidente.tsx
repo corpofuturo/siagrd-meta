@@ -21,7 +21,7 @@ import { API_BASE } from '@/constants';
 
 const BACKEND = API_BASE;
 
-type TipoAmenaza = 'INUNDACION' | 'REMOCION' | 'SISMO' | 'INCENDIO' | 'VENDAVAL' | 'OTRO';
+type TipoAmenaza = 'INUNDACION' | 'DESLIZAMIENTO' | 'SISMO' | 'INCENDIO_FORESTAL' | 'VENDAVAL' | 'OTRO';
 
 interface TipoOption {
   key: TipoAmenaza;
@@ -32,9 +32,9 @@ interface TipoOption {
 
 const TIPOS: TipoOption[] = [
   { key: 'INUNDACION', label: 'Inundación', icon: 'water', color: '#3B82F6' },
-  { key: 'REMOCION', label: 'Remoción', icon: 'alert-circle', color: '#92400E' },
+  { key: 'DESLIZAMIENTO', label: 'Deslizamiento', icon: 'alert-circle', color: '#92400E' },
   { key: 'SISMO', label: 'Sismo', icon: 'pulse', color: '#DC2626' },
-  { key: 'INCENDIO', label: 'Incendio', icon: 'flame', color: '#EA580C' },
+  { key: 'INCENDIO_FORESTAL', label: 'Incendio Forestal', icon: 'flame', color: '#EA580C' },
   { key: 'VENDAVAL', label: 'Vendaval', icon: 'thunderstorm', color: '#7C3AED' },
   { key: 'OTRO', label: 'Otro', icon: 'ellipsis-horizontal-circle', color: '#6B7280' },
 ];

@@ -24,10 +24,10 @@ const TIPOS_AMENAZA = [
 ];
 
 const NIVEL_BADGE: Record<string, string> = {
-  VERDE: 'bg-[#16A34A] text-white',
-  AMARILLO: 'bg-[#D97706] text-white',
-  NARANJA: 'bg-[#EA580C] text-white',
-  ROJO: 'bg-[#DC2626] text-white',
+  VERDE: 'border border-[#16A34A] text-[#16A34A]',
+  AMARILLO: 'border border-[#D97706] text-[#D97706]',
+  NARANJA: 'border border-[#EA580C] text-[#EA580C]',
+  ROJO: 'border border-[#DC2626] text-[#DC2626]',
 };
 
 
