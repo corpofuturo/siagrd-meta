@@ -25,7 +25,7 @@ interface Recurso {
   organismo_id?: string;
 }
 
-const API_BASE = 'https://backend-production-60016.up.railway.app/api/v1';
+const API_BASE = 'https://api.satam.corpofuturo.org/api/v1';
 
 // ─── API ──────────────────────────────────────────────────────────────────────
 async function fetchRecursos(filtros: { tipo?: TipoRecurso }): Promise<Recurso[]> {

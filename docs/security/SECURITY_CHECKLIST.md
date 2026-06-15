@@ -1,7 +1,7 @@
 # Checklist de Seguridad Pre-Producción — SIAGRD Meta
 
 ## Backend
-- [ ] NODE_ENV=production en Railway
+- [ ] NODE_ENV=production en VPS
 - [ ] DEBUG=false (verificar que no hay console.log con datos sensibles)
 - [ ] CORS solo permite *.gov.co y localhost está eliminado
 - [ ] Rate limiting: login 5/15min, upload 50/h, emitir_alerta 10/h — VERIFICAR valores actuales

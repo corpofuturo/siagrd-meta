@@ -7,12 +7,12 @@ import * as sgc from '../services/sgc.service.js';
 const IS_PROD = process.env.NODE_ENV === 'production';
 
 export async function healthRoutes(app: FastifyInstance): Promise<void> {
-  // GET /health — Railway usa este endpoint para healthcheck (siempre 200)
+  // GET /health — healthcheck del contenedor (siempre 200)
   // En producción devuelve solo status/timestamp para no exponer topología interna.
   app.get('/health', async (_req, reply) => {
     const start = Date.now();
 
-    // Liveness check mínimo — siempre necesario para Railway
+    // Liveness check mínimo — siempre necesario para Docker/nginx health probe
     let dbStatus: 'ok' | 'down' = 'ok';
     let overallStatus: 'ok' | 'degraded' | 'down' = 'ok';
     try {

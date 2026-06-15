@@ -25,7 +25,7 @@ const NIVEL_PESO: Record<NivelAlerta, number> = {
 };
 
 /**
- * Obtiene alertas activas desde el backend Railway.
+ * Obtiene alertas activas desde el backend.
  * No requiere autenticación — datos públicos.
  */
 export async function getAlertasActivas(): Promise<Alerta[]> {

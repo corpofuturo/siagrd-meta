@@ -16,7 +16,7 @@
                          │  HTTPS + JWT      │
                     ┌────▼──────────────────▼────┐
                     │     API Fastify + Node.js   │
-                    │     backend/ (Railway.app)  │
+                    │     backend/ (VPS Contabo (13.140.174.122))  │
                     │  ┌─────────────────────┐    │
                     │  │ Auth middleware      │    │
                     │  │ Rate limiting        │    │
@@ -67,7 +67,7 @@
 
 ## Stack de costos (REGLA 5)
 
-  Railway.app    → backend API      → Gratis
+  VPS Contabo (13.140.174.122)    → backend API      → Gratis
   Supabase       → BD + Auth + RTC  → Gratis (500MB)
   Vercel         → panel-web        → Gratis
   Firebase FCM   → push             → Gratis

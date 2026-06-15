@@ -35,7 +35,7 @@ Estas 4 integraciones requieren gestion externa.
 **Estado**: No implementado — el endpoint firma con SHA-256 pero no genera PDF
 **Requiere**: Libreria pesada (puppeteer, pdfkit, jsPDF server-side) o servicio externo
 **Opciones evaluadas**:
-  - puppeteer: +10 MB imagen Docker, requiere Chromium en Railway
+  - puppeteer: +10 MB imagen Docker, requiere Chromium en VPS
   - @react-pdf/renderer: viable pero requiere SSR setup
   - Servicio externo (HTML→PDF API): costo operativo
 **Impacto**: El informe firmado existe en BD con hash de integridad; no hay PDF descargable

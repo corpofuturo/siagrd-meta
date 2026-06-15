@@ -167,7 +167,7 @@ y **máximo USD 50/mes** a escala departamental completa (1M usuarios, 27 munici
 ### Stack económico aprobado (NO cambiar):
 
 ```
-HOSTING BACKEND:   Railway.app — Plan Starter gratuito (512MB RAM, 1GB disco)
+HOSTING BACKEND:   VPS Contabo (13.140.174.122) — Plan Starter gratuito (512MB RAM, 1GB disco)
                    Alternativa si se necesita más: Render.com (plan gratuito similar)
                    NUNCA: AWS, GCP, Azure — costos impredecibles para gobierno
 
@@ -266,7 +266,7 @@ SMS fallback:     WhatsApp Business API
 Auth:             Supabase Auth — roles: ADMIN|CDGRD|CMGRD|SOCORRO|CIUDADANO
 Storage:          Supabase Storage (fotos comprimidas < 300KB)
 Caché:            Upstash Redis (plan gratuito)
-Hosting:          Railway.app (backend) + Vercel (web) — ambos gratuitos
+Hosting:          VPS Contabo (13.140.174.122) (backend) + Vercel (web) — ambos gratuitos
 CI/CD:            GitHub Actions (gratis en repo público)
 Monitoreo:        Sentry + UptimeRobot (ambos gratuitos)
 Repo:             GitHub público (código abierto — requisito sector público Colombia)
@@ -1418,7 +1418,7 @@ PerfilScreen
 ```
 BACKEND:
 ☐ Todas las vars sensibles en .env (nunca en código o logs)
-☐ HTTPS forzado en Railway (configurar en railway.toml)
+☐ HTTPS forzado en VPS (ya activo vía nginx + certbot en VPS)
 ☐ CORS: solo dominios siagrd.meta.gov.co y localhost en DEV
 ☐ Content-Security-Policy configurado con helmet
 ☐ HSTS: max-age=31536000; includeSubDomains
@@ -1497,10 +1497,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: railwayapp/railway-action@v1
+      - uses: appleboy/ssh-action@v1.0.3
         with:
           service: siagrd-backend
-          token: ${{ secrets.RAILWAY_TOKEN }}
+          token: ${{ secrets.VPS_SSH_KEY (GitHub Secret)
 
   deploy-web:
     if: github.ref == 'refs/heads/main'
@@ -1553,9 +1553,9 @@ interface HealthResponse {
 
 ## Objetivos: RTO < 4h, RPO < 24h
 
-## Escenario 1: API caída (Railway down)
+## Escenario 1: API caída (VPS down)
 → Las apps móviles offline siguen funcionando
-→ Acción: redeploy manual desde GitHub Actions → `railway redeploy`
+→ Acción: redeploy manual desde GitHub Actions → `ssh root@13.140.174.122 "cd /opt/siagrd && docker compose up -d --force-recreate backend"`
 → Tiempo estimado: 10 minutos
 
 ## Escenario 2: Base de datos corrupta
@@ -1574,7 +1574,7 @@ interface HealthResponse {
 
 ## Contactos técnicos (completar antes de producción)
 - Administrador técnico CDGRD: [nombre] [celular] [email]
-- Soporte Railway: support@railway.app
+- Soporte VPS: support@
 - Soporte Supabase: support@supabase.io (plan Pro incluye soporte)
 ```
 
@@ -1645,7 +1645,7 @@ SUPABASE_SERVICE_ROLE_KEY= # supabase.com → Settings → API → service_role 
 FIREBASE_PROJECT_ID=       # console.firebase.google.com → nuevo proyecto
 FIREBASE_PRIVATE_KEY=      # Firebase → Settings → Service accounts → Generate key
 FIREBASE_CLIENT_EMAIL=     # Mismo archivo JSON anterior
-RAILWAY_TOKEN=             # railway.com → Settings → Tokens
+VPS_SSH_KEY (GitHub Secret)
 VERCEL_TOKEN=              # vercel.com → Settings → Tokens
 SENTRY_DSN=                # sentry.io → nuevo proyecto → DSN (plan gratuito)
 

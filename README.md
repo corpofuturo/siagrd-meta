@@ -39,7 +39,7 @@ pnpm dev
 ## Infraestructura
 
 Costo objetivo: **USD 0/mes** hasta 10.000 usuarios.  
-Stack: Railway + Supabase + Vercel + Firebase FCM + Upstash (todos gratuitos).
+Stack: VPS + Supabase + Vercel + Firebase FCM + Upstash (todos gratuitos).
 
 ## Legal
 

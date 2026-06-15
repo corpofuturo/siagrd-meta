@@ -20,12 +20,12 @@ SIAGRD es una plataforma distribuida compuesta por tres capas:
                          │ HTTPS / REST JSON
 ┌────────────────────────▼────────────────────────────────────────┐
 │          Backend Fastify (Node.js 20 · TypeScript)              │
-│       backend-production-60016.up.railway.app                   │
-│                    Railway (cloud)                               │
+│       backend-production-60016.up.
+│                    VPS (cloud)                               │
 └────────────────────────┬────────────────────────────────────────┘
                          │ postgres.js
 ┌────────────────────────▼────────────────────────────────────────┐
-│        PostgreSQL 16 — Railway                                   │
+│        PostgreSQL 16 — VPS                                   │
 │   viaduct.proxy.rlwy.net:56926 / siagrd                         │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -37,10 +37,10 @@ SIAGRD es una plataforma distribuida compuesta por tres capas:
 | APK móvil | React Native + Expo SDK 50 · expo-router (file-based routing) |
 | Panel web | Next.js 14 App Router · Tailwind CSS · shadcn/ui |
 | Backend API | Fastify 4 · TypeScript · postgres.js (sin ORM) |
-| Base de datos | PostgreSQL 16 (Railway) |
+| Base de datos | PostgreSQL 16 (VPS) |
 | Autenticación | JWT (HS256) · SimpleJWT · SecureStore (APK) · Cookie (web) |
 | Mapas | Leaflet.js + OpenStreetMap (WebView en APK · iframe en web) |
-| Deploy backend | Railway (Docker) |
+| Deploy backend | VPS (Docker) |
 | Deploy web | Netlify |
 | Build APK | Gradle + Android Studio · Eclipse Adoptium JDK 17 |
 
@@ -65,7 +65,7 @@ siagrd/
 │       ├── lib/db.ts        # Conexión postgres.js
 │       └── types/domain.ts # Tipos compartidos
 └── database/
-    └── migrations/         # 019 migraciones SQL ejecutadas en Railway
+    └── migrations/         # 019 migraciones SQL ejecutadas en VPS
 ```
 
 ### 4. API REST — endpoints principales
@@ -131,8 +131,8 @@ CIUDADANO   → Reporta incidentes. Acceso limitado.
 ### 7. Seguridad implementada
 
 - JWT firmado con `JWT_SECRET` (variable de entorno, nunca en código)
-- `DEBUG = false` en producción (Railway)
-- CORS restringido a dominios autorizados (Netlify + Railway)
+- `DEBUG = false` en producción (VPS)
+- CORS restringido a dominios autorizados (Netlify + VPS)
 - Roles verificados en cada endpoint sensible antes de ejecutar
 - SecureStore para token JWT en el APK (cifrado por Android Keystore)
 - Cookie `HttpOnly` para JWT en panel web
@@ -348,11 +348,11 @@ Cuando el campo tiene conectividad limitada, los incidentes se guardan localment
 | Recurso | URL / Dato |
 |---|---|
 | Panel Web | https://siagrd-panel-web.netlify.app |
-| API Backend | https://backend-production-60016.up.railway.app |
-| Salud del sistema | https://backend-production-60016.up.railway.app/health |
+| API Backend | https://api.satam.corpofuturo.org |
+| Salud del sistema | https://api.satam.corpofuturo.org/health |
 | APK (instalar) | `android/app/build/outputs/apk/release/app-release.apk` |
 | ID de paquete APK | `org.corpofuturo.siagrd.ciudadano` |
-| Base de datos | `viaduct.proxy.rlwy.net:56926 / siagrd` (Railway) |
+| Base de datos | `viaduct.proxy.rlwy.net:56926 / siagrd` (VPS) |
 | Correo admin | `admin` (usuario de prueba en base de datos) |
 
 ---

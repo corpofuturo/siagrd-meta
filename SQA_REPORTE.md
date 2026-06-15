@@ -62,7 +62,7 @@
 | D-02 | `/auth/anonymous` sin rate limit | BAJO | `POST /auth/anonymous` no tiene rate limit específico (cae en el global 200/min). Un atacante puede generar tokens anónimos en masa. Aplicar `{ max: 30, timeWindow: '1 hour' }` por IP. |
 | D-03 | Contraseña mínima 6 caracteres | BAJO | `POST /auth/register` requiere solo 6 caracteres. Recomendado mínimo 8 con al menos un carácter especial o número. |
 | D-04 | `GET /alertas` completamente público | INFO | Expone todas las alertas activas e históricas sin autenticación. Aceptable por diseño (alertas ciudadanas), pero conviene documentar la decisión explícitamente. |
-| D-05 | `GET /health` sin autenticación (producción) | INFO | Ahora devuelve respuesta mínima en prod, pero sigue siendo público. Railway requiere que sea público para su healthcheck. Documentado como riesgo aceptado. |
+| D-05 | `GET /health` sin autenticación (producción) | INFO | Ahora devuelve respuesta mínima en prod, pero sigue siendo público. VPS requiere que sea público para su healthcheck. Documentado como riesgo aceptado. |
 | D-06 | Usuarios demo con contraseñas débiles en `seedDemoUsers` (index.ts) | MEDIO | `index.ts` hace seed con `password: 'admin'` y `password: 'bombero'` en arranque si los usuarios no existen. Este seed corre en todos los entornos. Limitar a `NODE_ENV !== 'production'` o eliminar. |
 
 ---

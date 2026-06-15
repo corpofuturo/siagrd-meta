@@ -19,7 +19,7 @@ export interface FotoUploadResult {
 /**
  * Sube una foto optimizada para redes 2G.
  * Valida MIME real (no extensión), comprime con sharp y genera miniatura.
- * Guarda en sistema de archivos local (Railway volume en /app/uploads).
+ * Guarda en sistema de archivos local (/app/uploads en el contenedor).
  */
 export async function uploadFoto(
   buffer: Buffer,

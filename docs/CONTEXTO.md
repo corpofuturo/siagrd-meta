@@ -42,14 +42,14 @@
   - Push notifications para alertas en tiempo real
   - Modo offline para consulta de guías de preparación
 - **Agente 6 — CI/CD, Seguridad y Disaster Recovery:**
-  - GitHub Actions pipelines: lint, test, build, deploy (Railway + Vercel)
+  - GitHub Actions pipelines: lint, test, build, deploy (VPS + Vercel)
   - Análisis de seguridad: CodeQL, Snyk, OWASP dependency check
   - Secrets scanning con git-secrets y trufflehog
   - Política de backup automático PostgreSQL (RPO 1h, RTO 4h)
   - Runbook de DR con pasos de restauración documentados
   - Sentry integrado en todos los paquetes (backend, web, mobile)
-  - Rate limiting y WAF configurado en Railway
-  - Certificados TLS automáticos (Let's Encrypt via Railway/Vercel)
+  - Rate limiting y WAF configurado en VPS
+  - Certificados TLS automáticos (Let's Encrypt via VPS/Vercel)
 
 **Sesión 2026-06-05 — Integración backend + tests + seguridad:**
 
@@ -119,7 +119,7 @@
 
 ### Decisiones técnicas clave tomadas
 - Stack inamovible: Node.js+Fastify+Supabase / React Native / Next.js
-- Infraestructura objetivo: USD 0–75/mes (Railway + Supabase + Vercel)
+- Infraestructura objetivo: USD 0–75/mes (VPS + Supabase + Vercel)
 - Código abierto MIT (requisito sector público colombiano)
 
 ### Cómo levantar el entorno
@@ -137,5 +137,5 @@ pnpm dev
 - SUPABASE_ANON_KEY — clave anónima (cliente)
 - SUPABASE_SERVICE_ROLE_KEY — clave service role (SOLO backend)
 - FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL — FCM push
-- RAILWAY_TOKEN, VERCEL_TOKEN — deploy
+- VPS_SSH_KEY (GitHub Secret)
 - SENTRY_DSN — monitoreo de errores

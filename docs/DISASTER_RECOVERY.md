@@ -17,15 +17,15 @@
 
 **Pasos de recuperacion:**
 
-1. Verificar estado del servicio en Railway Dashboard → Deployments.
-2. Si el ultimo deploy fallo: hacer "Rollback" al deploy anterior en Railway.
-3. Si el servicio esta caido sin deploy reciente: en Railway, click "Restart service".
-4. Verificar variables de entorno en Railway → Variables (puede haber quedado vacia alguna).
-5. Monitorear logs en tiempo real: Railway → Deployments → Logs.
+1. Verificar estado del servicio en VPS Dashboard → Deployments.
+2. Si el ultimo deploy fallo: hacer "Rollback" al deploy anterior en VPS.
+3. Si el servicio esta caido sin deploy reciente: en VPS, click "Restart service".
+4. Verificar variables de entorno en VPS → Variables (puede haber quedado vacia alguna).
+5. Monitorear logs en tiempo real: VPS → Deployments → Logs.
 6. Confirmar recuperacion: `curl https://api.siagrd.corpofuturo.org/health` debe retornar `{"status":"ok"}`.
 7. Notificar a usuarios si la interrupcion supero 5 minutos.
 
-**Escalada:** Si no se recupera en 10 minutos, contactar soporte de Railway y notificar al responsable tecnico.
+**Escalada:** Si no se recupera en 10 minutos, contactar soporte de VPS y notificar al responsable tecnico.
 
 ---
 
@@ -38,11 +38,11 @@
 **Pasos de recuperacion:**
 
 1. Verificar estado de Supabase en https://status.supabase.com — si es incidente de plataforma, esperar y monitorear.
-2. Si es problema de configuracion: verificar `DATABASE_URL` en Railway Variables.
+2. Si es problema de configuracion: verificar `DATABASE_URL` en VPS Variables.
 3. Acceder a Supabase Dashboard → Database → Backups.
 4. Identificar el ultimo backup valido (Supabase hace backups diarios automaticos en plan Pro).
 5. Iniciar restauracion desde Supabase Dashboard → Point-in-time recovery si esta disponible.
-6. Una vez restaurada la BD, reiniciar el servicio backend en Railway.
+6. Una vez restaurada la BD, reiniciar el servicio backend en VPS.
 7. Ejecutar verificacion de integridad: revisar conteos en tablas criticas (incidentes, alertas, usuarios).
 8. Si hay datos perdidos del dia: recuperar desde reportes en papel o registros manuales del CDGRD.
 9. Documentar datos perdidos (RPO real) y notificar al coordinador.
@@ -76,16 +76,16 @@
 **Pasos de recuperacion:**
 
 1. **Evaluacion inicial (0-30 min):**
-   - Verificar si es incidente de seguridad: revisar logs de Railway y Supabase audit log.
+   - Verificar si es incidente de seguridad: revisar logs de VPS y Supabase audit log.
    - Si hay sospecha de compromiso: revocar todos los secretos siguiendo `SECRET_ROTATION.md`.
    - Notificar al responsable tecnico y gerente.
 
 2. **Contencion (30-60 min):**
    - Poner el sistema en modo mantenimiento si es posible.
-   - Preservar logs actuales exportandolos desde Railway y Supabase.
+   - Preservar logs actuales exportandolos desde VPS y Supabase.
 
 3. **Recuperacion de infraestructura (1-3 h):**
-   - Provisionar nuevo ambiente en Railway desde el ultimo Dockerfile en git.
+   - Provisionar nuevo ambiente en VPS desde el ultimo Dockerfile en git.
    - Restaurar BD desde el ultimo backup valido en Supabase.
    - Configurar variables de entorno nuevas (secretos rotados si aplica).
 
@@ -107,6 +107,6 @@
 | Responsable tecnico principal | Por designar | Por definir |
 | Responsable tecnico suplente | Por designar | Por definir |
 | Gerencia Corpofuturo | John Jairo Velasquez Ortiz | gerente@corpofuturo.org |
-| Soporte Railway | - | https://railway.app/help |
+| Soporte VPS | - | https://
 | Soporte Supabase | - | https://supabase.com/support |
 | Soporte Firebase | - | https://firebase.google.com/support |

@@ -123,40 +123,22 @@ jobs:
       - name: Build panel-web
         run: pnpm build:panel-web
         env:
-          NEXT_PUBLIC_API_URL: https://backend-production-60016.up.railway.app
+          NEXT_PUBLIC_API_URL: https://api.satam.corpofuturo.org
 
-  # deploy-backend: Railway hace autodeploy directo desde GitHub — no se necesita este job.
-
-  deploy-web:
-    name: Deploy Web (Netlify)
+  deploy:
+    name: Deploy VPS
     runs-on: ubuntu-latest
     needs: [lint-typecheck, test, security-audit, build-check]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: pnpm/action-setup@v2
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build panel-web
-        run: pnpm build:panel-web
-        env:
-          NEXT_PUBLIC_API_URL: https://backend-production-60016.up.railway.app
-
-      - name: Deploy to Netlify
-        run: |
-          npm install -g netlify-cli
-          cd apps/panel-web && netlify deploy --prod --dir=.next
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          host: 13.140.174.122
+          username: root
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /opt/siagrd
+            git pull
+            docker compose build backend panel-web
+            docker compose up -d --force-recreate backend panel-web

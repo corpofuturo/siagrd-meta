@@ -181,9 +181,9 @@ La app lee el API URL desde la variable de entorno de build. Verificar en:
 
 - `apps/ciudadano/src/config/api.ts` (o equivalente)
 
-Para builds de producción, asegurarse de que apunte al backend de Railway:
+Para builds de producción, asegurarse de que apunte al backend de VPS:
 ```
-https://siagrd-backend.up.railway.app
+https://siagrd-backend.up.
 ```
 
 Para builds de desarrollo local:
@@ -200,8 +200,8 @@ http://<IP-LAN>:3000  # dispositivo físico en la misma red
 - [ ] `google-services.json` presente en `apps/ciudadano/android/app/` (Firebase)
 - [ ] Versión incrementada en `app.json` → `expo.version` y `expo.android.versionCode`
 - [ ] Migraciones STOP-3 ejecutadas en BD de producción
-- [ ] Variables Railway configuradas (ver RAILWAY_VARS.md)
-- [ ] `NODE_ENV=production` en Railway
+- [ ] Variables de entorno configuradas en /opt/siagrd/.env
+- [ ] `NODE_ENV=production` en VPS
 
 ---
 

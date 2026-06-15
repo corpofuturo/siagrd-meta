@@ -4,7 +4,7 @@
 
 - Cuenta en Supabase (plan Pro recomendado para backups automaticos)
 - Proyecto en Firebase con FCM habilitado
-- Cuenta en Railway
+- Cuenta en VPS
 - Cuenta en Vercel
 - Repositorio en GitHub con los secrets configurados
 
@@ -57,15 +57,15 @@
 
 ---
 
-## 3. Railway Deploy (Backend)
+## 3. VPS Deploy (Backend)
 
-1. Crear cuenta y nuevo proyecto en https://railway.app.
+1. Crear cuenta y nuevo proyecto en https://
 
 2. Conectar repositorio de GitHub: New Project → Deploy from GitHub repo → seleccionar `siagrd`.
 
-3. Railway detectara el `railway.toml` en la raiz y usara el Dockerfile de `backend/`.
+3. VPS detectara el `docker-compose.yml` en la raiz y usara el Dockerfile de `backend/`.
 
-4. Configurar variables de entorno en Railway → Variables:
+4. Configurar variables de entorno en VPS → Variables:
    ```
    NODE_ENV=production
    PORT=3000
@@ -79,11 +79,11 @@
    JWT_SECRET=<generar 64 chars random>
    ```
 
-5. Hacer el primer deploy: Railway → Deployments → "Deploy now".
+5. Hacer el primer deploy: VPS → Deployments → "Deploy now".
 
 6. Asignar dominio: Settings → Domains → Generate domain o configurar dominio personalizado.
 
-7. Verificar: `curl https://<dominio-railway>/health`
+7. Verificar: `curl https://api.satam.corpofuturo.org/health`
 
 ---
 
@@ -101,7 +101,7 @@
    ```
    NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
    NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
-   NEXT_PUBLIC_API_URL=https://<dominio-railway>
+   NEXT_PUBLIC_API_URL=https://api.satam.corpofuturo.org
    ```
 
 4. El archivo `apps/panel-web/vercel.json` ya incluye los security headers necesarios.
@@ -118,7 +118,7 @@ Agregar los siguientes secrets:
 
 | Secret | Descripcion |
 |--------|------------|
-| `RAILWAY_TOKEN` | Token de Railway (Account → Tokens) |
+| `VPS_SSH_KEY (GitHub Secret)| Token de VPS (Account → Tokens) |
 | `VERCEL_TOKEN` | Token de Vercel (Account → Settings → Tokens) |
 | `VERCEL_ORG_ID` | ID de organizacion Vercel (vercel.com/account) |
 | `VERCEL_PROJECT_ID` | ID del proyecto Vercel (proyecto → Settings) |

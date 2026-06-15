@@ -11,7 +11,7 @@
 
 1. [Supabase — Base de datos + Auth + Storage + Realtime](#1-supabase)
 2. [Firebase — Notificaciones push (FCM)](#2-firebase)
-3. [Railway — Hosting del backend](#3-railway)
+3. [VPS — Hosting del backend]((#3-vps))
 4. [Vercel / Netlify — Hosting del panel web](#4-panel-web)
 5. [Sentry — Monitoreo de errores](#5-sentry)
 6. [UptimeRobot — Alertas de disponibilidad](#6-uptimerobot)
@@ -52,7 +52,7 @@ service_role       → esto es SUPABASE_SERVICE_ROLE_KEY ⚠️ nunca en apps m�
 ```
 
 > **Importante:** La `service_role` key tiene acceso total a la base de datos, ignora el RLS.
-> Solo va en el backend (Railway). Nunca en el código del panel ni de las apps.
+> Solo va en el backend (VPS). Nunca en el código del panel ni de las apps.
 
 ### 1.3 Habilitar extensiones PostGIS
 
@@ -164,13 +164,13 @@ Las migraciones están en `database/migrations/`. Se aplican en orden.
 
 ---
 
-## 3. Railway
+## 3. VPS
 
-> Railway es donde vive el backend (la API). Es como un servidor en la nube, gratuito para este volumen.
+> VPS es donde vive el backend (la API). Es como un servidor en la nube, gratuito para este volumen.
 
 ### 3.1 Crear cuenta
 
-1. Ir a **[railway.app](https://railway.app)**
+1. Ir a **[s://)**
 2. **Login with GitHub** — usar la cuenta donde está el repositorio de SIAGRD
 
 ### 3.2 Crear el proyecto
@@ -179,12 +179,12 @@ Las migraciones están en `database/migrations/`. Se aplican en orden.
 2. Seleccionar **Deploy from GitHub repo**
 3. Conectar la cuenta de GitHub si no está conectada
 4. Buscar y seleccionar el repositorio `siagrd-meta`
-5. Railway detectará el `railway.toml` automáticamente
+5. VPS detectará el `docker-compose.yml` automáticamente
 6. Clic en **Deploy Now**
 
-### 3.3 Configurar las variables de entorno en Railway
+### 3.3 Configurar las variables de entorno en VPS
 
-1. En el proyecto de Railway, clic en el servicio **siagrd-backend**
+1. En el proyecto de VPS, clic en el servicio **siagrd-backend**
 2. Ir a la pestaña **Variables**
 3. Clic en **Raw Editor** (más fácil para pegar todo de una vez)
 4. Pegar el siguiente bloque **con los valores reales** obtenidos en los pasos anteriores:
@@ -202,20 +202,20 @@ SENTRY_DSN=tu-sentry-dsn
 LOG_LEVEL=info
 ```
 
-5. Clic en **Update Variables** — Railway hace redeploy automático
+5. Clic en **Update Variables** — VPS hace redeploy automático
 
 ### 3.4 Obtener la URL del backend
 
 1. Ir a la pestaña **Settings** del servicio
 2. En **Networking** → **Public Networking** → clic en **Generate Domain**
-3. Se genera una URL del tipo: `siagrd-backend-production.up.railway.app`
+3. Se genera una URL del tipo: `siagrd-backend-production.up.
 4. **Guardar esta URL** — es el `API_URL` que usarán el panel y las apps
 
 ### 3.5 Verificar que el backend está funcionando
 
 Abrir en el navegador:
 ```
-https://siagrd-backend-production.up.railway.app/api/v1/health
+https://siagrd-backend-production.up.
 ```
 
 Debe responder algo como:
@@ -230,14 +230,14 @@ Debe responder algo como:
 }
 ```
 
-Si `database.status` es `"error"`: revisar que `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` están correctos en las variables de Railway.
+Si `database.status` es `"error"`: revisar que `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` están correctos en las variables de VPS.
 
 ### 3.6 Obtener el token para CI/CD
 
-1. Ir a **[railway.app/account/tokens](https://railway.app/account/tokens)**
+1. Ir a **[s](https://s)**
 2. Clic en **Create Token**
 3. Nombre: `github-actions-siagrd`
-4. Copiar el token → esto es `RAILWAY_TOKEN`
+4. Copiar el token → esto es `VPS_SSH_KEY (GitHub Secret)
 
 ---
 
@@ -268,7 +268,7 @@ Si `database.status` es `"error"`: revisar que `SUPABASE_URL` y `SUPABASE_SERVIC
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://tu-proyecto.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=tu-anon-key
-NEXT_PUBLIC_API_URL=https://siagrd-backend-production.up.railway.app
+NEXT_PUBLIC_API_URL=https://siagrd-backend-production.up.
 SENTRY_DSN=tu-sentry-dsn
 ```
 
@@ -314,7 +314,7 @@ SENTRY_DSN=tu-sentry-dsn
 4. Configurar:
    - **Monitor Type**: HTTP(s)
    - **Friendly Name**: `SIAGRD Backend`
-   - **URL**: `https://siagrd-backend-production.up.railway.app/api/v1/health`
+   - **URL**: `https://siagrd-backend-production.up.
    - **Monitoring Interval**: 5 minutes
 5. En **Alert Contacts**: agregar el email del administrador técnico
 6. Clic en **Create Monitor**
@@ -334,7 +334,7 @@ SENTRY_DSN=tu-sentry-dsn
 
 | Nombre del secret | Valor |
 |---|---|
-| `RAILWAY_TOKEN` | El token obtenido en el paso 3.6 |
+| `VPS_SSH_KEY (GitHub Secret)| El token obtenido en el paso 3.6 |
 | `NETLIFY_AUTH_TOKEN` | Ir a Netlify → User settings → Applications → New access token |
 | `NETLIFY_SITE_ID` | Netlify → Site settings → General → Site ID |
 | `SUPABASE_URL` | La URL del proyecto Supabase |
@@ -346,7 +346,7 @@ SENTRY_DSN=tu-sentry-dsn
 2. Hacer commit y push a `main`
 3. Ir a la pestaña **Actions** en GitHub
 4. Debe aparecer un workflow corriendo — verificar que pasa todos los pasos (verde)
-5. Verificar que Railway hace redeploy automático
+5. Verificar que VPS hace redeploy automático
 
 ---
 
@@ -378,7 +378,7 @@ FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEv...==\n-----END PRIVATE 
 FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@siagrd-meta.iam.gserviceaccount.com
 
 # ─── DEPLOY ───────────────────────────────────────────────
-RAILWAY_TOKEN=tu-railway-token
+VPS_SSH_KEY (GitHub Secret)
 NETLIFY_AUTH_TOKEN=tu-netlify-token
 NETLIFY_SITE_ID=tu-site-id
 
@@ -447,7 +447,7 @@ Abrir `http://localhost:3001` — debe cargar el login.
 ### 9.5 Checklist final antes de ir a producción
 
 ```
-□ /api/v1/health responde "ok" en Railway
+□ /api/v1/health responde "ok" en VPS
 □ Las 27 municipios aparecen en la tabla municipios de Supabase
 □ Se puede crear un usuario en Supabase Authentication
 □ El usuario creado puede hacer login desde el panel web
@@ -461,13 +461,13 @@ Abrir `http://localhost:3001` — debe cargar el login.
 ## Problemas comunes
 
 ### "Invalid API key" en el backend
-→ Verificar que `SUPABASE_SERVICE_ROLE_KEY` en Railway es la `service_role`, no la `anon`.
+→ Verificar que `SUPABASE_SERVICE_ROLE_KEY` en VPS es la `service_role`, no la `anon`.
 
 ### "relation does not exist" en los logs
 → Las migraciones no se aplicaron. Repetir el paso 1.4.
 
 ### Las notificaciones push no llegan
-→ Verificar que `FIREBASE_PRIVATE_KEY` en Railway incluye los `\n` y las comillas.  
+→ Verificar que `FIREBASE_PRIVATE_KEY` en VPS incluye los `\n` y las comillas.  
 → En Firebase Console verificar que el proyecto tiene FCM habilitado.
 
 ### El panel web carga en blanco
