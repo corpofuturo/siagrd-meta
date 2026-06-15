@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { IncidenteMapData } from '@/hooks/useRealtimeIncidentes';
+import { getToken } from '@/lib/api';
 
 const PAGE_SIZE = 50;
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.satam.corpofuturo.org';
@@ -29,11 +30,7 @@ const NIVEL_BADGE: Record<string, string> = {
   ROJO: 'bg-[#DC2626] text-white',
 };
 
-function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  const match = document.cookie.match(/siagrd_access=([^;]+)/);
-  return match ? match[1] : null;
-}
+
 
 export default function IncidentesPage() {
   const router = useRouter();

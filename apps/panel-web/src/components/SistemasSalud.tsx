@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { getToken } from '@/lib/api';
 
 interface ServicioSalud {
   nombre: string;
@@ -24,11 +25,7 @@ const SERVICIOS_DEFAULT: ServicioSalud[] = [
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.satam.corpofuturo.org';
 
-function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  const match = document.cookie.match(/siagrd_access=([^;]+)/);
-  return match ? match[1] : null;
-}
+
 
 function EstadoIcon({ estado }: { estado: ServicioSalud['estado'] }) {
   if (estado === 'ok') return <span className="text-[#16A34A] font-bold">✓</span>;

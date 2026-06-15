@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import { EstadoBadge } from '@/components/EstadoBadge';
 import { MaquinaEstados } from '@/components/MaquinaEstados';
 import { InformeTab } from '@/components/InformeTab';
+import { getToken } from '@/lib/api';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.satam.corpofuturo.org';
 
@@ -68,12 +69,6 @@ interface MeResponse {
 // ──────────────────────────────────────────────────────────────────────────────
 // Helpers
 // ──────────────────────────────────────────────────────────────────────────────
-
-function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  const match = document.cookie.match(/siagrd_access=([^;]+)/);
-  return match ? match[1] : null;
-}
 
 async function apiFetch<T>(path: string): Promise<T | null> {
   try {

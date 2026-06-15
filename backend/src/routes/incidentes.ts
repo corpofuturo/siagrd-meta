@@ -197,6 +197,20 @@ export async function incidentesRoutes(app: FastifyInstance): Promise<void> {
         titulo: string;
       };
 
+      const NIVELES_VALIDOS = ['VERDE', 'AMARILLO', 'NARANJA', 'ROJO'];
+      const TIPOS_AMENAZA_VALIDOS = [
+        'INUNDACION', 'DESLIZAMIENTO', 'INCENDIO_FORESTAL', 'SISMO',
+        'VENDAVAL', 'GRANIZADA', 'SEQUIA', 'OTRO',
+      ];
+
+      if (!titulo?.trim())      throw new ValidationError('titulo es requerido');
+      if (!tipo_amenaza?.trim()) throw new ValidationError('tipo_amenaza es requerido');
+      if (!municipio_id?.trim()) throw new ValidationError('municipio_id es requerido');
+      if (!NIVELES_VALIDOS.includes(nivel_alerta))
+        throw new ValidationError('nivel_alerta debe ser VERDE, AMARILLO, NARANJA o ROJO');
+      if (!TIPOS_AMENAZA_VALIDOS.includes(tipo_amenaza))
+        throw new ValidationError(`tipo_amenaza debe ser uno de: ${TIPOS_AMENAZA_VALIDOS.join(', ')}`);
+
       const latNum = typeof lat === 'number' ? lat : parseFloat(String(lat));
       const lngNum = typeof lng === 'number' ? lng : parseFloat(String(lng));
       if (isNaN(latNum) || isNaN(lngNum)) throw new ValidationError('lat y lng deben ser números válidos');

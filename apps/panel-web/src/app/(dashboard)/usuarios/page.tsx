@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { getToken } from '@/lib/api';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.satam.corpofuturo.org';
 
@@ -37,11 +38,7 @@ function Toast({ mensaje, onClose }: { mensaje: string; onClose: () => void }) {
   );
 }
 
-function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  const match = document.cookie.match(/siagrd_access=([^;]+)/);
-  return match ? match[1] : null;
-}
+
 
 export default function UsuariosPage() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);

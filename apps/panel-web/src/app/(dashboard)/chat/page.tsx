@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useChat, TipoMensaje, ChatMensaje, WsStatus } from '@/hooks/useChat';
+import { getToken } from '@/lib/api';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.satam.corpofuturo.org';
 
@@ -15,11 +16,7 @@ interface Canal {
   incidente_id?: string;
 }
 
-function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  const match = document.cookie.match(/siagrd_access=([^;]+)/);
-  return match ? match[1] : null;
-}
+
 
 function getUserFromToken(): { nombre: string; rol: string } | null {
   const token = getToken();

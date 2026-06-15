@@ -8,17 +8,27 @@ import type { RolUsuario } from '../types/domain.js';
 const ROLES_GESTION: RolUsuario[] = ['ADMIN', 'CDGRD'];
 
 export async function alertasRoutes(app: FastifyInstance): Promise<void> {
-  // GET /alertas — público, filtro opcional por activa
+  // GET /alertas — público, filtro opcional por activa, paginación
   app.get('/alertas', async (request, reply) => {
-    const { activa } = request.query as { activa?: string };
+    const { activa, limit, offset } = request.query as {
+      activa?: string;
+      limit?: string;
+      offset?: string;
+    };
 
     const soloActivas = activa === undefined || activa === 'true';
+    const limitNum  = Math.min(limit  ? parseInt(limit,  10) : 100, 500);
+    const offsetNum = offset ? Math.max(parseInt(offset, 10), 0) : 0;
+
+    const [{ count }] = soloActivas
+      ? await db`SELECT COUNT(*)::int AS count FROM alertas WHERE activa = true`
+      : await db`SELECT COUNT(*)::int AS count FROM alertas`;
 
     const rows = soloActivas
-      ? await db`SELECT * FROM alertas WHERE activa = true ORDER BY created_at DESC`
-      : await db`SELECT * FROM alertas ORDER BY created_at DESC`;
+      ? await db`SELECT * FROM alertas WHERE activa = true  ORDER BY created_at DESC LIMIT ${limitNum} OFFSET ${offsetNum}`
+      : await db`SELECT * FROM alertas                      ORDER BY created_at DESC LIMIT ${limitNum} OFFSET ${offsetNum}`;
 
-    return reply.send({ data: rows, total: rows.length });
+    return reply.send({ data: rows, total: count, limit: limitNum, offset: offsetNum });
   });
 
   // POST /alertas — solo ADMIN/CDGRD

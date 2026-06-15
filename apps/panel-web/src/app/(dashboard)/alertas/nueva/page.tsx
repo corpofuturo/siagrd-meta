@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { apiFetch } from '@/lib/api';
+import { apiFetch, getToken } from '@/lib/api';
 
 const MapaAlertaDibujo = dynamic(
   () => import('@/components/MapaAlertaDibujo'),
@@ -41,12 +41,6 @@ const NIVEL_STYLES: Record<Nivel, string> = {
 };
 
 const PASOS = ['Tipo y Nivel', 'Municipios', 'Instrucciones', 'Área Geográfica', 'Vista Previa', 'Confirmación'];
-
-function getToken(): string | undefined {
-  if (typeof window === 'undefined') return undefined;
-  const match = document.cookie.match(/siagrd_access=([^;]+)/);
-  return match ? match[1] : undefined;
-}
 
 export default function AlertaNuevaPage() {
   const router = useRouter();

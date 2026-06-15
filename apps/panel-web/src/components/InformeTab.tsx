@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { getToken } from '@/lib/api';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Types
@@ -60,11 +61,7 @@ interface InformeTabProps {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.satam.corpofuturo.org';
 
-function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  const match = document.cookie.match(/siagrd_access=([^;]+)/);
-  return match ? match[1] : null;
-}
+
 
 async function apiRequest<T>(
   path: string,

@@ -1,15 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { getToken } from '@/lib/api';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.satam.corpofuturo.org';
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? 'wss://api.satam.corpofuturo.org';
 
-function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  const match = document.cookie.match(/siagrd_access=([^;]+)/);
-  return match ? match[1] : null;
-}
+
 
 export type TipoMensaje = 'NORMAL' | 'SISTEMA' | 'ALERTA_OFICIAL';
 
