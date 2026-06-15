@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { apiFetch, getToken } from '@/lib/api';
+import { apiFetch } from '@/lib/api';
 
 const MapaAlertaDibujo = dynamic(
   () => import('@/components/MapaAlertaDibujo'),
@@ -66,10 +66,8 @@ export default function AlertaNuevaPage() {
     setLoading(true);
     setError(null);
     try {
-      const token = getToken();
       await apiFetch('/alertas', {
         method: 'POST',
-        token,
         body: JSON.stringify({
           tipo,
           nivel,
