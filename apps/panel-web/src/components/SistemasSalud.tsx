@@ -16,7 +16,6 @@ interface HealthResponse {
 
 const SERVICIOS_DEFAULT: ServicioSalud[] = [
   { nombre: 'Database', estado: 'degraded' },
-  { nombre: 'Redis', estado: 'degraded' },
   { nombre: 'Storage', estado: 'degraded' },
   { nombre: 'IDEAM', estado: 'degraded' },
   { nombre: 'SGC', estado: 'degraded' },
@@ -49,8 +48,8 @@ export default function SistemasSalud() {
       const data: HealthResponse = await res.json();
 
       if (data.services) {
-        const nombres = ['Database', 'Redis', 'Storage', 'IDEAM', 'SGC'];
-        const claves = ['database', 'redis', 'storage', 'ideam', 'sgc'];
+        const nombres = ['Database', 'Storage', 'IDEAM', 'SGC'];
+        const claves = ['database', 'storage', 'ideam', 'sgc'];
 
         setServicios(
           nombres.map((nombre, i) => {

@@ -1,6 +1,6 @@
 version: '3.9'
 
-# ── Producción — DigitalOcean Droplet ──────────────────────────────────────
+# ── Producción — VPS Contabo 13.140.174.122 ────────────────────────────────
 # Uso: docker compose --env-file .env up -d
 # Logs:  docker compose logs -f backend
 # Smoke: curl http://localhost:3000/api/v1/health
@@ -24,21 +24,6 @@ services:
       retries: 5
       start_period: 20s
 
-  redis:
-    image: redis:7-alpine
-    restart: unless-stopped
-    command: >
-      redis-server
-      --maxmemory 100mb
-      --maxmemory-policy allkeys-lru
-      --requirepass ${REDIS_PASSWORD}
-    networks: [siagrd-net]
-    healthcheck:
-      test: ['CMD', 'redis-cli', '-a', '${REDIS_PASSWORD}', 'ping']
-      interval: 10s
-      timeout: 3s
-      retries: 3
-
   backend:
     build:
       context: .
@@ -50,8 +35,6 @@ services:
       PORT: '3000'
     depends_on:
       postgres:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     networks: [siagrd-net]
     ports:
