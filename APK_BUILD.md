@@ -197,7 +197,7 @@ http://<IP-LAN>:3000  # dispositivo físico en la misma red
 ## Checklist previo al build de distribución
 
 - [ ] `EXPO_PUBLIC_API_URL` configurado para producción
-- [ ] `google-services.json` presente en `apps/ciudadano/android/app/` (Firebase)
+- [ ] `google-services.json` presente en `apps/ciudadano/android/app/` (Notificaciones)
 - [ ] Versión incrementada en `app.json` → `expo.version` y `expo.android.versionCode`
 - [ ] Migraciones STOP-3 ejecutadas en BD de producción
 - [ ] Variables de entorno configuradas en /opt/siagrd/.env

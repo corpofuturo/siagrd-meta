@@ -10,7 +10,6 @@ vi.mock('../lib/db.js', () => ({ db: mockDb }));
 
 vi.mock('../services/notifications.service.js', () => ({
   enviarAlertaPush: vi.fn().mockResolvedValue(undefined),
-  initFCM: vi.fn(),
 }));
 
 vi.mock('../middleware/auth.js', () => ({

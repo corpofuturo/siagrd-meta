@@ -37,7 +37,6 @@ const STATUS_LABELS: Record<ServiceStatus, string> = {
 const SERVICES_CONFIG = [
   { name: 'db', label: 'Base de Datos (PostgreSQL)' },
   { name: 'redis', label: 'Cache / Cola (Redis)' },
-  { name: 'fcm', label: 'Notificaciones Push (FCM)' },
   { name: 'ideam', label: 'API IDEAM' },
   { name: 'sgc', label: 'API SGC (Sismología)' },
 ];

@@ -30,7 +30,7 @@
 
 ### SEC-05 · Endpoint `/health` expone topología interna en producción — MEDIO
 **Archivo:** `routes/health.ts`  
-**Descripción:** El endpoint público devolvía estado de DB, configuración FCM, profundidad de cola de sync, versiones de servicios mock. Esta información facilita reconocimiento en un ataque dirigido.  
+**Descripción:** El endpoint público devolvía estado de DB, configuración Push, profundidad de cola de sync, versiones de servicios mock. Esta información facilita reconocimiento en un ataque dirigido.  
 **Corrección:** En `NODE_ENV === 'production'` la respuesta se reduce a `{ status, response_ms, timestamp }`. El detalle completo se preserva solo en dev/staging.
 
 ---
@@ -47,7 +47,7 @@
 | V-06 | Secrets en logs | `logger.ts` tiene `redact: { paths: ['req.headers.authorization', 'payload.cedula', 'payload.coordenadas'] }`. No se encontraron `logger.info` con tokens o passwords en el código. |
 | V-07 | Whitelist de extensiones en upload | `POST /archivos/upload` valida MIME contra lista blanca (`image/jpeg`, `image/png`, `image/webp`, `image/gif`, `application/pdf`) Y verifica magic bytes del buffer. `storage.service.ts` además usa `file-type` para validación MIME real. |
 | V-08 | XSS — Content-Type | Fastify serializa automáticamente objetos JSON con `Content-Type: application/json`. No se encontraron respuestas con `reply.type('text/html')` ni interpolación de contenido de usuario en HTML. |
-| V-09 | CORS restrictivo en producción | Origen limitado a `*.gov.co` y `*.netlify.app` en producción. |
+| V-09 | CORS restrictivo en producción | Origen limitado a `*.gov.co` y `*.vps.app` en producción. |
 | V-10 | Helmet habilitado | HSTS, CSP y demás headers de seguridad activados vía `@fastify/helmet`. |
 | V-11 | Coordenadas validadas en endpoints geoespaciales | `GET /incidentes/cercanos` y `GET /cerca` validan rangos numéricos y limitan `radio_km` a 200. |
 | V-12 | Tamaño de archivo limitado | Límite de 10 MB en `@fastify/multipart` (global) y en el handler de upload (buffer check). |

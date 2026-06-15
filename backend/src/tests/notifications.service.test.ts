@@ -4,13 +4,12 @@ vi.mock('../lib/db.js', () => ({
   db: Object.assign(vi.fn().mockResolvedValue([]), { array: vi.fn((a: unknown[]) => a) }),
 }));
 
-describe('notifications.service', () => {
-  it('initFCM no lanza si FIREBASE_PROJECT_ID no está configurado', async () => {
-    const { initFCM } = await import('../services/notifications.service.js');
-    expect(() => initFCM()).not.toThrow();
-  });
+vi.mock('../utils/logger.js', () => ({
+  logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+}));
 
-  it('enviarAlertaPush no lanza si FCM no está inicializado', async () => {
+describe('notifications.service', () => {
+  it('enviarAlertaPush no lanza', async () => {
     const { enviarAlertaPush } = await import('../services/notifications.service.js');
     await expect(
       enviarAlertaPush(
@@ -22,9 +21,9 @@ describe('notifications.service', () => {
     ).resolves.not.toThrow();
   });
 
-  it('exporta initFCM y enviarAlertaPush', async () => {
+  it('exporta enviarAlertaPush y processNotificationQueue', async () => {
     const mod = await import('../services/notifications.service.js');
-    expect(typeof mod.initFCM).toBe('function');
     expect(typeof mod.enviarAlertaPush).toBe('function');
+    expect(typeof mod.processNotificationQueue).toBe('function');
   });
 });

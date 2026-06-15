@@ -171,20 +171,20 @@ HOSTING BACKEND:   VPS Contabo (13.140.174.122) — Plan Starter gratuito (512MB
                    Alternativa si se necesita más: Render.com (plan gratuito similar)
                    NUNCA: AWS, GCP, Azure — costos impredecibles para gobierno
 
-BASE DE DATOS:     Supabase — Plan Free (500MB, 2 proyectos, auth, storage, realtime)
+BASE DE DATOS:     PostgreSQL — Plan Free (500MB, 2 proyectos, auth, storage, realtime)
                    Upgrade solo si supera 500MB: Plan Pro = USD 25/mes (suficiente)
-                   PostGIS incluido en Supabase gratis ✓
+                   PostGIS incluido en PostgreSQL gratis ✓
 
-STORAGE ARCHIVOS:  Supabase Storage — 1GB gratis, luego USD 0.021/GB
+STORAGE ARCHIVOS:  PostgreSQL Storage — 1GB gratis, luego USD 0.021/GB
                    Comprimir fotos a <500KB antes de subir = importante
 
-PUSH NOTIFICATIONS: Firebase Cloud Messaging — GRATIS ilimitado ✓
+PUSH NOTIFICATIONS: Notificaciones Cloud Messaging — GRATIS ilimitado ✓
                     No usar OneSignal (límite en plan gratuito)
 
 SMS FALLBACK:      WhatsApp Business API
                    (Meta for Developers — gratuito hasta 1000 conversaciones/mes)
 
-CACHÉ/REDIS:       Upstash — Plan gratuito 10.000 comandos/día
+CACHÉ/REDIS:       Redis — Plan gratuito 10.000 comandos/día
                    Si supera: USD 0.2 por 100.000 comandos (muy barato)
 
 CI/CD:             GitHub Actions — GRATIS para repositorios públicos ✓
@@ -216,10 +216,10 @@ TOTAL ESTIMADO:    USD 0/mes en desarrollo
 // Target: < 300KB por foto (vs 3-8MB de una foto de smartphone)
 
 // 2. QUERIES: nunca SELECT * — solo los campos que se necesitan
-// Razón: Supabase cobra por egreso de datos
+// Razón: PostgreSQL cobra por egreso de datos
 
 // 3. REALTIME: solo suscribirse a cambios, no polling
-// Supabase Realtime es gratuito — pero no abrir más de 2 canales simultáneos por cliente
+// PostgreSQL Realtime es gratuito — pero no abrir más de 2 canales simultáneos por cliente
 
 // 4. CACHÉ: cachear en WatermelonDB local todo lo que no cambie frecuentemente
 // Municipios, zonas de riesgo, guías de autoprotección = cachear 24h
@@ -255,18 +255,18 @@ Colombia. Marco legal: Ley 1523 de 2012. Puede salvar vidas. La calidad no es op
 ## Stack (inamovible salvo STOP-3)
 
 ```
-Backend:          Node.js + TypeScript + Fastify + Supabase
+Backend:          Node.js + TypeScript + Fastify + PostgreSQL
 Apps Móviles:     React Native 0.73+ con Expo SDK 50+
 Panel Web:        Next.js 14 + TypeScript
 Mapas:            MapLibre GL + OpenStreetMap (sin costo)
-Base de datos:    PostgreSQL + PostGIS via Supabase (gratis)
+Base de datos:    PostgreSQL + PostGIS via PostgreSQL (gratis)
 Offline móvil:    WatermelonDB (SQLite) + cola de sync
-Push:             Firebase Cloud Messaging (gratis)
+Push:             Notificaciones Cloud Messaging (gratis)
 SMS fallback:     WhatsApp Business API
-Auth:             Supabase Auth — roles: ADMIN|CDGRD|CMGRD|SOCORRO|CIUDADANO
-Storage:          Supabase Storage (fotos comprimidas < 300KB)
-Caché:            Upstash Redis (plan gratuito)
-Hosting:          VPS Contabo (13.140.174.122) (backend) + Vercel (web) — ambos gratuitos
+Auth:             PostgreSQL Auth — roles: ADMIN|CDGRD|CMGRD|SOCORRO|CIUDADANO
+Storage:          PostgreSQL Storage (fotos comprimidas < 300KB)
+Caché:            Redis Redis (plan gratuito)
+Hosting:          VPS Contabo (13.140.174.122) (backend) + VPS (web) — ambos gratuitos
 CI/CD:            GitHub Actions (gratis en repo público)
 Monitoreo:        Sentry + UptimeRobot (ambos gratuitos)
 Repo:             GitHub público (código abierto — requisito sector público Colombia)
@@ -384,7 +384,7 @@ CREATE TABLE recursos_organismo (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Perfiles de usuario (extiende auth.users de Supabase)
+-- Perfiles de usuario (extiende auth.users de PostgreSQL)
 CREATE TABLE profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   nombre TEXT NOT NULL, apellido TEXT NOT NULL,
@@ -393,7 +393,7 @@ CREATE TABLE profiles (
   organismo_id UUID REFERENCES organismos(id),
   municipio_id UUID REFERENCES municipios(id),
   foto_url TEXT, activo BOOLEAN DEFAULT true,
-  device_tokens TEXT[] DEFAULT '{}',  -- FCM tokens del dispositivo
+  device_tokens TEXT[] DEFAULT '{}',  -- Push tokens del dispositivo
   created_at TIMESTAMPTZ DEFAULT NOW(), updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -639,17 +639,17 @@ backend/
       health.ts           # GET /health
       dashboard.ts        # GET /dashboard/stats, /dashboard/mapa-datos
     middleware/
-      auth.ts             # Verificar JWT Supabase + inyectar user en request
+      auth.ts             # Verificar JWT PostgreSQL + inyectar user en request
       audit.ts            # Registrar en audit_log automáticamente
       rateLimit.ts        # Rate limits por ruta
     services/
-      alerts.service.ts   # Emisión FCM + SMS Twilio
+      alerts.service.ts   # Emisión Push + SMS Twilio
       ideam.service.ts    # Integración IDEAM (mock en DEV — DT-001)
       sgc.service.ts      # Integración SGC (mock en DEV — DT-002)
       sync.service.ts     # Procesar cola sync_queue
       geo.service.ts      # ST_DWithin, ST_Contains, etc.
-      storage.service.ts  # Upload a Supabase Storage con compresión
-      notifications.service.ts # FCM batch + WhatsApp fallback
+      storage.service.ts  # Upload a PostgreSQL Storage con compresión
+      notifications.service.ts # Push batch + WhatsApp fallback
     types/
       domain.ts           # Tipos del dominio (Incidente, Alerta, Profile, etc.)
       api.ts              # Request/Response types
@@ -706,7 +706,7 @@ interface SyncResponse {
 // 3. Comprimir imagen: max 1200px, calidad 75%, formato WebP
 // 4. Generar miniatura: 300x300, calidad 60%, WebP
 // 5. Extraer coordenadas GPS del EXIF si existen
-// 6. Subir a Supabase Storage: incidentes/{incidente_id}/{timestamp}.webp
+// 6. Subir a PostgreSQL Storage: incidentes/{incidente_id}/{timestamp}.webp
 // 7. Registrar en tabla archivos
 // 8. Devolver URLs en < 5 segundos
 // Si compresión falla: guardar original con warning en log
@@ -1178,7 +1178,7 @@ export interface Coordenada {
 
 # ═══════════════════════════════════════════════════════════
 # AGENTE 4 — PANEL WEB COORDINACIÓN (CDGRD)
-# Especialidad: Next.js 14, MapLibre, Supabase Realtime, Dashboard
+# Especialidad: Next.js 14, MapLibre, PostgreSQL Realtime, Dashboard
 # Ejecutar: Semana 3, en paralelo con Agente 3
 # ═══════════════════════════════════════════════════════════
 
@@ -1251,7 +1251,7 @@ src/
     useRealtimeAlertas.ts
     useRealtimeReportes.ts
   lib/
-    supabase.ts
+    postgres.ts
     map-config.ts             # Estilo oscuro MapLibre
 ```
 
@@ -1273,7 +1273,7 @@ src/
 // 7. Layer: recursos disponibles (íconos por tipo)
 
 // Tiempo real:
-// - Supabase subscription en tabla incidentes → actualiza estado React → MapLibre re-render
+// - PostgreSQL subscription en tabla incidentes → actualiza estado React → MapLibre re-render
 // - Nuevo incidente: sonido de alerta (sutil) + animación en mapa
 // - Incidente cerrado: punto se desvanece
 
@@ -1424,7 +1424,7 @@ BACKEND:
 ☐ HSTS: max-age=31536000; includeSubDomains
 ☐ Validación MIME real de archivos con 'file-type' (no solo extensión)
 ☐ Rate limiting: login 5/15min, upload 50/hora, emitir_alerta 10/hora
-☐ SQL injection: imposible (Supabase parametrizado + Zod)
+☐ SQL injection: imposible (PostgreSQL parametrizado + Zod)
 ☐ JWT: access 15min, refresh 7 días, refresh rotation
 ☐ Secretos: instrucciones de rotación en docs/security/SECRET_ROTATION.md
 
@@ -1437,7 +1437,7 @@ APPS MÓVILES:
 BASE DE DATOS:
 ☐ RLS en todas las tablas (verificar con test de acceso cruzado)
 ☐ audit_log: sin DELETE, sin UPDATE para nadie
-☐ Backup: Supabase automático diario (verificar que esté activado en dashboard)
+☐ Backup: PostgreSQL automático diario (verificar que esté activado en dashboard)
 ☐ Service role key: NUNCA en cliente móvil o web (solo en backend server-side)
 ```
 
@@ -1508,12 +1508,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: amondnet/vercel-action@v25
+      - uses: amondnet/vps-action@v25
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
+          vps-token: ${{ secrets.VERCEL_TOKEN }}
+          vps-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vps-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vps-args: '--prod'
           working-directory: apps/panel-web
 ```
 
@@ -1559,11 +1559,11 @@ interface HealthResponse {
 → Tiempo estimado: 10 minutos
 
 ## Escenario 2: Base de datos corrupta
-→ Supabase backup automático diario disponible en dashboard
-→ Restore: Supabase Dashboard → Backups → Restore to point in time
+→ PostgreSQL backup automático diario disponible en dashboard
+→ Restore: PostgreSQL Dashboard → Backups → Restore to point in time
 → Tiempo estimado: 2 horas
 
-## Escenario 3: FCM falla (push no llega)
+## Escenario 3: Push falla (push no llega)
 → Automático: WhatsApp Business API como fallback (configurado desde Agente 1)
 → Último recurso: protocolo de radio (documento en /docs/protocolos/radio.md)
 
@@ -1575,7 +1575,7 @@ interface HealthResponse {
 ## Contactos técnicos (completar antes de producción)
 - Administrador técnico CDGRD: [nombre] [celular] [email]
 - Soporte VPS: support@
-- Soporte Supabase: support@supabase.io (plan Pro incluye soporte)
+- Soporte PostgreSQL: support@postgres.io (plan Pro incluye soporte)
 ```
 
 ## Criterios de aceptación — Agente 6
@@ -1639,14 +1639,14 @@ git commit -m "chore: inicializar monorepo SIAGRD Meta pnpm workspaces"
 
 ```env
 # Obtener GRATIS antes de empezar:
-SUPABASE_URL=              # supabase.com → nuevo proyecto → Settings → API
-SUPABASE_ANON_KEY=         # supabase.com → Settings → API → anon key
-SUPABASE_SERVICE_ROLE_KEY= # supabase.com → Settings → API → service_role (NUNCA en cliente)
-FIREBASE_PROJECT_ID=       # console.firebase.google.com → nuevo proyecto
-FIREBASE_PRIVATE_KEY=      # Firebase → Settings → Service accounts → Generate key
+SUPABASE_URL=              # postgres.com → nuevo proyecto → Settings → API
+SUPABASE_ANON_KEY=         # postgres.com → Settings → API → anon key
+SUPABASE_SERVICE_ROLE_KEY= # postgres.com → Settings → API → service_role (NUNCA en cliente)
+FIREBASE_PROJECT_ID=       # console.notificaciones.google.com → nuevo proyecto
+FIREBASE_PRIVATE_KEY=      # Notificaciones → Settings → Service accounts → Generate key
 FIREBASE_CLIENT_EMAIL=     # Mismo archivo JSON anterior
 VPS_SSH_KEY (GitHub Secret)
-VERCEL_TOKEN=              # vercel.com → Settings → Tokens
+VERCEL_TOKEN=              # vps.com → Settings → Tokens
 SENTRY_DSN=                # sentry.io → nuevo proyecto → DSN (plan gratuito)
 
 ```

@@ -10,12 +10,12 @@
   - Schema PostgreSQL+PostGIS con 27 municipios del Meta y organismos de socorro (seeds)
   - Script de validación RLS cross-municipio
   - Tipos TypeScript del dominio SIAGRD
-  - Logger pino, error classes, Supabase client
-  - Middleware JWT Supabase con inyección de usuario en request
+  - Logger pino, error classes, PostgreSQL client
+  - Middleware JWT PostgreSQL con inyección de usuario en request
   - Servicios mock IDEAM y SGC (DT-001 y DT-002)
   - sync.service (offline-critical) + storage.service (compresión fotos)
   - Rutas: health, sync, incidentes, alertas, archivos
-  - notifications.service FCM batch con fallback graceful
+  - notifications.service Push batch con fallback graceful
   - Entry point Fastify con helmet, cors, rate-limit
   - Docker Compose con PostgreSQL+PostGIS + Redis
   - Tests básicos sync.service y health
@@ -42,19 +42,19 @@
   - Push notifications para alertas en tiempo real
   - Modo offline para consulta de guías de preparación
 - **Agente 6 — CI/CD, Seguridad y Disaster Recovery:**
-  - GitHub Actions pipelines: lint, test, build, deploy (VPS + Vercel)
+  - GitHub Actions pipelines: lint, test, build, deploy (VPS + VPS)
   - Análisis de seguridad: CodeQL, Snyk, OWASP dependency check
   - Secrets scanning con git-secrets y trufflehog
   - Política de backup automático PostgreSQL (RPO 1h, RTO 4h)
   - Runbook de DR con pasos de restauración documentados
   - Sentry integrado en todos los paquetes (backend, web, mobile)
   - Rate limiting y WAF configurado en VPS
-  - Certificados TLS automáticos (Let's Encrypt via VPS/Vercel)
+  - Certificados TLS automáticos (Let's Encrypt via VPS/VPS)
 
 **Sesión 2026-06-05 — Integración backend + tests + seguridad:**
 
 - **A1 — Rutas backend faltantes:**
-  - `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`, `GET /auth/me` (JWT Supabase)
+  - `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`, `GET /auth/me` (JWT PostgreSQL)
   - `GET /dashboard/stats` con 6 métricas paralelas, `GET /dashboard/mapa-datos` GeoJSON
   - Utilidades geo: `wktPoint`, `parseGeoJSONPoint`, `distanciaKm` (Haversine)
   - Seed SQL: 10 organismos de socorro del Meta con JOIN a municipios
@@ -67,7 +67,7 @@
 
 - **A4 — Panel Web (páginas nuevas):**
   - Componentes: `RealtimeIndicator`, `NivelAlertaGlobal`, `IncidenteTimeline`, `SistemasSalud`, `AlertaEmision`
-  - Hooks: `useRealtimeReportes` (suscripción realtime Supabase, reportes pendientes)
+  - Hooks: `useRealtimeReportes` (suscripción realtime PostgreSQL, reportes pendientes)
   - Páginas nuevas: recursos, damnificados, municipios/[id], organismos, usuarios, configuración, historial, exportaciones (CSV real con `URL.createObjectURL`)
 
 - **QA1 — Tests backend (suite completa):**
@@ -118,8 +118,8 @@
 - Generar PNGs de iconos PWA (72–512px) a partir de assets existentes y copiar a `apps/ciudadano/public/icons/`
 
 ### Decisiones técnicas clave tomadas
-- Stack inamovible: Node.js+Fastify+Supabase / React Native / Next.js
-- Infraestructura objetivo: USD 0–75/mes (VPS + Supabase + Vercel)
+- Stack inamovible: Node.js+Fastify+PostgreSQL / React Native / Next.js
+- Infraestructura objetivo: USD 0–75/mes (VPS + PostgreSQL + VPS)
 - Código abierto MIT (requisito sector público colombiano)
 
 ### Cómo levantar el entorno
@@ -133,9 +133,9 @@ pnpm dev
 ```
 
 ### Variables de entorno requeridas
-- SUPABASE_URL — URL del proyecto Supabase
+- SUPABASE_URL — URL del proyecto PostgreSQL
 - SUPABASE_ANON_KEY — clave anónima (cliente)
 - SUPABASE_SERVICE_ROLE_KEY — clave service role (SOLO backend)
-- FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL — FCM push
+- FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL — Push push
 - VPS_SSH_KEY (GitHub Secret)
 - SENTRY_DSN — monitoreo de errores

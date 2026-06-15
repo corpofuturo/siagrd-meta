@@ -14,8 +14,8 @@ SIAGRD es una plataforma distribuida compuesta por tres capas:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  APK Android (Expo/React Native)   Panel Web (Next.js/Netlify)  │
-│  org.corpofuturo.siagrd.ciudadano  siagrd-panel-web.netlify.app │
+│  APK Android (Expo/React Native)   Panel Web (Next.js/VPS)  │
+│  org.corpofuturo.siagrd.ciudadano  siagrd-panel-web.vps.app │
 └────────────────────────┬────────────────────────────────────────┘
                          │ HTTPS / REST JSON
 ┌────────────────────────▼────────────────────────────────────────┐
@@ -41,7 +41,7 @@ SIAGRD es una plataforma distribuida compuesta por tres capas:
 | Autenticación | JWT (HS256) · SimpleJWT · SecureStore (APK) · Cookie (web) |
 | Mapas | Leaflet.js + OpenStreetMap (WebView en APK · iframe en web) |
 | Deploy backend | VPS (Docker) |
-| Deploy web | Netlify |
+| Deploy web | VPS |
 | Build APK | Gradle + Android Studio · Eclipse Adoptium JDK 17 |
 
 ### 3. Estructura del monorepo
@@ -132,7 +132,7 @@ CIUDADANO   → Reporta incidentes. Acceso limitado.
 
 - JWT firmado con `JWT_SECRET` (variable de entorno, nunca en código)
 - `DEBUG = false` en producción (VPS)
-- CORS restringido a dominios autorizados (Netlify + VPS)
+- CORS restringido a dominios autorizados (VPS + VPS)
 - Roles verificados en cada endpoint sensible antes de ejecutar
 - SecureStore para token JWT en el APK (cifrado por Android Keystore)
 - Cookie `HttpOnly` para JWT en panel web
@@ -166,7 +166,7 @@ No requiere Google Maps API Key. El mapa se renderiza con Leaflet.js dentro de u
 3. El sistema lo llevará al **Panel** automáticamente
 
 **Panel Web:**
-1. Abra `https://siagrd-panel-web.netlify.app` en su navegador
+1. Abra `https://siagrd-panel-web.vps.app` en su navegador
 2. Ingrese sus credenciales
 3. Quedará en el Dashboard con el menú lateral izquierdo
 
@@ -347,7 +347,7 @@ Cuando el campo tiene conectividad limitada, los incidentes se guardan localment
 
 | Recurso | URL / Dato |
 |---|---|
-| Panel Web | https://siagrd-panel-web.netlify.app |
+| Panel Web | https://siagrd-panel-web.vps.app |
 | API Backend | https://api.satam.corpofuturo.org |
 | Salud del sistema | https://api.satam.corpofuturo.org/health |
 | APK (instalar) | `android/app/build/outputs/apk/release/app-release.apk` |

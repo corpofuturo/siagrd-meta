@@ -28,7 +28,7 @@ Estas 4 integraciones requieren gestion externa.
 **Estado**: Canal WHATSAPP definido en BD, no implementado
 **Requiere**: Cuenta Meta Business verificada + aprobacion plantillas emergencia
 **Contacto**: business.whatsapp.com
-**Impacto**: Notificaciones de alerta solo por Push FCM
+**Impacto**: Notificaciones de alerta solo por Push Push
 
 ## DT-005 — Generacion de PDF de Informe de Cierre
 **Archivo**: backend/src/routes/informes.ts — POST /incidentes/:id/informe/firmar

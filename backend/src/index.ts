@@ -6,7 +6,7 @@ import multipart from '@fastify/multipart';
 
 import { logger } from './utils/logger.js';
 import { AppError } from './utils/errors.js';
-import { initFCM, processNotificationQueue } from './services/notifications.service.js';
+import { processNotificationQueue } from './services/notifications.service.js';
 
 import { db } from './lib/db.js';
 import { healthRoutes } from './routes/health.js';
@@ -148,8 +148,6 @@ async function bootstrap(): Promise<void> {
   await app.register(gruposRoutes, { prefix: '/api/v1' });
   await app.register(alcaldiasRoutes, { prefix: '/api/v1' });
 
-  // Inicializar FCM (modo graceful si no configurado)
-  initFCM();
 
   // Arrancar servidor primero — seed en background para no bloquear el startup
   await app.listen({ port: PORT, host: '0.0.0.0' });

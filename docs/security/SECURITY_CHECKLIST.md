@@ -13,7 +13,7 @@
 ## Base de datos
 - [ ] RLS habilitado en: profiles, incidentes, actualizaciones_incidente, alertas, archivos, reportes_ciudadanos, damnificados, recursos_organismo
 - [ ] audit_log: sin política DELETE ni UPDATE (verificar con: SELECT * FROM pg_policies WHERE tablename='audit_log')
-- [ ] Backup automático de Supabase activo (Dashboard → Settings → Backups)
+- [ ] Backup automático de PostgreSQL activo (Dashboard → Settings → Backups)
 - [ ] No hay datos de prueba (cédulas reales, nombres reales) en producción
 
 ## Apps móviles
@@ -25,7 +25,7 @@
 ## Panel web
 - [ ] No hay tokens hardcodeados en el código fuente
 - [ ] Content-Security-Policy configurado en next.config.ts
-- [ ] Vercel Preview URLs requieren autenticación (si hay datos reales en preview)
+- [ ] VPS Preview URLs requieren autenticación (si hay datos reales en preview)
 
 ## CI/CD
 - [ ] Secrets no están en logs de GitHub Actions

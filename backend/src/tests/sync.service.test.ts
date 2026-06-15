@@ -5,39 +5,13 @@ vi.mock('../lib/db.js', () => {
   (mockDb as any).array = vi.fn().mockImplementation((arr: any[]) => arr);
   (mockDb as any).json = vi.fn().mockImplementation((v: any) => v);
   (mockDb as any).unsafe = vi.fn().mockImplementation((s: string) => s);
-  // postgres identifier helper: db(tableName) or db(obj)
-  const tag = Object.assign(mockDb, {
-    __esModule: true,
-  });
+  const tag = Object.assign(mockDb, { __esModule: true });
   return { db: tag };
 });
 
 vi.mock('../utils/logger.js', () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
-
-// Mock completo de supabase — todos los métodos terminales resuelven inmediatamente
-vi.mock('../lib/supabase.js', () => {
-  const terminal = {
-    maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
-    single: vi.fn().mockResolvedValue({ data: null, error: null }),
-  };
-  const chain = {
-    select: vi.fn().mockReturnThis(),
-    insert: vi.fn().mockResolvedValue({ data: null, error: null }),
-    update: vi.fn().mockReturnThis(),
-    delete: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockReturnThis(),
-    gt: vi.fn().mockReturnThis(),
-    in: vi.fn().mockReturnThis(),
-    order: vi.fn().mockReturnThis(),
-    limit: vi.fn().mockResolvedValue({ data: [], error: null, count: 0 }),
-    ...terminal,
-  };
-  return {
-    supabaseAdmin: { from: vi.fn().mockReturnValue(chain) },
-  };
-});
 
 describe('sync.service', () => {
   it('exporta procesarSync como función', async () => {

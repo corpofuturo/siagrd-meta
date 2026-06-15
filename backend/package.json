@@ -23,7 +23,6 @@
     "bcryptjs": "^2.4.3",
     "fastify": "^4.28.0",
     "file-type": "^16.5.4",
-    "firebase-admin": "^12.0.0",
     "jsonwebtoken": "^9.0.2",
     "pino": "^9.0.0",
     "postgres": "^3.4.4",

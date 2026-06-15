@@ -34,8 +34,8 @@
               ┌──────────────────┼────────────────────┐
               │                  │                     │
     ┌─────────▼──────┐  ┌───────▼────────┐  ┌────────▼───────┐
-    │   Supabase      │  │  Upstash Redis │  │    Firebase    │
-    │   PostgreSQL    │  │  (caché/rate)  │  │    FCM (push)  │
+    │   PostgreSQL      │  │  Redis Redis │  │    Notificaciones    │
+    │   PostgreSQL    │  │  (caché/rate)  │  │    Push (push)  │
     │   + PostGIS     │  │  Plan gratuito │  │    Gratis      │
     │   + Auth        │  └────────────────┘  └────────────────┘
     │   + Storage     │
@@ -68,10 +68,10 @@
 ## Stack de costos (REGLA 5)
 
   VPS Contabo (13.140.174.122)    → backend API      → Gratis
-  Supabase       → BD + Auth + RTC  → Gratis (500MB)
-  Vercel         → panel-web        → Gratis
-  Firebase FCM   → push             → Gratis
-  Upstash Redis  → caché            → Gratis
+  PostgreSQL       → BD + Auth + RTC  → Gratis (500MB)
+  VPS         → panel-web        → Gratis
+  Notificaciones (Telegram/WhatsApp)   → push             → Gratis
+  Redis Redis  → caché            → Gratis
   GitHub Actions → CI/CD            → Gratis
   Sentry         → errores          → Gratis
   UptimeRobot    → uptime           → Gratis

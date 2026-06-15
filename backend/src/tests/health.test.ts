@@ -1,31 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
 
-// Mock supabaseAdmin
-vi.mock('../lib/supabase.js', () => ({
-  supabaseAdmin: {
-    from: vi.fn().mockReturnValue({
-      select: vi.fn().mockReturnThis(),
-      limit: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({ data: { id: 'muni-1' }, error: null }),
-    }),
-    storage: {
-      listBuckets: vi.fn().mockResolvedValue({ data: [], error: null }),
-    },
-  },
-  supabaseAnon: {
-    auth: {
-      getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
-    },
-    from: vi.fn().mockReturnValue({
-      select: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockReturnThis(),
-      single: vi.fn().mockResolvedValue({ data: null, error: null }),
-    }),
-  },
-}));
-
-// Mock servicios externos
 vi.mock('../services/ideam.service.js', () => ({
   getStatus: vi.fn().mockReturnValue('mock'),
   getLastCheck: vi.fn().mockReturnValue('2026-06-04T00:00:00.000Z'),
@@ -45,11 +19,8 @@ describe('health routes', () => {
     expect(typeof mod.healthRoutes).toBe('function');
   });
 
-  it('status ok cuando DB y storage responden sin error', async () => {
-    // Verificar que la función de health se puede registrar en Fastify (tipo correcto)
+  it('healthRoutes es función async registrable en Fastify', async () => {
     const { healthRoutes } = await import('../routes/health.js');
-
-    // La función debe aceptar un FastifyInstance — verificamos que es async
-    expect(healthRoutes.constructor.name === 'AsyncFunction' || typeof healthRoutes === 'function').toBe(true);
+    expect(typeof healthRoutes).toBe('function');
   });
 });

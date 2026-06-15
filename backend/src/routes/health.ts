@@ -38,7 +38,6 @@ export async function healthRoutes(app: FastifyInstance): Promise<void> {
     services.db = dbStatus;
     services.storage = 'local';
     services.redis = 'not_configured';
-    services.fcm = process.env.FIREBASE_PROJECT_ID ? 'configured' : 'not_configured';
     services.ideam = `mock (last_check: ${ideam.getLastCheck() || 'never'})`;
     services.sgc = `mock (last_check: ${sgc.getLastCheck() || 'never'})`;
 

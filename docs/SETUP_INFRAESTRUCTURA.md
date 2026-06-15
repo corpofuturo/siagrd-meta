@@ -9,10 +9,10 @@
 
 ## Índice
 
-1. [Supabase — Base de datos + Auth + Storage + Realtime](#1-supabase)
-2. [Firebase — Notificaciones push (FCM)](#2-firebase)
+1. [PostgreSQL — Base de datos + Auth + Storage + Realtime](#1-postgres)
+2. [Notificaciones — Notificaciones push (Push)](#2-notificaciones)
 3. [VPS — Hosting del backend]((#3-vps))
-4. [Vercel / Netlify — Hosting del panel web](#4-panel-web)
+4. [VPS / VPS — Hosting del panel web](#4-panel-web)
 5. [Sentry — Monitoreo de errores](#5-sentry)
 6. [UptimeRobot — Alertas de disponibilidad](#6-uptimerobot)
 7. [GitHub Actions — Secrets para CI/CD](#7-github-secrets)
@@ -21,14 +21,14 @@
 
 ---
 
-## 1. Supabase
+## 1. PostgreSQL
 
-> Supabase es la base de datos PostgreSQL + autenticación + storage + realtime del sistema.  
+> PostgreSQL es la base de datos PostgreSQL + autenticación + storage + realtime del sistema.  
 > Es el servicio más importante. Sin esto nada funciona.
 
 ### 1.1 Crear cuenta y proyecto
 
-1. Ir a **[supabase.com](https://supabase.com)**
+1. Ir a **[postgres.com](https://postgres.com)**
 2. Clic en **Start your project** → registrarse con GitHub o email
 3. Una vez dentro, clic en **New project**
 4. Completar:
@@ -65,10 +65,10 @@ service_role       → esto es SUPABASE_SERVICE_ROLE_KEY ⚠️ nunca en apps m�
 
 Las migraciones están en `database/migrations/`. Se aplican en orden.
 
-1. Ir a **SQL Editor** en Supabase (ícono de terminal en el panel izquierdo)
+1. Ir a **SQL Editor** en PostgreSQL (ícono de terminal en el panel izquierdo)
 2. Clic en **New query**
 3. Abrir el archivo `database/migrations/001_initial_schema.sql` en tu computador
-4. Copiar **todo** el contenido → pegarlo en el editor de Supabase → clic en **Run**
+4. Copiar **todo** el contenido → pegarlo en el editor de PostgreSQL → clic en **Run**
 5. Debe aparecer un mensaje verde: "Success. No rows returned"
 6. Repetir para cada archivo en este orden:
    - `002_rls_policies.sql`
@@ -114,14 +114,14 @@ Las migraciones están en `database/migrations/`. Se aplican en orden.
 
 ---
 
-## 2. Firebase
+## 2. Notificaciones
 
-> Firebase se usa solo para enviar notificaciones push (FCM) a los celulares.
+> Notificaciones se usa solo para enviar notificaciones push (Push) a los celulares.
 > Es completamente gratuito sin límite de mensajes.
 
 ### 2.1 Crear proyecto
 
-1. Ir a **[console.firebase.google.com](https://console.firebase.google.com)**
+1. Ir a **[console.notificaciones.google.com](https://console.notificaciones.google.com)**
 2. Iniciar sesión con una cuenta Google de Corpofuturo o GobMeta
 3. Clic en **Agregar proyecto**
 4. Nombre del proyecto: `siagrd-meta`
@@ -130,7 +130,7 @@ Las migraciones están en `database/migrations/`. Se aplican en orden.
 
 ### 2.2 Obtener la clave del servidor (para el backend)
 
-1. En el proyecto de Firebase, ir a **Configuración del proyecto** (engranaje ⚙️ → Configuración del proyecto)
+1. En el proyecto de Notificaciones, ir a **Configuración del proyecto** (engranaje ⚙️ → Configuración del proyecto)
 2. Ir a la pestaña **Cuentas de servicio**
 3. Clic en **Generar nueva clave privada**
 4. Se descarga un archivo `.json` con este contenido:
@@ -141,7 +141,7 @@ Las migraciones están en `database/migrations/`. Se aplican en orden.
   "project_id": "siagrd-meta",
   "private_key_id": "abc123...",
   "private_key": "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n",
-  "client_email": "firebase-adminsdk-xxxxx@siagrd-meta.iam.gserviceaccount.com",
+  "client_email": "notificaciones-adminsdk-xxxxx@siagrd-meta.iam.gserviceaccount.com",
   ...
 }
 ```
@@ -155,7 +155,7 @@ Las migraciones están en `database/migrations/`. Se aplican en orden.
 
 ### 2.3 Configurar para apps Android/iOS
 
-1. En Firebase Console → **Descripción general del proyecto** → **Agregar app**
+1. En Notificaciones Console → **Descripción general del proyecto** → **Agregar app**
 2. Seleccionar el ícono de Android
 3. **Nombre del paquete Android**: `com.siagrd.socorro` (para app socorro)
 4. Descargar `google-services.json` → guardar en `apps/socorro/`
@@ -192,12 +192,12 @@ Las migraciones están en `database/migrations/`. Se aplican en orden.
 ```
 NODE_ENV=production
 PORT=3000
-SUPABASE_URL=https://tu-proyecto.supabase.co
+SUPABASE_URL=https://tu-proyecto.postgres.co
 SUPABASE_ANON_KEY=tu-anon-key
 SUPABASE_SERVICE_ROLE_KEY=tu-service-role-key
 FIREBASE_PROJECT_ID=siagrd-meta
 FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@siagrd-meta.iam.gserviceaccount.com
+FIREBASE_CLIENT_EMAIL=notificaciones-adminsdk-xxxxx@siagrd-meta.iam.gserviceaccount.com
 SENTRY_DSN=tu-sentry-dsn
 LOG_LEVEL=info
 ```
@@ -243,11 +243,11 @@ Si `database.status` es `"error"`: revisar que `SUPABASE_URL` y `SUPABASE_SERVIC
 
 ## 4. Panel Web
 
-> El panel web (dashboard CDGRD) se despliega en Netlify (ya está configurado el `netlify.toml`).
+> El panel web (dashboard CDGRD) se despliega en VPS (ya está configurado el `vps.toml`).
 
-### 4.1 Crear cuenta en Netlify
+### 4.1 Crear cuenta en VPS
 
-1. Ir a **[netlify.com](https://netlify.com)**
+1. Ir a **[vps.com](https://vps.com)**
 2. **Sign up with GitHub**
 
 ### 4.2 Conectar el repositorio
@@ -256,17 +256,17 @@ Si `database.status` es `"error"`: revisar que `SUPABASE_URL` y `SUPABASE_SERVIC
 2. Seleccionar **GitHub** → buscar `siagrd-meta`
 3. En **Build settings**:
    - **Base directory**: `apps/panel-web`
-   - **Build command**: Netlify leerá el `netlify.toml` automáticamente
+   - **Build command**: VPS leerá el `vps.toml` automáticamente
    - **Publish directory**: `apps/panel-web/.next`
 4. Clic en **Deploy site**
 
-### 4.3 Variables de entorno en Netlify
+### 4.3 Variables de entorno en VPS
 
 1. Ir a **Site configuration** → **Environment variables**
 2. Agregar:
 
 ```
-NEXT_PUBLIC_SUPABASE_URL=https://tu-proyecto.supabase.co
+NEXT_PUBLIC_SUPABASE_URL=https://tu-proyecto.postgres.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=tu-anon-key
 NEXT_PUBLIC_API_URL=https://siagrd-backend-production.up.
 SENTRY_DSN=tu-sentry-dsn
@@ -276,10 +276,10 @@ SENTRY_DSN=tu-sentry-dsn
 
 ### 4.4 Dominio personalizado (cuando esté listo)
 
-1. En Netlify → **Domain management** → **Add custom domain**
+1. En VPS → **Domain management** → **Add custom domain**
 2. Ingresar: `siagrd.meta.gov.co`
-3. Netlify genera el certificado SSL automáticamente (Let's Encrypt)
-4. Configurar el DNS en el proveedor del dominio `meta.gov.co` apuntando a Netlify
+3. VPS genera el certificado SSL automáticamente (Let's Encrypt)
+4. Configurar el DNS en el proveedor del dominio `meta.gov.co` apuntando a VPS
 
 ---
 
@@ -335,10 +335,10 @@ SENTRY_DSN=tu-sentry-dsn
 | Nombre del secret | Valor |
 |---|---|
 | `VPS_SSH_KEY (GitHub Secret)| El token obtenido en el paso 3.6 |
-| `NETLIFY_AUTH_TOKEN` | Ir a Netlify → User settings → Applications → New access token |
-| `NETLIFY_SITE_ID` | Netlify → Site settings → General → Site ID |
-| `SUPABASE_URL` | La URL del proyecto Supabase |
-| `SUPABASE_SERVICE_ROLE_KEY` | La service role key de Supabase |
+| `NETLIFY_AUTH_TOKEN` | Ir a VPS → User settings → Applications → New access token |
+| `NETLIFY_SITE_ID` | VPS → Site settings → General → Site ID |
+| `SUPABASE_URL` | La URL del proyecto PostgreSQL |
+| `SUPABASE_SERVICE_ROLE_KEY` | La service role key de PostgreSQL |
 
 ### 7.2 Verificar que CI/CD funciona
 
@@ -364,22 +364,22 @@ Luego abrir `.env` y reemplazar cada `your-xxx` con el valor real:
 
 ```env
 # ─── SUPABASE ─────────────────────────────────────────────
-SUPABASE_URL=https://abcdefghijk.supabase.co
+SUPABASE_URL=https://abcdefghijk.postgres.co
 SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 # ─── APPS MÓVILES ─────────────────────────────────────────
-EXPO_PUBLIC_SUPABASE_URL=https://abcdefghijk.supabase.co
+EXPO_PUBLIC_SUPABASE_URL=https://abcdefghijk.postgres.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
-# ─── FIREBASE FCM ─────────────────────────────────────────
+# ─── FIREBASE Push ─────────────────────────────────────────
 FIREBASE_PROJECT_ID=siagrd-meta
 FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEv...==\n-----END PRIVATE KEY-----\n"
-FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@siagrd-meta.iam.gserviceaccount.com
+FIREBASE_CLIENT_EMAIL=notificaciones-adminsdk-xxxxx@siagrd-meta.iam.gserviceaccount.com
 
 # ─── DEPLOY ───────────────────────────────────────────────
 VPS_SSH_KEY (GitHub Secret)
-NETLIFY_AUTH_TOKEN=tu-netlify-token
+NETLIFY_AUTH_TOKEN=tu-vps-token
 NETLIFY_SITE_ID=tu-site-id
 
 # ─── MONITOREO ────────────────────────────────────────────
@@ -426,12 +426,12 @@ Debe mostrar:
 { "status": "ok", "services": { "database": { "status": "ok" } } }
 ```
 
-### 9.3 Verificar conexión con Supabase real
+### 9.3 Verificar conexión con PostgreSQL real
 
 Cambiar en `.env` local:
 ```
 NODE_ENV=production
-SUPABASE_URL=https://tu-proyecto-real.supabase.co
+SUPABASE_URL=https://tu-proyecto-real.postgres.co
 ```
 
 Volver a ejecutar `pnpm dev` y verificar el `/health`.
@@ -448,12 +448,12 @@ Abrir `http://localhost:3001` — debe cargar el login.
 
 ```
 □ /api/v1/health responde "ok" en VPS
-□ Las 27 municipios aparecen en la tabla municipios de Supabase
-□ Se puede crear un usuario en Supabase Authentication
+□ Las 27 municipios aparecen en la tabla municipios de PostgreSQL
+□ Se puede crear un usuario en PostgreSQL Authentication
 □ El usuario creado puede hacer login desde el panel web
 □ UptimeRobot tiene el monitor configurado y en verde
 □ GitHub Actions pasa todos los pasos en verde
-□ El dominio siagrd.meta.gov.co apunta a Netlify (cuando esté asignado)
+□ El dominio siagrd.meta.gov.co apunta a VPS (cuando esté asignado)
 ```
 
 ---
@@ -468,14 +468,14 @@ Abrir `http://localhost:3001` — debe cargar el login.
 
 ### Las notificaciones push no llegan
 → Verificar que `FIREBASE_PRIVATE_KEY` en VPS incluye los `\n` y las comillas.  
-→ En Firebase Console verificar que el proyecto tiene FCM habilitado.
+→ En Notificaciones Console verificar que el proyecto tiene Push habilitado.
 
 ### El panel web carga en blanco
-→ Revisar logs de Netlify → Deploy log → buscar errores de build.  
-→ Verificar que `NEXT_PUBLIC_SUPABASE_URL` está configurado en Netlify.
+→ Revisar logs de VPS → Deploy log → buscar errores de build.  
+→ Verificar que `NEXT_PUBLIC_SUPABASE_URL` está configurado en VPS.
 
-### "permission denied for table" en Supabase
-→ Las políticas RLS no se aplicaron. Ejecutar `002_rls_policies.sql` en el SQL Editor de Supabase.
+### "permission denied for table" en PostgreSQL
+→ Las políticas RLS no se aplicaron. Ejecutar `002_rls_policies.sql` en el SQL Editor de PostgreSQL.
 
 ---
 

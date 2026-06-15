@@ -2,7 +2,7 @@
 
 ## [2026-06-04] [monorepo] Decisión: pnpm workspaces en vez de Turborepo. Razón: menor complejidad de setup, suficiente para el tamaño del proyecto, sin costo adicional.
 
-## [2026-06-04] [BD] Decisión: Usar PostGIS en Supabase en vez de instancia PostgreSQL separada. Razón: Supabase incluye PostGIS gratis, elimina una dependencia de infraestructura.
+## [2026-06-04] [BD] Decisión: Usar PostGIS en PostgreSQL en vez de instancia PostgreSQL separada. Razón: PostgreSQL incluye PostGIS gratis, elimina una dependencia de infraestructura.
 
 ## [2026-06-04] [offline] Decisión: WatermelonDB en vez de MMKV o AsyncStorage para persistencia offline. Razón: WatermelonDB es SQLite nativo con sync incorporado, ideal para datos relacionales de incidentes.
 
