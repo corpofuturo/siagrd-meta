@@ -1,0 +1,22 @@
+name: Deploy SATAM / SIAGRD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy al VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+            cd /srv/siagrd
+            git pull origin main
+            docker compose --env-file .env up -d --build
+            echo "✅ SATAM desplegado correctamente"
