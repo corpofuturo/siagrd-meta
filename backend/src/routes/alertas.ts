@@ -71,7 +71,7 @@ export async function alertasRoutes(app: FastifyInstance): Promise<void> {
         )
         VALUES (
           ${tipo}, ${nivel}, ${titulo}, ${descripcion ?? null}, ${instrucciones_ciudadano ?? null},
-          ${db.array(munis)}, ${user.id}, false
+          ${db.array(munis)}::uuid[], ${user.id}, false
         )
         RETURNING *
       `;
