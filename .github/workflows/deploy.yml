@@ -16,6 +16,8 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             set -e
+            mkdir -p /root/backups/siagrd
+            echo '0 2 * * * root cd /srv/siagrd && docker compose exec -T postgres pg_dump -U $POSTGRES_USER $POSTGRES_DB > /root/backups/siagrd/db_$(date +\%Y\%m\%d).sql && find /root/backups/siagrd -name "*.sql" -mtime +30 -delete' > /etc/cron.d/siagrd-backup
             cd /srv/siagrd
             git pull origin main
             docker compose --env-file .env up -d --build
