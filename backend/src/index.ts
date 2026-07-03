@@ -4,6 +4,7 @@ import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
 import multipart from '@fastify/multipart';
 import websocket from '@fastify/websocket';
+import cookie from '@fastify/cookie';
 
 import { logger } from './utils/logger.js';
 import { AppError } from './utils/errors.js';
@@ -99,6 +100,9 @@ async function bootstrap(): Promise<void> {
 
   // WebSocket — chat operativo en tiempo real (DT-002)
   await app.register(websocket);
+
+  // Cookies — permite autenticar el panel-web via cookie httpOnly ademas del Bearer (DT-006)
+  await app.register(cookie);
 
   // Error handler global
   app.setErrorHandler((error, _request, reply) => {

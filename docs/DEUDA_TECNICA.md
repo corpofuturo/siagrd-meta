@@ -46,10 +46,12 @@
 - **Bloqueante para desarrollo/pruebas**: No
 - **Resuelto**: 2026-07-03 — plugin registrado globalmente, ruta `/api/v1/chats/:id/ws` activa y probada (auth por token, rechazo de chat inexistente con código 4004)
 
-## DT-006 (abierto)
-- **Componente**: apps/panel-web/src/lib/api.ts, apps/panel-web/src/app/api/auth/login/route.ts
-- **Descripción**: El JWT viaja en una cookie `siagrd_access` con `httpOnly: false` a propósito, porque el backend (`api.satam.corpofuturo.org`) solo acepta `Authorization: Bearer` y está en un dominio distinto al panel (`panel.satam.corpofuturo.org`) — una cookie httpOnly del panel no llegaría al backend en fetch directo desde el navegador. Migrar a httpOnly puro requiere: (a) que el backend acepte cookie de sesión además de Bearer, o (b) proxyar todo `apiFetch` a través de rutas API de Next.js que adjunten el Bearer server-side leyendo la cookie httpOnly. Ambas opciones tocan la capa de fetch completa del panel-web y el middleware de auth del backend.
-- **Impacto**: Un XSS en panel-web podría leer `document.cookie` y robar el access token (ventana de 7 días, `expires_in` real del backend es 8h pero el panel lo extiende a 7 días vía refresh)
-- **Bloqueante para producción**: No es explotable sin un XSS previo (CSP + React mitigan bastante), pero es defensa en profundidad pendiente
+## DT-006 (parcialmente resuelto — backend listo, frontend pendiente)
+- **Componente**: backend/src/middleware/auth.ts, backend/src/index.ts, apps/panel-web/src/app/api/auth/{login,refresh,logout}/route.ts, apps/panel-web/src/lib/api.ts + 30 archivos que usan `getToken()`
+- **Descripción**: El JWT viajaba solo en una cookie `siagrd_access` con `httpOnly: false`, leída por JS (`getToken()`) para adjuntar `Authorization: Bearer` manualmente en cada fetch — usado en más de 30 archivos del panel-web (todas las páginas del dashboard, hooks de tiempo real, y la URL del WebSocket de chat vía `?token=`).
+- **Resuelto en el backend (2026-07-03)**: `@fastify/cookie` instalado y registrado; `authMiddleware` ahora acepta `Authorization: Bearer` (app móvil, sin cambios) **o** la cookie httpOnly `siagrd_token` (nuevo). Probado: Bearer, cookie, y sin-token responden como se espera (200/200/401). El panel-web ya emite `siagrd_token` con `Domain=.corpofuturo.org` en prod, por lo que viaja automáticamente al backend en fetch directo desde el navegador — sin necesidad de proxyar por rutas de Next.js.
+- **Pendiente**: migrar los 30+ call sites que usan `getToken()` + `Authorization` manual a `credentials: 'include'` (dejando que la cookie httpOnly viaje sola), y el WS de chat (`useChat.ts`) a autenticar por cookie en el handshake en vez de `?token=` en la URL — el backend tendría que leer `request.cookies.siagrd_token` también en la ruta WS de `chat.ts`. Se restauró temporalmente la cookie `siagrd_access` (JS-readable) en login/refresh para no romper esos 30+ archivos mientras se decide cuándo abordar la migración completa.
+- **Impacto actual**: sin cambio de riesgo real todavía — `siagrd_access` sigue expuesta a XSS hasta completar la migración del frontend.
+- **Bloqueante para producción**: No
 - **Bloqueante para desarrollo/pruebas**: No
-- **Pendiente de decisión**: requiere elegir entre (a) o (b) antes de implementar — ver docs/DECISIONES.md
+- **Siguiente paso**: sesión dedicada para migrar los 30+ archivos (cambio mecánico pero de alto volumen — no apto para hacerlo a mitad de otra tarea)

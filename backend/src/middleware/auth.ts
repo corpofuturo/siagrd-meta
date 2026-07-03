@@ -32,11 +32,14 @@ export async function authMiddleware(
   _reply: FastifyReply,
 ): Promise<void> {
   const header = request.headers.authorization;
-  if (!header?.startsWith('Bearer ')) {
+  // La app movil (Bearer) y el panel-web (cookie httpOnly siagrd_token) son
+  // ambos clientes validos — DT-006. La cookie nunca se lee via JS.
+  const token = header?.startsWith('Bearer ') ? header.slice(7) : request.cookies?.siagrd_token;
+
+  if (!token) {
     throw new UnauthorizedError('Token requerido');
   }
 
-  const token = header.slice(7);
   let payload: { sub: string; email: string; anonymous?: boolean };
 
   try {

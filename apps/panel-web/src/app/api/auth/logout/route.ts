@@ -2,6 +2,8 @@ import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.satam.corpofuturo.org';
+const IS_PROD = process.env.NODE_ENV === 'production';
+const COOKIE_DOMAIN = IS_PROD ? '.corpofuturo.org' : undefined;
 
 export async function POST(): Promise<NextResponse> {
   const cookieStore = await cookies();
@@ -22,10 +24,9 @@ export async function POST(): Promise<NextResponse> {
 
   const response = NextResponse.json({ ok: true });
 
-  // Limpiar las tres cookies
-  response.cookies.set('siagrd_token',  '', { maxAge: 0, path: '/' });
+  response.cookies.set('siagrd_token', '', { maxAge: 0, path: '/', domain: COOKIE_DOMAIN });
   response.cookies.set('siagrd_access', '', { maxAge: 0, path: '/' });
-  response.cookies.set('siagrd_refresh','', { maxAge: 0, path: '/' });
+  response.cookies.set('siagrd_refresh', '', { maxAge: 0, path: '/' });
 
   return response;
 }

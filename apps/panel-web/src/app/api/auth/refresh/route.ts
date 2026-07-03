@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.satam.corpofuturo.org';
 const IS_PROD = process.env.NODE_ENV === 'production';
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
+const COOKIE_DOMAIN = IS_PROD ? '.corpofuturo.org' : undefined;
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const refreshToken = request.cookies.get('siagrd_refresh')?.value;
@@ -31,9 +32,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     httpOnly: true,
     secure: IS_PROD,
     sameSite: 'strict',
+    domain: COOKIE_DOMAIN,
     maxAge: COOKIE_MAX_AGE,
     path: '/',
   });
+  // TODO(DT-006): ver nota en login/route.ts
   response.cookies.set('siagrd_access', data.access_token, {
     httpOnly: false,
     secure: IS_PROD,
