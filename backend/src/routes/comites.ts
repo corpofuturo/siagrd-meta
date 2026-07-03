@@ -1,4 +1,5 @@
 import type { FastifyInstance } from 'fastify';
+import bcrypt from 'bcryptjs';
 import { db } from '../lib/db.js';
 import { authMiddleware } from '../middleware/auth.js';
 import { ForbiddenError, NotFoundError, ValidationError } from '../utils/errors.js';
@@ -151,6 +152,109 @@ export async function comitesRoutes(app: FastifyInstance): Promise<void> {
     if (!existing) throw new NotFoundError('Comité no encontrado');
 
     await db`UPDATE comites_gestion_riesgo SET activo = false, updated_at = NOW() WHERE id = ${id}`;
+    return reply.status(204).send();
+  });
+
+  // ── GET /comites/:id/usuarios — miembros del comité (ARQ-DT-008) ────────────
+  app.get('/comites/:id/usuarios', { preHandler: authMiddleware }, async (request, reply) => {
+    const user = request.user!;
+    const { id } = request.params as { id: string };
+
+    const [comite] = await db`SELECT id, lider_id FROM comites_gestion_riesgo WHERE id = ${id}`;
+    if (!comite) throw new NotFoundError('Comité no encontrado');
+
+    const esLider = comite.lider_id === user.id;
+    if (!ROLES_ADMIN.includes(user.rol) && !esLider) {
+      throw new ForbiddenError('Sin acceso a usuarios de este comité');
+    }
+
+    const rows = await db`
+      SELECT id, email, nombre, apellido, documento, celular, rol, activo, created_at
+      FROM profiles
+      WHERE comite_id = ${id}
+      ORDER BY apellido, nombre
+    `;
+
+    return reply.send({ data: rows, total: rows.length });
+  });
+
+  // ── POST /comites/:id/usuarios — crear usuario y asignarlo al comité ────────
+  app.post('/comites/:id/usuarios', { preHandler: authMiddleware }, async (request, reply) => {
+    const user = request.user!;
+    const { id } = request.params as { id: string };
+
+    const [comite] = await db`SELECT id, lider_id, municipio_id FROM comites_gestion_riesgo WHERE id = ${id} AND activo = true`;
+    if (!comite) throw new NotFoundError('Comité no encontrado o inactivo');
+
+    const esLider = comite.lider_id === user.id;
+    if (!ROLES_ADMIN.includes(user.rol) && !esLider) {
+      throw new ForbiddenError('Solo el líder del comité o un administrador puede agregar usuarios');
+    }
+
+    const body = request.body as {
+      email: string;
+      nombre: string;
+      apellido: string;
+      documento?: string;
+      celular?: string;
+      password: string;
+      rol?: RolUsuario;
+    };
+
+    if (!body?.email?.trim()) throw new ValidationError('email es requerido');
+    if (!body?.nombre?.trim()) throw new ValidationError('nombre es requerido');
+    if (!body?.apellido?.trim()) throw new ValidationError('apellido es requerido');
+    if (!body?.password || body.password.length < 6) throw new ValidationError('password mínimo 6 caracteres');
+
+    const emailLower = body.email.trim().toLowerCase();
+    const [existing] = await db`SELECT id FROM profiles WHERE email = ${emailLower}`;
+    if (existing) throw new ValidationError('El correo ya está registrado');
+
+    // El líder solo puede agregar miembros con rol CMGRD; ADMIN/CDGRD puede asignar cualquier rol
+    const rolNuevo: RolUsuario = body.rol ?? 'CMGRD';
+    if (!ROLES_ADMIN.includes(user.rol) && rolNuevo !== 'CMGRD') {
+      throw new ForbiddenError('El líder solo puede agregar miembros con rol CMGRD');
+    }
+
+    const hash = await bcrypt.hash(body.password, 10);
+    const [nuevo] = await db`
+      INSERT INTO profiles (email, password_hash, nombre, apellido, documento, celular, rol, municipio_id, comite_id, activo, created_at)
+      VALUES (
+        ${emailLower},
+        ${hash},
+        ${body.nombre.trim()},
+        ${body.apellido.trim()},
+        ${body.documento ?? null},
+        ${body.celular ?? null},
+        ${rolNuevo as string},
+        ${comite.municipio_id ?? null},
+        ${id},
+        true,
+        NOW()
+      )
+      RETURNING id, email, nombre, apellido, documento, celular, rol, municipio_id, comite_id, activo, created_at
+    `;
+
+    return reply.status(201).send(nuevo);
+  });
+
+  // ── DELETE /comites/:id/usuarios/:user_id — retirar miembro del comité ──────
+  app.delete('/comites/:id/usuarios/:user_id', { preHandler: authMiddleware }, async (request, reply) => {
+    const user = request.user!;
+    const { id, user_id } = request.params as { id: string; user_id: string };
+
+    const [comite] = await db`SELECT id, lider_id FROM comites_gestion_riesgo WHERE id = ${id}`;
+    if (!comite) throw new NotFoundError('Comité no encontrado');
+
+    const esLider = comite.lider_id === user.id;
+    if (!ROLES_ADMIN.includes(user.rol) && !esLider) {
+      throw new ForbiddenError('Sin permiso para retirar miembros de este comité');
+    }
+
+    const [perfil] = await db`SELECT id, comite_id FROM profiles WHERE id = ${user_id}`;
+    if (!perfil || perfil.comite_id !== id) throw new NotFoundError('Usuario no pertenece a este comité');
+
+    await db`UPDATE profiles SET comite_id = NULL WHERE id = ${user_id}`;
     return reply.status(204).send();
   });
 }
