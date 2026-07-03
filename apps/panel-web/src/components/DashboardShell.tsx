@@ -10,12 +10,8 @@ export default function DashboardShell({ children }: { children: React.ReactNode
   const { nivelMaximo, alertas } = useRealtimeAlertas();
 
   return (
-    <div className="min-h-screen bg-[#0A0E1A] flex flex-col">
-      <TopBar
-        onMenuClick={() => setSidebarOpen((o) => !o)}
-        nivelAlerta={nivelMaximo}
-        alertasActivas={alertas.length}
-      />
+    <div className="flex h-screen overflow-hidden bg-panel-bg font-sans">
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Overlay mobile */}
       {sidebarOpen && (
@@ -25,10 +21,14 @@ export default function DashboardShell({ children }: { children: React.ReactNode
         />
       )}
 
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <div className="flex-1 flex flex-col md:pl-64 overflow-hidden">
+        <TopBar
+          onMenuClick={() => setSidebarOpen((o) => !o)}
+          nivelAlerta={nivelMaximo}
+          alertasActivas={alertas.length}
+        />
 
-      <div className="flex flex-1 pt-12 md:ml-[220px] overflow-hidden">
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto pt-14 p-6">
           {children}
         </main>
       </div>
