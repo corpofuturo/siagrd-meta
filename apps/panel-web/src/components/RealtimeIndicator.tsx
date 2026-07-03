@@ -17,7 +17,7 @@ export default function RealtimeIndicator({ conectado, ultimo_evento }: Realtime
       )}
       <span>{conectado ? 'ONLINE' : 'OFFLINE'}</span>
       {ultimo_evento && (
-        <span className="text-[#8B9CC8] ml-1">
+        <span className="text-[#6b7280] ml-1">
           {new Intl.DateTimeFormat('es-CO', {
             hour: '2-digit',
             minute: '2-digit',

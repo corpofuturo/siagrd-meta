@@ -22,7 +22,9 @@ export default function DashboardPage() {
   const selectedIncidente = incidentes.find((i) => i.id === selectedId) ?? null;
 
   return (
-    <>
+    // -m-6 cancela el p-6 del <main> del DashboardShell — esta pantalla es
+    // de mapa a pantalla completa, no una pagina de contenido con margen.
+    <div className="flex h-[calc(100%+3rem)] -m-6">
       {/* Sidebar */}
       <IncidenteSidebar
         incidentes={incidentes}
@@ -34,8 +36,8 @@ export default function DashboardPage() {
       {/* Área principal */}
       <main className="flex-1 relative overflow-hidden">
         {loadingInc && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#0A0E1A]/80">
-            <span className="text-[#8B9CC8] text-sm font-mono animate-pulse">
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/80">
+            <span className="text-gray-500 text-sm font-mono animate-pulse">
               Cargando incidentes...
             </span>
           </div>
@@ -48,10 +50,10 @@ export default function DashboardPage() {
 
         {/* Panel detalle */}
         {selectedIncidente && (
-          <aside className="absolute top-0 right-0 h-full w-[460px] bg-[#111827] border-l border-[#2D3748] overflow-y-auto p-4 z-20">
+          <aside className="absolute top-0 right-0 h-full w-[460px] bg-white border-l border-gray-200 shadow-xl overflow-y-auto p-4 z-20">
             <button
               onClick={() => setSelectedId(null)}
-              className="absolute top-3 right-3 text-[#8B9CC8] hover:text-[#F0F4FF] transition-colors"
+              className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 transition-colors"
               aria-label="Cerrar detalle"
             >
               ✕
@@ -59,43 +61,43 @@ export default function DashboardPage() {
 
             <div className="flex items-start gap-2 mb-4 pr-8">
               <span
-                className={`px-2 py-0.5 rounded text-xs font-bold font-display ${
+                className={`px-2 py-0.5 rounded text-xs font-bold border ${
                   selectedIncidente.nivel_alerta === 'ROJO'
-                    ? 'bg-[#DC2626] text-white'
+                    ? 'bg-red-100 text-red-800 border-red-200'
                     : selectedIncidente.nivel_alerta === 'NARANJA'
-                    ? 'bg-[#EA580C] text-white'
+                    ? 'bg-orange-100 text-orange-800 border-orange-200'
                     : selectedIncidente.nivel_alerta === 'AMARILLO'
-                    ? 'bg-[#D97706] text-white'
-                    : 'bg-[#16A34A] text-white'
+                    ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                    : 'bg-green-100 text-green-800 border-green-200'
                 }`}
               >
                 {selectedIncidente.nivel_alerta}
               </span>
-              <span className="font-mono text-xs text-[#8B9CC8]">
+              <span className="font-mono text-xs text-gray-500">
                 {selectedIncidente.codigo}
               </span>
             </div>
 
-            <h2 className="font-display text-xl font-bold text-[#F0F4FF] mb-2">
+            <h2 className="text-xl font-bold text-gray-900 mb-2">
               {selectedIncidente.titulo}
             </h2>
 
             <dl className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <dt className="text-[#8B9CC8] text-xs uppercase">Tipo amenaza</dt>
-                <dd className="text-[#F0F4FF] mt-0.5">{selectedIncidente.tipo_amenaza}</dd>
+                <dt className="text-gray-500 text-xs uppercase">Tipo amenaza</dt>
+                <dd className="text-gray-900 mt-0.5">{selectedIncidente.tipo_amenaza}</dd>
               </div>
               <div>
-                <dt className="text-[#8B9CC8] text-xs uppercase">Estado</dt>
-                <dd className="text-[#F0F4FF] mt-0.5">{selectedIncidente.estado}</dd>
+                <dt className="text-gray-500 text-xs uppercase">Estado</dt>
+                <dd className="text-gray-900 mt-0.5">{selectedIncidente.estado}</dd>
               </div>
               <div>
-                <dt className="text-[#8B9CC8] text-xs uppercase">Municipio</dt>
-                <dd className="text-[#F0F4FF] mt-0.5">{selectedIncidente.municipio_id}</dd>
+                <dt className="text-gray-500 text-xs uppercase">Municipio</dt>
+                <dd className="text-gray-900 mt-0.5">{selectedIncidente.municipio_id}</dd>
               </div>
               <div>
-                <dt className="text-[#8B9CC8] text-xs uppercase">Inicio</dt>
-                <dd className="text-[#F0F4FF] mt-0.5 font-mono text-xs">
+                <dt className="text-gray-500 text-xs uppercase">Inicio</dt>
+                <dd className="text-gray-900 mt-0.5 font-mono text-xs">
                   {new Date(selectedIncidente.fecha_inicio).toLocaleString('es-CO', {
                     timeZone: 'America/Bogota',
                   })}
@@ -105,7 +107,7 @@ export default function DashboardPage() {
 
             <button
               onClick={() => router.push(`/incidentes/${selectedIncidente.id}`)}
-              className="mt-6 w-full py-2 bg-[#1E2535] hover:bg-[#2D3748] border border-[#2D3748] rounded text-[#F0F4FF] text-sm transition-colors"
+              className="mt-6 w-full py-2 bg-white hover:bg-gray-50 border border-gray-300 rounded-lg text-gray-700 text-sm transition-colors"
             >
               Ver detalle completo →
             </button>
@@ -115,15 +117,15 @@ export default function DashboardPage() {
         {/* Botón emitir alerta */}
         <button
           onClick={() => router.push('/alertas/nueva')}
-          className={`absolute bottom-6 right-6 z-20 px-5 py-3 rounded-full font-display font-bold tracking-wider uppercase text-sm text-white shadow-lg transition-all ${
+          className={`absolute bottom-6 right-6 z-20 px-5 py-3 rounded-full font-bold tracking-wider uppercase text-sm text-white shadow-lg transition-all ${
             nivelMaximo === 'ROJO'
-              ? 'bg-[#DC2626] pulse-red'
-              : 'bg-[#DC2626] hover:bg-[#B91C1C]'
+              ? 'bg-red-600 pulse-red'
+              : 'bg-red-600 hover:bg-red-700'
           }`}
         >
           ⚡ Emitir Alerta
         </button>
       </main>
-    </>
+    </div>
   );
 }

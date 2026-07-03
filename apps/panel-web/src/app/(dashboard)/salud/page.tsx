@@ -17,14 +17,14 @@ const STATUS_STYLES: Record<ServiceStatus, string> = {
   ok: 'bg-[#16A34A] text-white',
   degraded: 'bg-[#D97706] text-white',
   down: 'bg-[#DC2626] text-white',
-  unknown: 'bg-[#1E2535] text-[#8B9CC8]',
+  unknown: 'bg-[#f3f4f6] text-[#6b7280]',
 };
 
 const STATUS_DOT: Record<ServiceStatus, string> = {
   ok: 'text-[#16A34A]',
   degraded: 'text-[#D97706]',
   down: 'text-[#DC2626]',
-  unknown: 'text-[#8B9CC8]',
+  unknown: 'text-[#6b7280]',
 };
 
 const STATUS_LABELS: Record<ServiceStatus, string> = {
@@ -126,16 +126,16 @@ export default function SaludPage() {
   const anyDown = services.some((s) => s.status === 'down');
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
+    <div className="flex-1">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="flex items-start justify-between mb-6">
           <div>
-            <h1 className="font-display text-2xl font-bold text-[#F0F4FF] uppercase tracking-wider">
+            <h1 className="font-display text-2xl font-bold text-[#111827] uppercase tracking-wider">
               Estado del Sistema
             </h1>
             {lastPoll && (
-              <p className="text-[#8B9CC8] text-xs mt-1 font-mono">
+              <p className="text-[#6b7280] text-xs mt-1 font-mono">
                 Última verificación:{' '}
                 {lastPoll.toLocaleTimeString('es-CO', { timeZone: 'America/Bogota' })} ·
                 próxima en {countdown}s
@@ -158,7 +158,7 @@ export default function SaludPage() {
             <button
               onClick={fetchHealth}
               disabled={loading}
-              className="px-3 py-1.5 bg-[#1E2535] border border-[#2D3748] rounded text-sm text-[#F0F4FF] hover:bg-[#2D3748] transition-colors disabled:opacity-40"
+              className="px-3 py-1.5 bg-[#f3f4f6] border border-[#e5e7eb] rounded text-sm text-[#111827] hover:bg-[#e5e7eb] transition-colors disabled:opacity-40"
             >
               {loading ? 'Verificando...' : 'Verificar ahora'}
             </button>
@@ -170,27 +170,27 @@ export default function SaludPage() {
           {services.map((service) => (
             <div
               key={service.name}
-              className={`bg-[#111827] border rounded-lg p-4 flex items-center justify-between transition-colors ${
+              className={`bg-[#ffffff] border rounded-lg p-4 flex items-center justify-between transition-colors ${
                 service.status === 'down'
                   ? 'border-[#DC2626]/50'
                   : service.status === 'degraded'
                   ? 'border-[#D97706]/50'
-                  : 'border-[#2D3748]'
+                  : 'border-[#e5e7eb]'
               }`}
             >
               <div className="flex items-center gap-3">
                 <span className={`text-lg ${STATUS_DOT[service.status]}`}>●</span>
                 <div>
-                  <p className="text-[#F0F4FF] text-sm font-medium">{service.label}</p>
+                  <p className="text-[#111827] text-sm font-medium">{service.label}</p>
                   {service.message && (
-                    <p className="text-[#8B9CC8] text-xs mt-0.5">{service.message}</p>
+                    <p className="text-[#6b7280] text-xs mt-0.5">{service.message}</p>
                   )}
                 </div>
               </div>
 
               <div className="flex items-center gap-3 text-right">
                 {service.latency_ms !== undefined && (
-                  <span className="font-mono text-xs text-[#8B9CC8]">
+                  <span className="font-mono text-xs text-[#6b7280]">
                     {service.latency_ms}ms
                   </span>
                 )}
@@ -205,7 +205,7 @@ export default function SaludPage() {
         </div>
 
         {/* Leyenda */}
-        <div className="mt-6 flex flex-wrap gap-4 text-xs text-[#8B9CC8]">
+        <div className="mt-6 flex flex-wrap gap-4 text-xs text-[#6b7280]">
           <span className="flex items-center gap-1.5">
             <span className="text-[#16A34A]">●</span> Operacional
           </span>
@@ -216,7 +216,7 @@ export default function SaludPage() {
             <span className="text-[#DC2626]">●</span> Caído
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="text-[#8B9CC8]">●</span> Desconocido
+            <span className="text-[#6b7280]">●</span> Desconocido
           </span>
         </div>
       </div>

@@ -62,12 +62,12 @@ export default function DamnificadosPage() {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
+    <div className="flex-1">
       <div className="mb-6">
-        <h1 className="font-display text-2xl font-bold text-[#F0F4FF] uppercase tracking-wider">
+        <h1 className="font-display text-2xl font-bold text-[#111827] uppercase tracking-wider">
           Registro Único de Damnificados
         </h1>
-        <p className="text-[#8B9CC8] text-sm mt-1">
+        <p className="text-[#6b7280] text-sm mt-1">
           Datos sensibles — manejo confidencial (Ley 1581/2012)
         </p>
       </div>
@@ -80,9 +80,9 @@ export default function DamnificadosPage() {
           { label: 'Retornados', value: totales.retornados },
           { label: 'Personas afectadas', value: totales.personas },
         ].map(({ label, value }) => (
-          <div key={label} className="bg-[#111827] border border-[#2D3748] rounded-lg p-4">
-            <p className="text-[#8B9CC8] text-xs uppercase tracking-wider">{label}</p>
-            <p className="text-[#F0F4FF] font-display text-2xl font-bold mt-1">{value}</p>
+          <div key={label} className="bg-[#ffffff] border border-[#e5e7eb] rounded-lg p-4">
+            <p className="text-[#6b7280] text-xs uppercase tracking-wider">{label}</p>
+            <p className="text-[#111827] font-display text-2xl font-bold mt-1">{value}</p>
           </div>
         ))}
       </div>
@@ -91,7 +91,7 @@ export default function DamnificadosPage() {
         <select
           value={filtroMunicipio}
           onChange={(e) => setFiltroMunicipio(e.target.value)}
-          className="bg-[#111827] border border-[#2D3748] text-[#F0F4FF] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#8B9CC8]"
+          className="bg-[#ffffff] border border-[#e5e7eb] text-[#111827] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#6b7280]"
         >
           <option value="">Todos los municipios</option>
           {municipios.map((m) => <option key={m} value={m}>{m}</option>)}
@@ -99,7 +99,7 @@ export default function DamnificadosPage() {
         <select
           value={filtroEstado}
           onChange={(e) => setFiltroEstado(e.target.value)}
-          className="bg-[#111827] border border-[#2D3748] text-[#F0F4FF] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#8B9CC8]"
+          className="bg-[#ffffff] border border-[#e5e7eb] text-[#111827] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#6b7280]"
         >
           <option value="">Todos los estados</option>
           {['PENDIENTE', 'EN_ALBERGUE', 'RETORNADO', 'REUBICADO'].map((e) => (
@@ -109,7 +109,7 @@ export default function DamnificadosPage() {
       </div>
 
       {loading && (
-        <div className="text-[#8B9CC8] text-sm font-mono animate-pulse">Cargando registros...</div>
+        <div className="text-[#6b7280] text-sm font-mono animate-pulse">Cargando registros...</div>
       )}
       {error && (
         <p className="text-[#DC2626] text-sm bg-[#DC2626]/10 border border-[#DC2626]/30 rounded px-3 py-2 mb-4">
@@ -118,19 +118,19 @@ export default function DamnificadosPage() {
       )}
 
       {!loading && filtrados.length === 0 && !error && (
-        <p className="text-[#8B9CC8] text-sm">Sin registros.</p>
+        <p className="text-[#6b7280] text-sm">Sin registros.</p>
       )}
 
       {!loading && filtrados.length > 0 && (
-        <div className="bg-[#111827] border border-[#2D3748] rounded-lg overflow-hidden">
+        <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-lg overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#2D3748]">
-                <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Jefe de Hogar</th>
-                <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Municipio</th>
-                <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Personas</th>
-                <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Estado</th>
-                <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Incidente</th>
+              <tr className="border-b border-[#e5e7eb]">
+                <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Jefe de Hogar</th>
+                <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Municipio</th>
+                <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Personas</th>
+                <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Estado</th>
+                <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Incidente</th>
               </tr>
             </thead>
             <tbody>
@@ -139,25 +139,25 @@ export default function DamnificadosPage() {
                   <tr
                     key={d.id}
                     onClick={() => setExpandedId(expandedId === d.id ? null : d.id)}
-                    className="border-b border-[#2D3748] hover:bg-[#1E2535] transition-colors cursor-pointer"
+                    className="border-b border-[#e5e7eb] hover:bg-[#f3f4f6] transition-colors cursor-pointer"
                   >
-                    <td className="px-4 py-3 text-[#F0F4FF]">{d.nombre_jefe_hogar}</td>
-                    <td className="px-4 py-3 text-[#8B9CC8]">{d.municipio}</td>
-                    <td className="px-4 py-3 text-[#F0F4FF] font-mono">{d.num_personas}</td>
+                    <td className="px-4 py-3 text-[#111827]">{d.nombre_jefe_hogar}</td>
+                    <td className="px-4 py-3 text-[#6b7280]">{d.municipio}</td>
+                    <td className="px-4 py-3 text-[#111827] font-mono">{d.num_personas}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded text-xs font-bold ${ESTADO_STYLES[d.estado_atencion] ?? ''}`}>
                         {d.estado_atencion}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-[#8B9CC8] text-xs font-mono truncate max-w-[150px]">
+                    <td className="px-4 py-3 text-[#6b7280] text-xs font-mono truncate max-w-[150px]">
                       {d.incidente_titulo ?? d.incidente_id}
                     </td>
                   </tr>
                   {expandedId === d.id && (
-                    <tr key={`${d.id}-detail`} className="border-b border-[#2D3748] bg-[#0A0E1A]">
+                    <tr key={`${d.id}-detail`} className="border-b border-[#e5e7eb] bg-[#f9fafb]">
                       <td colSpan={5} className="px-4 py-3">
-                        <p className="text-[#8B9CC8] text-xs">
-                          <span className="text-[#F0F4FF] font-bold">Cedula: </span>
+                        <p className="text-[#6b7280] text-xs">
+                          <span className="text-[#111827] font-bold">Cedula: </span>
                           {d.cedula ?? '— (no disponible)'}
                         </p>
                       </td>

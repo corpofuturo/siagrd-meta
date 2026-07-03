@@ -53,14 +53,14 @@ function BarraRiesgo({ nivel, label }: { nivel: number; label: string }) {
   const colors = ['', 'bg-[#16A34A]', 'bg-[#D97706]', 'bg-[#EA580C]', 'bg-[#DC2626]'];
   return (
     <div className="flex items-center gap-3">
-      <span className="text-[#8B9CC8] text-xs w-28">{label}</span>
-      <div className="flex-1 bg-[#1E2535] rounded-full h-2">
+      <span className="text-[#6b7280] text-xs w-28">{label}</span>
+      <div className="flex-1 bg-[#f3f4f6] rounded-full h-2">
         <div
-          className={`h-2 rounded-full transition-all ${colors[nivel] ?? 'bg-[#8B9CC8]'}`}
+          className={`h-2 rounded-full transition-all ${colors[nivel] ?? 'bg-[#6b7280]'}`}
           style={{ width: `${(nivel / 4) * 100}%` }}
         />
       </div>
-      <span className="text-[#F0F4FF] text-xs w-4 font-mono">{nivel}/4</span>
+      <span className="text-[#111827] text-xs w-4 font-mono">{nivel}/4</span>
     </div>
   );
 }
@@ -96,7 +96,7 @@ export default function MunicipioDetallePage() {
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <span className="text-[#8B9CC8] text-sm font-mono animate-pulse">Cargando...</span>
+        <span className="text-[#6b7280] text-sm font-mono animate-pulse">Cargando...</span>
       </div>
     );
   }
@@ -105,7 +105,7 @@ export default function MunicipioDetallePage() {
     return (
       <div className="flex-1 p-6">
         <p className="text-[#DC2626]">{error ?? 'Error desconocido'}</p>
-        <button onClick={() => router.back()} className="text-[#8B9CC8] text-sm mt-3 hover:text-[#F0F4FF]">
+        <button onClick={() => router.back()} className="text-[#6b7280] text-sm mt-3 hover:text-[#111827]">
           ← Volver
         </button>
       </div>
@@ -120,23 +120,23 @@ export default function MunicipioDetallePage() {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
-      <button onClick={() => router.back()} className="text-[#8B9CC8] hover:text-[#F0F4FF] text-sm mb-4 flex items-center gap-1 transition-colors">
+    <div className="flex-1">
+      <button onClick={() => router.back()} className="text-[#6b7280] hover:text-[#111827] text-sm mb-4 flex items-center gap-1 transition-colors">
         ← Volver
       </button>
 
       <div className="mb-6">
-        <h1 className="font-display text-2xl font-bold text-[#F0F4FF] uppercase tracking-wider">
+        <h1 className="font-display text-2xl font-bold text-[#111827] uppercase tracking-wider">
           {municipio.nombre}
         </h1>
-        <p className="text-[#8B9CC8] text-sm font-mono mt-1">
+        <p className="text-[#6b7280] text-sm font-mono mt-1">
           DANE: {municipio.codigo_dane} · {municipio.poblacion?.toLocaleString('es-CO')} hab · {municipio.area_km2?.toLocaleString('es-CO')} km²
         </p>
       </div>
 
       {/* Niveles de riesgo */}
-      <div className="bg-[#111827] border border-[#2D3748] rounded-lg p-4 mb-5">
-        <h2 className="text-xs text-[#8B9CC8] uppercase tracking-wider mb-4">Niveles de Riesgo</h2>
+      <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-lg p-4 mb-5">
+        <h2 className="text-xs text-[#6b7280] uppercase tracking-wider mb-4">Niveles de Riesgo</h2>
         <div className="space-y-3">
           <BarraRiesgo nivel={municipio.nivel_riesgo_inundacion ?? 0} label="Inundación" />
           <BarraRiesgo nivel={municipio.nivel_riesgo_remocion ?? 0} label="Remoción en masa" />
@@ -145,24 +145,24 @@ export default function MunicipioDetallePage() {
       </div>
 
       {/* Incidentes activos */}
-      <div className="bg-[#111827] border border-[#2D3748] rounded-lg p-4 mb-5">
-        <h2 className="text-xs text-[#8B9CC8] uppercase tracking-wider mb-4">
+      <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-lg p-4 mb-5">
+        <h2 className="text-xs text-[#6b7280] uppercase tracking-wider mb-4">
           Incidentes recientes ({incidentes.length})
         </h2>
         {incidentes.length === 0 ? (
-          <p className="text-[#8B9CC8] text-sm">Sin incidentes registrados.</p>
+          <p className="text-[#6b7280] text-sm">Sin incidentes registrados.</p>
         ) : (
           <div className="space-y-2">
             {incidentes.map((inc) => (
-              <div key={inc.id} className="flex items-center gap-3 py-2 border-b border-[#2D3748] last:border-0">
-                <span className={`px-2 py-0.5 rounded text-xs font-bold font-display ${NIVEL_COLORS[inc.nivel_alerta] ?? 'bg-[#1E2535] text-[#8B9CC8]'}`}>
+              <div key={inc.id} className="flex items-center gap-3 py-2 border-b border-[#e5e7eb] last:border-0">
+                <span className={`px-2 py-0.5 rounded text-xs font-bold font-display ${NIVEL_COLORS[inc.nivel_alerta] ?? 'bg-[#f3f4f6] text-[#6b7280]'}`}>
                   {inc.nivel_alerta}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[#F0F4FF] text-sm truncate">{inc.titulo}</p>
-                  <p className="text-[#8B9CC8] text-xs font-mono">{inc.codigo} · {inc.tipo_amenaza}</p>
+                  <p className="text-[#111827] text-sm truncate">{inc.titulo}</p>
+                  <p className="text-[#6b7280] text-xs font-mono">{inc.codigo} · {inc.tipo_amenaza}</p>
                 </div>
-                <span className="text-[#8B9CC8] text-xs flex-shrink-0">{inc.estado}</span>
+                <span className="text-[#6b7280] text-xs flex-shrink-0">{inc.estado}</span>
               </div>
             ))}
           </div>
@@ -170,23 +170,23 @@ export default function MunicipioDetallePage() {
       </div>
 
       {/* Organismos */}
-      <div className="bg-[#111827] border border-[#2D3748] rounded-lg p-4">
-        <h2 className="text-xs text-[#8B9CC8] uppercase tracking-wider mb-4">
+      <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-lg p-4">
+        <h2 className="text-xs text-[#6b7280] uppercase tracking-wider mb-4">
           Organismos de Socorro ({organismos.length})
         </h2>
         {organismos.length === 0 ? (
-          <p className="text-[#8B9CC8] text-sm">Sin organismos registrados.</p>
+          <p className="text-[#6b7280] text-sm">Sin organismos registrados.</p>
         ) : (
           <div className="space-y-2">
             {organismos.map((org) => (
-              <div key={org.id} className="flex items-center gap-3 py-2 border-b border-[#2D3748] last:border-0">
+              <div key={org.id} className="flex items-center gap-3 py-2 border-b border-[#e5e7eb] last:border-0">
                 <span className={`w-2 h-2 rounded-full flex-shrink-0 ${org.activo ? 'bg-[#16A34A]' : 'bg-[#DC2626]'}`} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-[#F0F4FF] text-sm">{org.nombre}</p>
-                  <p className="text-[#8B9CC8] text-xs">{org.tipo}</p>
+                  <p className="text-[#111827] text-sm">{org.nombre}</p>
+                  <p className="text-[#6b7280] text-xs">{org.tipo}</p>
                 </div>
                 {org.telefono && (
-                  <span className="text-[#8B9CC8] text-xs font-mono flex-shrink-0">{org.telefono}</span>
+                  <span className="text-[#6b7280] text-xs font-mono flex-shrink-0">{org.telefono}</span>
                 )}
               </div>
             ))}

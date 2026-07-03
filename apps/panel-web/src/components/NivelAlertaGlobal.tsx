@@ -16,7 +16,7 @@ const NIVEL_STYLES: Record<Nivel, string> = {
 export default function NivelAlertaGlobal({ nivel }: NivelAlertaGlobalProps) {
   if (!nivel) {
     return (
-      <span className="px-3 py-1 rounded text-sm font-display font-bold uppercase bg-[#1E2535] text-[#8B9CC8]">
+      <span className="px-3 py-1 rounded text-sm font-display font-bold uppercase bg-[#f3f4f6] text-[#6b7280]">
         SIN ALERTAS
       </span>
     );

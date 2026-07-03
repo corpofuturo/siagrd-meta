@@ -84,19 +84,19 @@ export default function RecursosPage() {
   );
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
+    <div className="flex-1">
       <div className="mb-6">
-        <h1 className="font-display text-2xl font-bold text-[#F0F4FF] uppercase tracking-wider">
+        <h1 className="font-display text-2xl font-bold text-[#111827] uppercase tracking-wider">
           Inventario de Recursos
         </h1>
-        <p className="text-[#8B9CC8] text-sm mt-1">Organismos de socorro del departamento del Meta</p>
+        <p className="text-[#6b7280] text-sm mt-1">Organismos de socorro del departamento del Meta</p>
       </div>
 
       <div className="flex gap-3 mb-5 flex-wrap">
         <select
           value={filtroTipo}
           onChange={(e) => setFiltroTipo(e.target.value)}
-          className="bg-[#111827] border border-[#2D3748] text-[#F0F4FF] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#8B9CC8]"
+          className="bg-[#ffffff] border border-[#e5e7eb] text-[#111827] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#6b7280]"
         >
           <option value="">Todos los tipos</option>
           {tipos.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -104,21 +104,21 @@ export default function RecursosPage() {
         <select
           value={filtroOrganismo}
           onChange={(e) => setFiltroOrganismo(e.target.value)}
-          className="bg-[#111827] border border-[#2D3748] text-[#F0F4FF] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#8B9CC8]"
+          className="bg-[#ffffff] border border-[#e5e7eb] text-[#111827] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#6b7280]"
         >
           <option value="">Todos los organismos</option>
           {organismos.map((o) => <option key={o} value={o}>{o}</option>)}
         </select>
         <button
           onClick={fetchRecursos}
-          className="ml-auto px-3 py-1.5 bg-[#1E2535] border border-[#2D3748] rounded text-[#F0F4FF] text-sm hover:bg-[#2D3748] transition-colors"
+          className="ml-auto px-3 py-1.5 bg-[#f3f4f6] border border-[#e5e7eb] rounded text-[#111827] text-sm hover:bg-[#e5e7eb] transition-colors"
         >
           Actualizar
         </button>
       </div>
 
       {loading && (
-        <div className="text-[#8B9CC8] text-sm font-mono animate-pulse">Cargando recursos...</div>
+        <div className="text-[#6b7280] text-sm font-mono animate-pulse">Cargando recursos...</div>
       )}
       {error && (
         <p className="text-[#DC2626] text-sm bg-[#DC2626]/10 border border-[#DC2626]/30 rounded px-3 py-2 mb-4">
@@ -127,19 +127,19 @@ export default function RecursosPage() {
       )}
 
       {!loading && filtrados.length === 0 && !error && (
-        <p className="text-[#8B9CC8] text-sm">Sin recursos registrados.</p>
+        <p className="text-[#6b7280] text-sm">Sin recursos registrados.</p>
       )}
 
       {!loading && filtrados.length > 0 && (
-        <div className="bg-[#111827] border border-[#2D3748] rounded-lg overflow-hidden">
+        <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-lg overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#2D3748]">
-                <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Nombre</th>
-                <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Tipo</th>
-                <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Organismo</th>
-                <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Disponible/Total</th>
-                <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Estado</th>
+              <tr className="border-b border-[#e5e7eb]">
+                <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Nombre</th>
+                <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Tipo</th>
+                <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Organismo</th>
+                <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Disponible/Total</th>
+                <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Estado</th>
                 <th className="px-4 py-2" />
               </tr>
             </thead>
@@ -147,12 +147,12 @@ export default function RecursosPage() {
               {filtrados.map((r, idx) => (
                 <tr
                   key={r.id}
-                  className={`border-b border-[#2D3748] hover:bg-[#1E2535] transition-colors ${idx % 2 === 0 ? '' : 'bg-[#0A0E1A]/30'}`}
+                  className={`border-b border-[#e5e7eb] hover:bg-[#f3f4f6] transition-colors ${idx % 2 === 0 ? '' : 'bg-[#f9fafb]/30'}`}
                 >
-                  <td className="px-4 py-3 text-[#F0F4FF]">{r.nombre}</td>
-                  <td className="px-4 py-3 text-[#8B9CC8]">{r.tipo}</td>
-                  <td className="px-4 py-3 text-[#8B9CC8]">{r.organismo}</td>
-                  <td className="px-4 py-3 font-mono text-[#F0F4FF]">
+                  <td className="px-4 py-3 text-[#111827]">{r.nombre}</td>
+                  <td className="px-4 py-3 text-[#6b7280]">{r.tipo}</td>
+                  <td className="px-4 py-3 text-[#6b7280]">{r.organismo}</td>
+                  <td className="px-4 py-3 font-mono text-[#111827]">
                     {r.disponible}/{r.total}
                   </td>
                   <td className={`px-4 py-3 font-bold ${ESTADO_COLORS[r.estado] ?? ''}`}>
@@ -162,7 +162,7 @@ export default function RecursosPage() {
                     <button
                       disabled={actualizandoId === r.id}
                       onClick={() => actualizarDisponibilidad(r.id, r.disponible)}
-                      className="text-xs text-[#8B9CC8] hover:text-[#F0F4FF] transition-colors disabled:opacity-40"
+                      className="text-xs text-[#6b7280] hover:text-[#111827] transition-colors disabled:opacity-40"
                     >
                       {actualizandoId === r.id ? 'Actualizando...' : 'Actualizar disponibilidad'}
                     </button>

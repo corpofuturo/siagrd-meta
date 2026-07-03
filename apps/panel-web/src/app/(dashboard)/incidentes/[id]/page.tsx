@@ -157,7 +157,7 @@ export default function IncidenteDetallePage() {
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <span className="text-[#8B9CC8] text-sm">Cargando...</span>
+        <span className="text-[#6b7280] text-sm">Cargando...</span>
       </div>
     );
   }
@@ -179,7 +179,7 @@ export default function IncidenteDetallePage() {
   ];
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
+    <div className="flex-1">
       <div className="max-w-4xl mx-auto">
 
         {/* Header */}
@@ -187,14 +187,14 @@ export default function IncidenteDetallePage() {
           <div className="flex items-center gap-2 mb-2 flex-wrap">
             <button
               onClick={() => router.push('/incidentes')}
-              className="text-xs text-[#8B9CC8] hover:text-[#F0F4FF] transition-colors mr-1"
+              className="text-xs text-[#6b7280] hover:text-[#111827] transition-colors mr-1"
             >
               ← Incidentes
             </button>
-            <span className="font-mono text-xs text-[#8B9CC8]">{incidente.codigo}</span>
+            <span className="font-mono text-xs text-[#6b7280]">{incidente.codigo}</span>
             <span
               className={`px-2 py-0.5 rounded text-[10px] font-bold font-display ${
-                NIVEL_BADGE[incidente.nivel_alerta] ?? 'bg-[#1E2535] text-[#8B9CC8]'
+                NIVEL_BADGE[incidente.nivel_alerta] ?? 'bg-[#f3f4f6] text-[#6b7280]'
               }`}
             >
               {incidente.nivel_alerta}
@@ -206,10 +206,10 @@ export default function IncidenteDetallePage() {
               </span>
             )}
           </div>
-          <h1 className="font-display text-2xl font-bold text-[#F0F4FF]">
+          <h1 className="font-display text-2xl font-bold text-[#111827]">
             {incidente.titulo}
           </h1>
-          <p className="text-[#8B9CC8] text-sm mt-1">
+          <p className="text-[#6b7280] text-sm mt-1">
             {incidente.tipo_amenaza} · {incidente.municipio_id} ·{' '}
             {incidente.fecha_inicio
               ? new Date(incidente.fecha_inicio).toLocaleString('es-CO', {
@@ -220,15 +220,15 @@ export default function IncidenteDetallePage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-[#2D3748] mb-6">
+        <div className="flex border-b border-[#e5e7eb] mb-6">
           {tabActualizadas.map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
               className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${
                 tab === t.key
-                  ? 'border-[#DC2626] text-[#F0F4FF]'
-                  : 'border-transparent text-[#8B9CC8] hover:text-[#F0F4FF]'
+                  ? 'border-[#DC2626] text-[#111827]'
+                  : 'border-transparent text-[#6b7280] hover:text-[#111827]'
               }`}
             >
               {t.label}
@@ -240,32 +240,32 @@ export default function IncidenteDetallePage() {
         {tab === 'timeline' && (
           <div className="space-y-3">
             {actualizaciones.length === 0 && (
-              <p className="text-[#8B9CC8] text-sm py-4">Sin actualizaciones registradas.</p>
+              <p className="text-[#6b7280] text-sm py-4">Sin actualizaciones registradas.</p>
             )}
             {actualizaciones.map((act) => (
               <div
                 key={act.id}
-                className="flex gap-4 bg-[#111827] border border-[#2D3748] rounded-lg p-4"
+                className="flex gap-4 bg-[#ffffff] border border-[#e5e7eb] rounded-lg p-4"
               >
                 <div className="flex flex-col items-center gap-1">
-                  <div className="w-2 h-2 rounded-full bg-[#8B9CC8] flex-shrink-0 mt-1" />
-                  <div className="w-px flex-1 bg-[#2D3748]" />
+                  <div className="w-2 h-2 rounded-full bg-[#6b7280] flex-shrink-0 mt-1" />
+                  <div className="w-px flex-1 bg-[#e5e7eb]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
-                    <span className="text-xs text-[#8B9CC8] border border-[#2D3748] rounded px-1.5 py-0.5">
+                    <span className="text-xs text-[#6b7280] border border-[#e5e7eb] rounded px-1.5 py-0.5">
                       {act.tipo}
                     </span>
                     {act.usuario_nombre && (
-                      <span className="text-xs text-[#8B9CC8]">{act.usuario_nombre}</span>
+                      <span className="text-xs text-[#6b7280]">{act.usuario_nombre}</span>
                     )}
-                    <span className="font-mono text-[10px] text-[#8B9CC8] ml-auto">
+                    <span className="font-mono text-[10px] text-[#6b7280] ml-auto">
                       {new Date(act.created_at).toLocaleString('es-CO', {
                         timeZone: 'America/Bogota',
                       })}
                     </span>
                   </div>
-                  <p className="text-[#F0F4FF] text-sm leading-relaxed">{act.descripcion}</p>
+                  <p className="text-[#111827] text-sm leading-relaxed">{act.descripcion}</p>
                 </div>
               </div>
             ))}
@@ -294,13 +294,13 @@ export default function IncidenteDetallePage() {
         {tab === 'fotos' && (
           <div>
             {fotos.length === 0 && (
-              <p className="text-[#8B9CC8] text-sm py-4">Sin fotografías registradas.</p>
+              <p className="text-[#6b7280] text-sm py-4">Sin fotografías registradas.</p>
             )}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {fotos.map((foto) => (
                 <div
                   key={foto.id}
-                  className="bg-[#111827] border border-[#2D3748] rounded-lg overflow-hidden"
+                  className="bg-[#ffffff] border border-[#e5e7eb] rounded-lg overflow-hidden"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -309,7 +309,7 @@ export default function IncidenteDetallePage() {
                     className="w-full h-40 object-cover"
                   />
                   {foto.descripcion && (
-                    <p className="text-xs text-[#8B9CC8] px-3 py-2">{foto.descripcion}</p>
+                    <p className="text-xs text-[#6b7280] px-3 py-2">{foto.descripcion}</p>
                   )}
                 </div>
               ))}
@@ -321,31 +321,31 @@ export default function IncidenteDetallePage() {
         {tab === 'damnificados' && (
           <div>
             {damnificados.length === 0 && (
-              <p className="text-[#8B9CC8] text-sm py-4">Sin damnificados registrados.</p>
+              <p className="text-[#6b7280] text-sm py-4">Sin damnificados registrados.</p>
             )}
             {damnificados.length > 0 && (
-              <div className="bg-[#111827] border border-[#2D3748] rounded-lg overflow-hidden">
+              <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-lg overflow-hidden">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-[#2D3748] bg-[#1E2535]">
-                      <th className="text-left px-4 py-3 text-xs text-[#8B9CC8] uppercase">Nombre</th>
-                      <th className="text-left px-4 py-3 text-xs text-[#8B9CC8] uppercase">Documento</th>
-                      <th className="text-left px-4 py-3 text-xs text-[#8B9CC8] uppercase">Afectación</th>
-                      <th className="text-left px-4 py-3 text-xs text-[#8B9CC8] uppercase">Municipio</th>
+                    <tr className="border-b border-[#e5e7eb] bg-[#f3f4f6]">
+                      <th className="text-left px-4 py-3 text-xs text-[#6b7280] uppercase">Nombre</th>
+                      <th className="text-left px-4 py-3 text-xs text-[#6b7280] uppercase">Documento</th>
+                      <th className="text-left px-4 py-3 text-xs text-[#6b7280] uppercase">Afectación</th>
+                      <th className="text-left px-4 py-3 text-xs text-[#6b7280] uppercase">Municipio</th>
                     </tr>
                   </thead>
                   <tbody>
                     {damnificados.map((d, idx) => (
                       <tr
                         key={d.id}
-                        className={`border-b border-[#2D3748] ${idx % 2 === 0 ? '' : 'bg-[#0D1220]'}`}
+                        className={`border-b border-[#e5e7eb] ${idx % 2 === 0 ? '' : 'bg-[#f9fafb]'}`}
                       >
-                        <td className="px-4 py-3 text-[#F0F4FF]">{d.nombre}</td>
-                        <td className="px-4 py-3 font-mono text-xs text-[#8B9CC8]">
+                        <td className="px-4 py-3 text-[#111827]">{d.nombre}</td>
+                        <td className="px-4 py-3 font-mono text-xs text-[#6b7280]">
                           {d.documento ?? '—'}
                         </td>
-                        <td className="px-4 py-3 text-[#8B9CC8]">{d.tipo_afectacion}</td>
-                        <td className="px-4 py-3 text-[#8B9CC8]">{d.municipio ?? '—'}</td>
+                        <td className="px-4 py-3 text-[#6b7280]">{d.tipo_afectacion}</td>
+                        <td className="px-4 py-3 text-[#6b7280]">{d.municipio ?? '—'}</td>
                       </tr>
                     ))}
                   </tbody>

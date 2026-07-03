@@ -11,10 +11,10 @@ interface IncidenteSidebarProps {
 }
 
 const NIVEL_BADGE: Record<string, string> = {
-  VERDE: 'bg-[#16A34A] text-white',
-  AMARILLO: 'bg-[#D97706] text-white',
-  NARANJA: 'bg-[#EA580C] text-white',
-  ROJO: 'bg-[#DC2626] text-white',
+  VERDE: 'bg-green-600 text-white',
+  AMARILLO: 'bg-yellow-500 text-white',
+  NARANJA: 'bg-orange-500 text-white',
+  ROJO: 'bg-red-600 text-white',
 };
 
 function tiempoRelativo(fecha: string): string {
@@ -35,19 +35,19 @@ export default function IncidenteSidebar({
 }: IncidenteSidebarProps) {
   return (
     <aside
-      className="w-[280px] flex-shrink-0 h-full overflow-y-auto bg-[#111827] border-r border-[#2D3748] flex flex-col"
-      style={{ scrollbarWidth: 'thin', scrollbarColor: '#2D3748 transparent' }}
+      className="w-[280px] flex-shrink-0 h-full overflow-y-auto bg-white border-r border-gray-200 flex flex-col"
+      style={{ scrollbarWidth: 'thin', scrollbarColor: '#e5e7eb transparent' }}
     >
       {/* Incidentes activos */}
-      <div className="p-3 border-b border-[#2D3748]">
-        <h2 className="font-display text-xs font-bold tracking-widest text-[#8B9CC8] uppercase mb-2">
+      <div className="p-3 border-b border-gray-200">
+        <h2 className="text-xs font-bold tracking-widest text-gray-500 uppercase mb-2">
           Incidentes Activos{' '}
-          <span className="text-[#F0F4FF]">({incidentes.length})</span>
+          <span className="text-gray-900">({incidentes.length})</span>
         </h2>
 
         <div className="flex flex-col gap-1">
           {incidentes.length === 0 && (
-            <p className="text-[#8B9CC8] text-xs py-2">Sin incidentes activos</p>
+            <p className="text-gray-400 text-xs py-2">Sin incidentes activos</p>
           )}
           {incidentes.map((inc) => (
             <button
@@ -55,22 +55,22 @@ export default function IncidenteSidebar({
               onClick={() => onSelect(inc.id)}
               className={`w-full text-left rounded px-2 py-2 transition-colors ${
                 selectedId === inc.id
-                  ? 'bg-[#2D3748]'
-                  : 'hover:bg-[#1E2535]'
+                  ? 'bg-blue-50 border border-blue-200'
+                  : 'hover:bg-gray-50'
               }`}
             >
               <div className="flex items-center gap-1.5 mb-0.5">
                 <span
-                  className={`px-1.5 py-0.5 rounded text-[10px] font-bold font-display ${NIVEL_BADGE[inc.nivel_alerta] ?? 'bg-[#1E2535] text-[#8B9CC8]'}`}
+                  className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${NIVEL_BADGE[inc.nivel_alerta] ?? 'bg-gray-100 text-gray-600'}`}
                 >
                   {inc.nivel_alerta}
                 </span>
-                <span className="font-mono text-[10px] text-[#8B9CC8]">
+                <span className="font-mono text-[10px] text-gray-500">
                   {inc.codigo}
                 </span>
               </div>
-              <p className="text-xs text-[#F0F4FF] truncate">{inc.titulo}</p>
-              <p className="text-[10px] text-[#8B9CC8] mt-0.5">
+              <p className="text-xs text-gray-900 truncate">{inc.titulo}</p>
+              <p className="text-[10px] text-gray-400 mt-0.5">
                 {tiempoRelativo(inc.fecha_inicio)}
               </p>
             </button>
@@ -80,33 +80,33 @@ export default function IncidenteSidebar({
 
       {/* Alertas activas */}
       <div className="p-3">
-        <h2 className="font-display text-xs font-bold tracking-widest text-[#8B9CC8] uppercase mb-2">
+        <h2 className="text-xs font-bold tracking-widest text-gray-500 uppercase mb-2">
           Alertas Activas{' '}
-          <span className="text-[#F0F4FF]">({alertas.length})</span>
+          <span className="text-gray-900">({alertas.length})</span>
         </h2>
 
         <div className="flex flex-col gap-1">
           {alertas.length === 0 && (
-            <p className="text-[#8B9CC8] text-xs py-2">Sin alertas activas</p>
+            <p className="text-gray-400 text-xs py-2">Sin alertas activas</p>
           )}
           {alertas.map((alerta) => (
             <div
               key={alerta.id}
-              className="rounded px-2 py-2 bg-[#1E2535] border border-[#2D3748]"
+              className="rounded px-2 py-2 bg-gray-50 border border-gray-200"
             >
               <div className="flex items-center gap-1.5 mb-0.5">
                 <span
-                  className={`px-1.5 py-0.5 rounded text-[10px] font-bold font-display ${NIVEL_BADGE[alerta.nivel] ?? 'bg-[#1E2535] text-[#8B9CC8]'}`}
+                  className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${NIVEL_BADGE[alerta.nivel] ?? 'bg-gray-100 text-gray-600'}`}
                 >
                   {alerta.nivel}
                 </span>
-                <span className="text-[10px] text-[#8B9CC8] font-mono">
+                <span className="text-[10px] text-gray-500 font-mono">
                   {alerta.codigo}
                 </span>
               </div>
-              <p className="text-xs text-[#F0F4FF]">{alerta.tipo}</p>
+              <p className="text-xs text-gray-900">{alerta.tipo}</p>
               {alerta.municipios?.length > 0 && (
-                <p className="text-[10px] text-[#8B9CC8] mt-0.5">
+                <p className="text-[10px] text-gray-400 mt-0.5">
                   {alerta.municipios.length} municipio
                   {alerta.municipios.length !== 1 ? 's' : ''}
                 </p>

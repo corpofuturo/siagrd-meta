@@ -148,14 +148,14 @@ export function MaquinaEstados({
   const varianteClass: Record<string, string> = {
     primary: 'bg-blue-600 hover:bg-blue-500 text-white',
     danger:  'bg-red-700 hover:bg-red-600 text-white',
-    neutral: 'bg-[#2D3748] hover:bg-[#3D4758] text-[#F0F4FF]',
+    neutral: 'bg-[#e5e7eb] hover:bg-[#3D4758] text-[#111827]',
   };
 
   return (
     <div className="space-y-4">
       {/* Estado actual + badge simulacro */}
       <div className="flex items-center gap-3 flex-wrap">
-        <span className="text-xs text-[#8B9CC8] uppercase tracking-wider">Estado:</span>
+        <span className="text-xs text-[#6b7280] uppercase tracking-wider">Estado:</span>
         <EstadoBadge estado={estadoActual} size="md" />
         {isSimulacro && (
           <span className="px-2.5 py-1 rounded bg-purple-700/30 text-purple-300 text-xs font-bold font-display tracking-wider border border-purple-700/50">
@@ -182,35 +182,35 @@ export function MaquinaEstados({
       {/* Historial de transiciones */}
       {historial.length > 0 && (
         <div>
-          <p className="text-xs text-[#8B9CC8] uppercase tracking-wider mb-2">Historial de estados</p>
-          <div className="bg-[#111827] border border-[#2D3748] rounded-lg overflow-hidden">
+          <p className="text-xs text-[#6b7280] uppercase tracking-wider mb-2">Historial de estados</p>
+          <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-lg overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#2D3748] bg-[#1E2535]">
-                  <th className="text-left px-4 py-2.5 text-xs text-[#8B9CC8] uppercase">Actor</th>
-                  <th className="text-left px-4 py-2.5 text-xs text-[#8B9CC8] uppercase">Anterior</th>
-                  <th className="text-left px-4 py-2.5 text-xs text-[#8B9CC8] uppercase">Nuevo</th>
-                  <th className="text-left px-4 py-2.5 text-xs text-[#8B9CC8] uppercase">Motivo</th>
-                  <th className="text-left px-4 py-2.5 text-xs text-[#8B9CC8] uppercase">Fecha</th>
+                <tr className="border-b border-[#e5e7eb] bg-[#f3f4f6]">
+                  <th className="text-left px-4 py-2.5 text-xs text-[#6b7280] uppercase">Actor</th>
+                  <th className="text-left px-4 py-2.5 text-xs text-[#6b7280] uppercase">Anterior</th>
+                  <th className="text-left px-4 py-2.5 text-xs text-[#6b7280] uppercase">Nuevo</th>
+                  <th className="text-left px-4 py-2.5 text-xs text-[#6b7280] uppercase">Motivo</th>
+                  <th className="text-left px-4 py-2.5 text-xs text-[#6b7280] uppercase">Fecha</th>
                 </tr>
               </thead>
               <tbody>
                 {historial.map((h, idx) => (
                   <tr
                     key={h.id}
-                    className={`border-b border-[#2D3748] ${idx % 2 === 0 ? '' : 'bg-[#0D1220]'}`}
+                    className={`border-b border-[#e5e7eb] ${idx % 2 === 0 ? '' : 'bg-[#f9fafb]'}`}
                   >
-                    <td className="px-4 py-2.5 text-[#F0F4FF] text-xs">{h.actor}</td>
+                    <td className="px-4 py-2.5 text-[#111827] text-xs">{h.actor}</td>
                     <td className="px-4 py-2.5">
                       <EstadoBadge estado={h.estado_anterior} size="sm" />
                     </td>
                     <td className="px-4 py-2.5">
                       <EstadoBadge estado={h.estado_nuevo} size="sm" />
                     </td>
-                    <td className="px-4 py-2.5 text-[#8B9CC8] text-xs max-w-[200px] truncate">
+                    <td className="px-4 py-2.5 text-[#6b7280] text-xs max-w-[200px] truncate">
                       {h.motivo ?? '—'}
                     </td>
-                    <td className="px-4 py-2.5 font-mono text-[10px] text-[#8B9CC8]">
+                    <td className="px-4 py-2.5 font-mono text-[10px] text-[#6b7280]">
                       {new Date(h.created_at).toLocaleString('es-CO', { timeZone: 'America/Bogota' })}
                     </td>
                   </tr>
@@ -230,11 +230,11 @@ export function MaquinaEstados({
             onClick={cerrarModal}
           />
           {/* Panel */}
-          <div className="relative z-10 bg-[#111827] border border-[#2D3748] rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
-            <h2 className="font-display text-lg font-bold text-[#F0F4FF] mb-1">
+          <div className="relative z-10 bg-[#ffffff] border border-[#e5e7eb] rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
+            <h2 className="font-display text-lg font-bold text-[#111827] mb-1">
               Confirmar: {transicionPendiente.label}
             </h2>
-            <p className="text-sm text-[#8B9CC8] mb-4">
+            <p className="text-sm text-[#6b7280] mb-4">
               El estado cambiará de{' '}
               <EstadoBadge estado={estadoActual} size="sm" />{' '}
               a{' '}
@@ -244,7 +244,7 @@ export function MaquinaEstados({
             {/* Campo motivo */}
             {(transicionPendiente.motivoObligatorio || transicionPendiente.accion !== 'confirmar') && (
               <div className="mb-4">
-                <label className="block text-xs text-[#8B9CC8] mb-1.5">
+                <label className="block text-xs text-[#6b7280] mb-1.5">
                   Motivo{transicionPendiente.motivoObligatorio ? ' *' : ' (opcional)'}
                 </label>
                 <textarea
@@ -256,7 +256,7 @@ export function MaquinaEstados({
                       ? 'Ingrese el motivo (obligatorio)'
                       : 'Ingrese un motivo si lo considera necesario'
                   }
-                  className="w-full bg-[#1E2535] border border-[#2D3748] rounded px-3 py-2 text-[#F0F4FF] text-sm placeholder-[#4B5563] focus:outline-none focus:border-[#4B6BFB] resize-none"
+                  className="w-full bg-[#f3f4f6] border border-[#e5e7eb] rounded px-3 py-2 text-[#111827] text-sm placeholder-[#9ca3af] focus:outline-none focus:border-[#4B6BFB] resize-none"
                 />
               </div>
             )}
@@ -269,7 +269,7 @@ export function MaquinaEstados({
               <button
                 onClick={cerrarModal}
                 disabled={loading}
-                className="px-4 py-2 rounded text-sm text-[#8B9CC8] hover:text-[#F0F4FF] hover:bg-[#1E2535] transition-colors disabled:opacity-50"
+                className="px-4 py-2 rounded text-sm text-[#6b7280] hover:text-[#111827] hover:bg-[#f3f4f6] transition-colors disabled:opacity-50"
               >
                 Cancelar
               </button>

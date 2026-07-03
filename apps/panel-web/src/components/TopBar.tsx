@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Bell, Menu } from 'lucide-react';
 import Link from 'next/link';
 
 interface TopBarProps {
@@ -10,12 +9,11 @@ interface TopBarProps {
   onMenuClick?: () => void;
 }
 
-// Colores alineados con la app móvil (Tailwind 500)
-const NIVEL_COLORS: Record<string, { bg: string; text: string }> = {
-  VERDE:    { bg: '#22C55E33', text: '#22C55E' },
-  AMARILLO: { bg: '#EAB30833', text: '#EAB308' },
-  NARANJA:  { bg: '#F9731633', text: '#F97316' },
-  ROJO:     { bg: '#EF444433', text: '#EF4444' },
+const NIVEL_STYLES: Record<string, string> = {
+  VERDE: 'bg-alerta-verde-bg text-alerta-verde-text border-alerta-verde-border',
+  AMARILLO: 'bg-alerta-amarillo-bg text-alerta-amarillo-text border-alerta-amarillo-border',
+  NARANJA: 'bg-alerta-naranja-bg text-alerta-naranja-text border-alerta-naranja-border',
+  ROJO: 'bg-alerta-rojo-bg text-alerta-rojo-text border-alerta-rojo-border',
 };
 
 function useClock() {
@@ -60,43 +58,37 @@ function useOnlineStatus() {
 export default function TopBar({ nivelAlerta, alertasActivas = 0, onMenuClick }: TopBarProps) {
   const time = useClock();
   const online = useOnlineStatus();
-  const nivel = NIVEL_COLORS[nivelAlerta ?? ''];
+  const nivelClass = nivelAlerta ? NIVEL_STYLES[nivelAlerta] : null;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-12 bg-[#111827] border-b border-[#2D3748] flex items-center px-3 gap-3">
-      {/* Botón hamburguesa — solo mobile */}
-      <button
-        onClick={onMenuClick}
-        className="md:hidden flex items-center justify-center w-8 h-8 rounded hover:bg-[#1E2535] transition-colors flex-shrink-0"
-        aria-label="Abrir menú"
-      >
-        <Menu size={18} className="text-[#9CA3AF]" />
+    <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-white border-b border-gray-200 flex items-center px-4 gap-3 shadow-sm">
+      {/* Hamburguesa mobile */}
+      <button onClick={onMenuClick} className="md:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100" aria-label="Abrir menú">
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
       </button>
 
-      {/* Logo */}
-      <span className="font-display text-base md:text-lg font-bold tracking-widest text-[#F0F4FF] uppercase">
-        SATAM
-      </span>
-      <span className="hidden sm:block text-[#4B5563] text-xs tracking-wider">
-        · SIAGRD Meta
-      </span>
+      {/* Branding */}
+      <div className="flex items-center gap-2">
+        <span className="text-xl">🛡️</span>
+        <span className="font-bold text-blue-900 text-lg tracking-wide">SATAM</span>
+        <span className="hidden sm:block text-gray-400 text-sm">· SIAGRD Meta</span>
+      </div>
 
-      <div className="w-px h-6 bg-[#2D3748]" />
+      <div className="w-px h-6 bg-gray-200 mx-1" />
 
       {/* Nivel de alerta */}
       <div className="flex items-center gap-2">
-        <span className="hidden sm:block text-[#8B9CC8] text-xs uppercase tracking-wider">
+        <span className="hidden sm:block text-gray-500 text-xs uppercase tracking-wider">
           Nivel:
         </span>
-        {nivel ? (
-          <span
-            style={{ backgroundColor: nivel.bg, color: nivel.text, border: `1px solid ${nivel.text}` }}
-            className="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider"
-          >
+        {nivelClass ? (
+          <span className={`px-2 py-0.5 rounded text-[10px] font-bold tracking-wider border ${nivelClass}`}>
             {nivelAlerta}
           </span>
         ) : (
-          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#1E2535] text-[#8B9CC8]">
+          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-gray-100 text-gray-500 border border-gray-200">
             SIN ALERTA
           </span>
         )}
@@ -104,36 +96,32 @@ export default function TopBar({ nivelAlerta, alertasActivas = 0, onMenuClick }:
 
       <div className="flex-1" />
 
-      {/* Estado de conexión */}
+      {/* Online badge */}
       <div className="flex items-center gap-1.5">
-        <span
-          className={`w-2 h-2 rounded-full ${online ? 'bg-[#22C55E] animate-pulse' : 'bg-[#EF4444]'}`}
-        />
-        <span className={`hidden sm:block text-xs font-mono ${online ? 'text-[#22C55E]' : 'text-[#EF4444]'}`}>
+        <span className={`w-2 h-2 rounded-full ${online ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+        <span className={`hidden sm:block text-xs font-medium ${online ? 'text-green-600' : 'text-red-600'}`}>
           {online ? 'ONLINE' : 'OFFLINE'}
         </span>
       </div>
 
-      <div className="w-px h-6 bg-[#2D3748]" />
+      <div className="w-px h-6 bg-gray-200 mx-1" />
 
-      {/* Notificaciones */}
+      {/* Alertas bell */}
       <Link
         href="/alertas"
-        className="relative flex items-center justify-center w-8 h-8 rounded hover:bg-[#1E2535] transition-colors"
+        className="relative p-2 rounded-lg text-gray-500 hover:bg-gray-100"
         aria-label={`${alertasActivas} alertas activas`}
       >
-        <Bell size={17} className="text-[#8B9CC8]" />
+        <span className="text-lg">🔔</span>
         {alertasActivas > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-[#EF4444] text-white text-[9px] font-bold leading-none">
+          <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
             {alertasActivas > 99 ? '99+' : alertasActivas}
           </span>
         )}
       </Link>
 
-      <div className="w-px h-6 bg-[#2D3748]" />
-
-      {/* Hora Bogotá */}
-      <span className="font-mono text-xs text-[#8B9CC8] tabular-nums min-w-[4.5rem] text-right">
+      {/* Reloj */}
+      <span className="font-mono text-xs text-gray-500 tabular-nums min-w-[4.5rem] text-right">
         {time}
       </span>
     </header>

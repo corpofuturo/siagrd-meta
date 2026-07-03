@@ -82,11 +82,11 @@ export default function SistemasSalud() {
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-xs text-[#8B9CC8] uppercase tracking-wider font-mono">
+        <h3 className="text-xs text-[#6b7280] uppercase tracking-wider font-mono">
           Estado del Sistema
         </h3>
         {ultimaActualizacion && (
-          <span className="text-[10px] text-[#8B9CC8] font-mono">
+          <span className="text-[10px] text-[#6b7280] font-mono">
             {new Intl.DateTimeFormat('es-CO', {
               hour: '2-digit',
               minute: '2-digit',
@@ -100,7 +100,7 @@ export default function SistemasSalud() {
         {servicios.map((svc) => (
           <div
             key={svc.nombre}
-            className={`bg-[#111827] border rounded p-3 flex items-center gap-2 ${
+            className={`bg-[#ffffff] border rounded p-3 flex items-center gap-2 ${
               svc.estado === 'ok'
                 ? 'border-[#16A34A]/40'
                 : svc.estado === 'error'
@@ -110,10 +110,10 @@ export default function SistemasSalud() {
           >
             <EstadoIcon estado={svc.estado} />
             <div className="flex-1 min-w-0">
-              <p className="text-[#F0F4FF] text-xs font-mono truncate">{svc.nombre}</p>
+              <p className="text-[#111827] text-xs font-mono truncate">{svc.nombre}</p>
               <div className="flex items-center gap-1 mt-0.5">
                 {svc.latencia !== undefined && (
-                  <span className="text-[#8B9CC8] text-[10px] font-mono">
+                  <span className="text-[#6b7280] text-[10px] font-mono">
                     {svc.latencia}ms
                   </span>
                 )}

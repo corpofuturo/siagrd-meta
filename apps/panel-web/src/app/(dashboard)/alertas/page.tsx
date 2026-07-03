@@ -80,10 +80,10 @@ export default function AlertasPage() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
+    <div className="flex-1">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="font-display text-2xl font-bold text-[#F0F4FF] uppercase tracking-wider">
+          <h1 className="font-display text-2xl font-bold text-[#111827] uppercase tracking-wider">
             Alertas ({alertas.length})
           </h1>
           <button
@@ -95,9 +95,9 @@ export default function AlertasPage() {
         </div>
 
         {emitirError && (
-          <div className="mb-4 px-4 py-2 bg-[#DC2626]/10 border border-[#DC2626]/40 rounded text-[#FCA5A5] text-sm flex justify-between items-center">
+          <div className="mb-4 px-4 py-2 bg-[#DC2626]/10 border border-[#DC2626]/40 rounded text-[#b91c1c] text-sm flex justify-between items-center">
             <span>{emitirError}</span>
-            <button onClick={() => setEmitirError(null)} className="ml-4 text-[#DC2626] hover:text-[#F87171]">×</button>
+            <button onClick={() => setEmitirError(null)} className="ml-4 text-[#DC2626] hover:text-[#dc2626]">×</button>
           </div>
         )}
 
@@ -106,7 +106,7 @@ export default function AlertasPage() {
           <select
             value={filtroActiva}
             onChange={(e) => setFiltroActiva(e.target.value)}
-            className="bg-[#1E2535] border border-[#2D3748] rounded px-3 py-1.5 text-[#F0F4FF] text-sm focus:outline-none"
+            className="bg-[#f3f4f6] border border-[#e5e7eb] rounded px-3 py-1.5 text-[#111827] text-sm focus:outline-none"
           >
             <option value="">Todas</option>
             <option value="true">Activas</option>
@@ -114,30 +114,30 @@ export default function AlertasPage() {
           </select>
         </div>
 
-        <div className="bg-[#111827] border border-[#2D3748] rounded-lg overflow-x-auto">
+        <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-lg overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#2D3748] bg-[#1E2535]">
-                <th className="text-left px-4 py-3 text-xs text-[#8B9CC8] uppercase tracking-wider">Nivel</th>
-                <th className="text-left px-4 py-3 text-xs text-[#8B9CC8] uppercase tracking-wider">Título</th>
-                <th className="text-left px-4 py-3 text-xs text-[#8B9CC8] uppercase tracking-wider">Tipo</th>
-                <th className="text-left px-4 py-3 text-xs text-[#8B9CC8] uppercase tracking-wider">Municipios</th>
-                <th className="text-left px-4 py-3 text-xs text-[#8B9CC8] uppercase tracking-wider">Estado</th>
-                <th className="text-left px-4 py-3 text-xs text-[#8B9CC8] uppercase tracking-wider">Fecha</th>
+              <tr className="border-b border-[#e5e7eb] bg-[#f3f4f6]">
+                <th className="text-left px-4 py-3 text-xs text-[#6b7280] uppercase tracking-wider">Nivel</th>
+                <th className="text-left px-4 py-3 text-xs text-[#6b7280] uppercase tracking-wider">Título</th>
+                <th className="text-left px-4 py-3 text-xs text-[#6b7280] uppercase tracking-wider">Tipo</th>
+                <th className="text-left px-4 py-3 text-xs text-[#6b7280] uppercase tracking-wider">Municipios</th>
+                <th className="text-left px-4 py-3 text-xs text-[#6b7280] uppercase tracking-wider">Estado</th>
+                <th className="text-left px-4 py-3 text-xs text-[#6b7280] uppercase tracking-wider">Fecha</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={7} className="text-center py-8 text-[#8B9CC8] text-sm">
+                  <td colSpan={7} className="text-center py-8 text-[#6b7280] text-sm">
                     Cargando...
                   </td>
                 </tr>
               )}
               {!loading && alertas.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="text-center py-8 text-[#8B9CC8] text-sm">
+                  <td colSpan={7} className="text-center py-8 text-[#6b7280] text-sm">
                     Sin alertas registradas
                   </td>
                 </tr>
@@ -145,7 +145,7 @@ export default function AlertasPage() {
               {alertas.map((alerta, idx) => (
                 <tr
                   key={alerta.id}
-                  className={`border-b border-[#2D3748] ${idx % 2 === 0 ? '' : 'bg-[#0D1220]'}`}
+                  className={`border-b border-[#e5e7eb] ${idx % 2 === 0 ? '' : 'bg-[#f9fafb]'}`}
                 >
                   <td className="px-4 py-3">
                     {(() => {
@@ -158,23 +158,23 @@ export default function AlertasPage() {
                           {alerta.nivel}
                         </span>
                       ) : (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#1E2535] text-[#8B9CC8]">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#f3f4f6] text-[#6b7280]">
                           {alerta.nivel ?? '—'}
                         </span>
                       );
                     })()}
                   </td>
-                  <td className="px-4 py-3 text-[#F0F4FF] max-w-[180px] truncate">{alerta.titulo}</td>
-                  <td className="px-4 py-3 text-[#8B9CC8] text-xs">{alerta.tipo_amenaza ?? '—'}</td>
-                  <td className="px-4 py-3 text-[#8B9CC8] text-xs">
+                  <td className="px-4 py-3 text-[#111827] max-w-[180px] truncate">{alerta.titulo}</td>
+                  <td className="px-4 py-3 text-[#6b7280] text-xs">{alerta.tipo_amenaza ?? '—'}</td>
+                  <td className="px-4 py-3 text-[#6b7280] text-xs">
                     {alerta.municipios_afectados?.length ?? 0} municipios
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${alerta.activa ? 'bg-[#DC2626]/20 text-[#DC2626]' : 'bg-[#1E2535] text-[#8B9CC8]'}`}>
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${alerta.activa ? 'bg-[#DC2626]/20 text-[#DC2626]' : 'bg-[#f3f4f6] text-[#6b7280]'}`}>
                       {alerta.activa ? 'ACTIVA' : 'INACTIVA'}
                     </span>
                   </td>
-                  <td className="px-4 py-3 font-mono text-[10px] text-[#8B9CC8]">
+                  <td className="px-4 py-3 font-mono text-[10px] text-[#6b7280]">
                     {alerta.fecha_emision
                       ? new Date(alerta.fecha_emision).toLocaleDateString('es-CO')
                       : new Date(alerta.created_at).toLocaleDateString('es-CO')}

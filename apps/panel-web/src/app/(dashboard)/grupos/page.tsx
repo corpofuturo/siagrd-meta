@@ -49,7 +49,7 @@ function authHeaders(): Record<string, string> {
 
 function Spinner(): React.ReactElement {
   return (
-    <div className="flex items-center gap-3 text-[#8B9CC8] text-sm py-8">
+    <div className="flex items-center gap-3 text-[#6b7280] text-sm py-8">
       <span className="animate-spin text-lg">⟳</span>
       Cargando...
     </div>
@@ -58,7 +58,7 @@ function Spinner(): React.ReactElement {
 
 function ErrorMsg({ msg }: { msg: string }): React.ReactElement {
   return (
-    <div className="flex items-center gap-2 text-[#FCA5A5] text-sm bg-[#DC2626]/10 border border-[#DC2626]/30 rounded-lg px-4 py-3">
+    <div className="flex items-center gap-2 text-[#b91c1c] text-sm bg-[#DC2626]/10 border border-[#DC2626]/30 rounded-lg px-4 py-3">
       ⚠️ {msg}
     </div>
   );
@@ -86,20 +86,20 @@ interface MetricCardProps {
 
 function MetricCard({ icon, value, label, description, color, loading }: MetricCardProps): React.ReactElement {
   return (
-    <div className={`bg-[#111827] border border-[#2D3748] rounded-xl p-5 relative overflow-hidden`}>
+    <div className={`bg-[#ffffff] border border-[#e5e7eb] rounded-xl p-5 relative overflow-hidden`}>
       <div className={`absolute top-0 left-0 right-0 h-0.5 ${color}`} />
       <div className="flex items-start justify-between mb-3">
-        <div className="w-11 h-11 rounded-xl bg-[#0D1120] flex items-center justify-center text-2xl">
+        <div className="w-11 h-11 rounded-xl bg-[#f9fafb] flex items-center justify-center text-2xl">
           {icon}
         </div>
         {loading ? (
-          <div className="w-12 h-8 bg-[#1E2535] rounded animate-pulse" />
+          <div className="w-12 h-8 bg-[#f3f4f6] rounded animate-pulse" />
         ) : (
-          <span className="text-3xl font-bold font-mono text-[#F0F4FF]">{value.toLocaleString()}</span>
+          <span className="text-3xl font-bold font-mono text-[#111827]">{value.toLocaleString()}</span>
         )}
       </div>
-      <p className="text-[#F0F4FF] text-sm font-semibold">{label}</p>
-      <p className="text-[#4B5563] text-xs mt-0.5">{description}</p>
+      <p className="text-[#111827] text-sm font-semibold">{label}</p>
+      <p className="text-[#9ca3af] text-xs mt-0.5">{description}</p>
     </div>
   );
 }
@@ -130,38 +130,38 @@ function TabSocorro(): React.ReactElement {
   if (data.length === 0) return <Empty icon="🛡️" label="Sin usuarios de socorro registrados" />;
 
   return (
-    <div className="bg-[#111827] border border-[#2D3748] rounded-xl overflow-hidden">
+    <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-xl overflow-hidden">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-[#1E2535] bg-[#0D1120]">
-            <th className="text-left px-5 py-3 text-xs text-[#4B5563] font-semibold uppercase tracking-wider">Usuario</th>
-            <th className="text-left px-4 py-3 text-xs text-[#4B5563] font-semibold uppercase tracking-wider">Rol</th>
-            <th className="text-left px-4 py-3 text-xs text-[#4B5563] font-semibold uppercase tracking-wider">Organismo</th>
-            <th className="text-left px-4 py-3 text-xs text-[#4B5563] font-semibold uppercase tracking-wider">Estado</th>
+          <tr className="border-b border-[#f3f4f6] bg-[#f9fafb]">
+            <th className="text-left px-5 py-3 text-xs text-[#9ca3af] font-semibold uppercase tracking-wider">Usuario</th>
+            <th className="text-left px-4 py-3 text-xs text-[#9ca3af] font-semibold uppercase tracking-wider">Rol</th>
+            <th className="text-left px-4 py-3 text-xs text-[#9ca3af] font-semibold uppercase tracking-wider">Organismo</th>
+            <th className="text-left px-4 py-3 text-xs text-[#9ca3af] font-semibold uppercase tracking-wider">Estado</th>
           </tr>
         </thead>
         <tbody>
           {data.map(u => (
-            <tr key={u.id} className="border-b border-[#1E2535] last:border-0 hover:bg-[#0D1120] transition-colors">
+            <tr key={u.id} className="border-b border-[#f3f4f6] last:border-0 hover:bg-[#f9fafb] transition-colors">
               <td className="px-5 py-3.5">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-[#0F4C75] flex items-center justify-center text-[#60A5FA] text-xs font-bold flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-[#0F4C75] flex items-center justify-center text-[#1d4ed8] text-xs font-bold flex-shrink-0">
                     {(u.nombre?.charAt(0) ?? '?').toUpperCase()}
                   </div>
                   <div>
-                    <p className="text-[#F0F4FF] font-semibold text-sm">{u.nombre} {u.apellido}</p>
-                    <p className="text-[#4B5563] text-[10px] font-mono">{u.email}</p>
+                    <p className="text-[#111827] font-semibold text-sm">{u.nombre} {u.apellido}</p>
+                    <p className="text-[#9ca3af] text-[10px] font-mono">{u.email}</p>
                   </div>
                 </div>
               </td>
               <td className="px-4 py-3.5">
-                <span className="bg-[#1E2535] border border-[#2D3748] text-[#8B9CC8] text-[10px] px-2 py-0.5 rounded font-mono font-bold">
+                <span className="bg-[#f3f4f6] border border-[#e5e7eb] text-[#6b7280] text-[10px] px-2 py-0.5 rounded font-mono font-bold">
                   {u.rol}
                 </span>
               </td>
-              <td className="px-4 py-3.5 text-[#8B9CC8] text-xs">{u.organismo ?? <span className="text-[#374151]">—</span>}</td>
+              <td className="px-4 py-3.5 text-[#6b7280] text-xs">{u.organismo ?? <span className="text-[#9ca3af]">—</span>}</td>
               <td className="px-4 py-3.5">
-                <span className={`inline-flex items-center gap-1 text-xs font-semibold ${u.activo ? 'text-[#16A34A]' : 'text-[#4B5563]'}`}>
+                <span className={`inline-flex items-center gap-1 text-xs font-semibold ${u.activo ? 'text-[#16A34A]' : 'text-[#9ca3af]'}`}>
                   <span className="text-[8px]">●</span>
                   {u.activo ? 'Activo' : 'Inactivo'}
                 </span>
@@ -212,30 +212,30 @@ function TabCiudadanos(): React.ReactElement {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="bg-[#111827] border border-[#2D3748] rounded-xl overflow-hidden">
+      <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-xl overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-[#1E2535] bg-[#0D1120]">
-              <th className="text-left px-5 py-3 text-xs text-[#4B5563] font-semibold uppercase tracking-wider">Ciudadano</th>
-              <th className="text-left px-4 py-3 text-xs text-[#4B5563] font-semibold uppercase tracking-wider">Estado</th>
+            <tr className="border-b border-[#f3f4f6] bg-[#f9fafb]">
+              <th className="text-left px-5 py-3 text-xs text-[#9ca3af] font-semibold uppercase tracking-wider">Ciudadano</th>
+              <th className="text-left px-4 py-3 text-xs text-[#9ca3af] font-semibold uppercase tracking-wider">Estado</th>
             </tr>
           </thead>
           <tbody>
             {data.map(c => (
-              <tr key={c.id} className="border-b border-[#1E2535] last:border-0 hover:bg-[#0D1120] transition-colors">
+              <tr key={c.id} className="border-b border-[#f3f4f6] last:border-0 hover:bg-[#f9fafb] transition-colors">
                 <td className="px-5 py-3.5">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[#1E3A5F] flex items-center justify-center text-[#60A5FA] text-xs font-bold flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-[#1E3A5F] flex items-center justify-center text-[#1d4ed8] text-xs font-bold flex-shrink-0">
                       {(c.nombre?.charAt(0) ?? '?').toUpperCase()}
                     </div>
                     <div>
-                      <p className="text-[#F0F4FF] font-semibold text-sm">{c.nombre}</p>
-                      <p className="text-[#4B5563] text-[10px] font-mono">{c.email}</p>
+                      <p className="text-[#111827] font-semibold text-sm">{c.nombre}</p>
+                      <p className="text-[#9ca3af] text-[10px] font-mono">{c.email}</p>
                     </div>
                   </div>
                 </td>
                 <td className="px-4 py-3.5">
-                  <span className={`inline-flex items-center gap-1 text-xs font-semibold ${c.activo ? 'text-[#16A34A]' : 'text-[#4B5563]'}`}>
+                  <span className={`inline-flex items-center gap-1 text-xs font-semibold ${c.activo ? 'text-[#16A34A]' : 'text-[#9ca3af]'}`}>
                     <span className="text-[8px]">●</span>
                     {c.activo ? 'Activo' : 'Inactivo'}
                   </span>
@@ -246,19 +246,19 @@ function TabCiudadanos(): React.ReactElement {
         </table>
       </div>
       <div className="flex items-center gap-3 justify-between">
-        <span className="text-[#4B5563] text-xs">Página {page}</span>
+        <span className="text-[#9ca3af] text-xs">Página {page}</span>
         <div className="flex gap-2">
           <button
             onClick={() => setOffset(o => Math.max(0, o - PAGE_SIZE))}
             disabled={offset === 0}
-            className="bg-[#1E2535] hover:bg-[#2D3748] text-[#F0F4FF] text-xs font-semibold rounded-lg px-3 py-1.5 transition-colors border border-[#2D3748] disabled:opacity-40 disabled:cursor-not-allowed"
+            className="bg-[#f3f4f6] hover:bg-[#e5e7eb] text-[#111827] text-xs font-semibold rounded-lg px-3 py-1.5 transition-colors border border-[#e5e7eb] disabled:opacity-40 disabled:cursor-not-allowed"
           >
             ← Anterior
           </button>
           <button
             onClick={() => setOffset(o => o + PAGE_SIZE)}
             disabled={!hasMore}
-            className="bg-[#1E2535] hover:bg-[#2D3748] text-[#F0F4FF] text-xs font-semibold rounded-lg px-3 py-1.5 transition-colors border border-[#2D3748] disabled:opacity-40 disabled:cursor-not-allowed"
+            className="bg-[#f3f4f6] hover:bg-[#e5e7eb] text-[#111827] text-xs font-semibold rounded-lg px-3 py-1.5 transition-colors border border-[#e5e7eb] disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Siguiente →
           </button>
@@ -294,30 +294,30 @@ function TabComites(): React.ReactElement {
   if (data.length === 0) return <Empty icon="🏛️" label="Sin usuarios de comités registrados" />;
 
   return (
-    <div className="bg-[#111827] border border-[#2D3748] rounded-xl overflow-hidden">
+    <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-xl overflow-hidden">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-[#1E2535] bg-[#0D1120]">
-            <th className="text-left px-5 py-3 text-xs text-[#4B5563] font-semibold uppercase tracking-wider">Usuario</th>
-            <th className="text-left px-4 py-3 text-xs text-[#4B5563] font-semibold uppercase tracking-wider">Rol</th>
+          <tr className="border-b border-[#f3f4f6] bg-[#f9fafb]">
+            <th className="text-left px-5 py-3 text-xs text-[#9ca3af] font-semibold uppercase tracking-wider">Usuario</th>
+            <th className="text-left px-4 py-3 text-xs text-[#9ca3af] font-semibold uppercase tracking-wider">Rol</th>
           </tr>
         </thead>
         <tbody>
           {data.map(u => (
-            <tr key={u.id} className="border-b border-[#1E2535] last:border-0 hover:bg-[#0D1120] transition-colors">
+            <tr key={u.id} className="border-b border-[#f3f4f6] last:border-0 hover:bg-[#f9fafb] transition-colors">
               <td className="px-5 py-3.5">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-[#2D1B69] flex items-center justify-center text-[#A78BFA] text-xs font-bold flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-[#f5f3ff] flex items-center justify-center text-[#6d28d9] text-xs font-bold flex-shrink-0">
                     {(u.nombre?.charAt(0) ?? '?').toUpperCase()}
                   </div>
                   <div>
-                    <p className="text-[#F0F4FF] font-semibold text-sm">{u.nombre}</p>
-                    <p className="text-[#4B5563] text-[10px] font-mono">{u.email}</p>
+                    <p className="text-[#111827] font-semibold text-sm">{u.nombre}</p>
+                    <p className="text-[#9ca3af] text-[10px] font-mono">{u.email}</p>
                   </div>
                 </div>
               </td>
               <td className="px-4 py-3.5">
-                <span className="bg-[#1E2535] border border-[#2D3748] text-[#8B9CC8] text-[10px] px-2 py-0.5 rounded font-mono font-bold">
+                <span className="bg-[#f3f4f6] border border-[#e5e7eb] text-[#6b7280] text-[10px] px-2 py-0.5 rounded font-mono font-bold">
                   {u.rol}
                 </span>
               </td>
@@ -355,10 +355,10 @@ export default function GruposPage(): React.ReactElement {
   }, []);
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
+    <div className="flex-1">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-[#F0F4FF] text-2xl font-bold tracking-tight">
+        <h1 className="text-[#111827] text-2xl font-bold tracking-tight">
           👥 Grupos de Usuarios
         </h1>
         <p className="text-[#6B7280] text-sm mt-1">
@@ -411,7 +411,7 @@ export default function GruposPage(): React.ReactElement {
             className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
               activeTab === t.key
                 ? 'bg-[#2563EB] text-white shadow-lg shadow-[#2563EB]/20'
-                : 'bg-[#111827] border border-[#2D3748] text-[#6B7280] hover:text-[#F0F4FF] hover:bg-[#1E2535]'
+                : 'bg-[#ffffff] border border-[#e5e7eb] text-[#6B7280] hover:text-[#111827] hover:bg-[#f3f4f6]'
             }`}
           >
             <span>{t.icon}</span>

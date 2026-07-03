@@ -34,7 +34,7 @@ function rolColor(rol: string): string {
     POLICIA: 'bg-[#0891B2]',
     MEDICO: 'bg-[#BE185D]',
   };
-  return map[rol] ?? 'bg-[#4B5563]';
+  return map[rol] ?? 'bg-[#9ca3af]';
 }
 
 function formatTime(iso: string): string {
@@ -72,7 +72,7 @@ function MensajeItem({ msg }: { msg: ChatMensaje }) {
   if (esSistema) {
     return (
       <div className="flex justify-center my-2">
-        <span className="text-[10px] text-[#4B5563] font-mono px-3 py-1 bg-[#1E2535] rounded-full">
+        <span className="text-[10px] text-[#9ca3af] font-mono px-3 py-1 bg-[#f3f4f6] rounded-full">
           {msg.contenido}
         </span>
       </div>
@@ -80,7 +80,7 @@ function MensajeItem({ msg }: { msg: ChatMensaje }) {
   }
 
   return (
-    <div className={`flex gap-3 px-4 py-2 ${esAlerta ? 'bg-[#DC2626]/10 border-l-2 border-[#DC2626]' : 'hover:bg-[#0D1220]/50'}`}>
+    <div className={`flex gap-3 px-4 py-2 ${esAlerta ? 'bg-[#DC2626]/10 border-l-2 border-[#DC2626]' : 'hover:bg-[#f9fafb]/50'}`}>
       {/* Avatar */}
       <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold font-display ${rolColor(msg.autor_rol)}`}>
         {rolInitial(msg.autor_rol)}
@@ -88,16 +88,16 @@ function MensajeItem({ msg }: { msg: ChatMensaje }) {
 
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2 mb-0.5">
-          <span className="text-[#F0F4FF] text-sm font-semibold">{msg.autor_nombre}</span>
-          <span className="text-[#4B5563] text-[10px] font-mono">{msg.autor_rol}</span>
+          <span className="text-[#111827] text-sm font-semibold">{msg.autor_nombre}</span>
+          <span className="text-[#9ca3af] text-[10px] font-mono">{msg.autor_rol}</span>
           {esAlerta && (
             <span className="px-1.5 py-0.5 bg-[#DC2626] text-white text-[9px] font-bold font-display rounded uppercase tracking-wider">
               ALERTA OFICIAL
             </span>
           )}
-          <span className="text-[#4B5563] text-[10px] font-mono ml-auto">{formatTime(msg.created_at)}</span>
+          <span className="text-[#9ca3af] text-[10px] font-mono ml-auto">{formatTime(msg.created_at)}</span>
         </div>
-        <p className={`text-sm leading-relaxed break-words ${esAlerta ? 'text-[#FCA5A5] font-medium' : 'text-[#CBD5E1]'}`}>
+        <p className={`text-sm leading-relaxed break-words ${esAlerta ? 'text-[#b91c1c] font-medium' : 'text-[#CBD5E1]'}`}>
           {msg.contenido}
         </p>
       </div>
@@ -139,8 +139,8 @@ function ChatWindow({
   return (
     <div className="flex flex-col flex-1 h-full overflow-hidden">
       {/* Header del canal */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-[#2D3748] bg-[#111827] flex-shrink-0">
-        <span className="text-[#F0F4FF] font-semibold font-display uppercase tracking-wider text-sm">
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-[#e5e7eb] bg-[#ffffff] flex-shrink-0">
+        <span className="text-[#111827] font-semibold font-display uppercase tracking-wider text-sm">
           #{canal.nombre}
         </span>
         {canal.tipo === 'incidente' && (
@@ -156,10 +156,10 @@ function ChatWindow({
       {/* Mensajes */}
       <div className="flex-1 overflow-y-auto py-2">
         {loading && (
-          <div className="text-center py-8 text-[#4B5563] text-sm">Cargando mensajes...</div>
+          <div className="text-center py-8 text-[#9ca3af] text-sm">Cargando mensajes...</div>
         )}
         {!loading && mensajes.length === 0 && (
-          <div className="text-center py-8 text-[#4B5563] text-sm">Sin mensajes aún</div>
+          <div className="text-center py-8 text-[#9ca3af] text-sm">Sin mensajes aún</div>
         )}
         {mensajes.map((msg) => (
           <MensajeItem key={msg.id} msg={msg} />
@@ -168,32 +168,32 @@ function ChatWindow({
       </div>
 
       {/* Input */}
-      <div className="flex-shrink-0 border-t border-[#2D3748] p-3 bg-[#0A0E1A]">
+      <div className="flex-shrink-0 border-t border-[#e5e7eb] p-3 bg-[#f9fafb]">
         {puedeSendAlerta && (
           <div className="flex gap-2 mb-2">
             <button
               onClick={() => setTipo('TEXTO')}
-              className={`px-2 py-1 text-[10px] font-bold rounded uppercase tracking-wider transition-colors ${tipo === 'TEXTO' ? 'bg-[#2563EB] text-white' : 'bg-[#1E2535] text-[#8B9CC8] hover:text-[#F0F4FF]'}`}
+              className={`px-2 py-1 text-[10px] font-bold rounded uppercase tracking-wider transition-colors ${tipo === 'TEXTO' ? 'bg-[#2563EB] text-white' : 'bg-[#f3f4f6] text-[#6b7280] hover:text-[#111827]'}`}
             >
               Normal
             </button>
             <button
               onClick={() => setTipo('ALERTA_OFICIAL')}
-              className={`px-2 py-1 text-[10px] font-bold rounded uppercase tracking-wider transition-colors ${tipo === 'ALERTA_OFICIAL' ? 'bg-[#DC2626] text-white' : 'bg-[#1E2535] text-[#8B9CC8] hover:text-[#F0F4FF]'}`}
+              className={`px-2 py-1 text-[10px] font-bold rounded uppercase tracking-wider transition-colors ${tipo === 'ALERTA_OFICIAL' ? 'bg-[#DC2626] text-white' : 'bg-[#f3f4f6] text-[#6b7280] hover:text-[#111827]'}`}
             >
               Alerta Oficial
             </button>
           </div>
         )}
 
-        <div className={`flex gap-2 items-end rounded border ${tipo === 'ALERTA_OFICIAL' ? 'border-[#DC2626]/60' : 'border-[#2D3748]'} bg-[#111827] px-3 py-2`}>
+        <div className={`flex gap-2 items-end rounded border ${tipo === 'ALERTA_OFICIAL' ? 'border-[#DC2626]/60' : 'border-[#e5e7eb]'} bg-[#ffffff] px-3 py-2`}>
           <textarea
             value={texto}
             onChange={(e) => setTexto(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={tipo === 'ALERTA_OFICIAL' ? 'Redactar alerta oficial...' : 'Escribe un mensaje... (Enter para enviar)'}
             rows={1}
-            className="flex-1 bg-transparent text-[#F0F4FF] text-sm resize-none focus:outline-none placeholder-[#4B5563] max-h-32 overflow-y-auto"
+            className="flex-1 bg-transparent text-[#111827] text-sm resize-none focus:outline-none placeholder-[#9ca3af] max-h-32 overflow-y-auto"
             style={{ fieldSizing: 'content' } as React.CSSProperties}
           />
           <button
@@ -244,15 +244,15 @@ export default function ChatPage() {
   return (
     <div className="flex flex-1 h-full overflow-hidden">
       {/* Sidebar de canales */}
-      <aside className="w-56 flex-shrink-0 bg-[#0D1220] border-r border-[#2D3748] flex flex-col overflow-hidden">
+      <aside className="w-56 flex-shrink-0 bg-[#f9fafb] border-r border-[#e5e7eb] flex flex-col overflow-hidden">
         <div className="px-3 pt-4 pb-2 flex-shrink-0">
-          <p className="text-[10px] text-[#4B5563] uppercase tracking-widest font-display mb-2">
+          <p className="text-[10px] text-[#9ca3af] uppercase tracking-widest font-display mb-2">
             Comunicaciones
           </p>
         </div>
 
         <div className="flex-1 overflow-y-auto px-2 pb-4">
-          <p className="text-[9px] text-[#4B5563] uppercase tracking-widest px-2 mb-1 mt-1">
+          <p className="text-[9px] text-[#9ca3af] uppercase tracking-widest px-2 mb-1 mt-1">
             Canales
           </p>
           {canales.map((c) => (
@@ -261,11 +261,11 @@ export default function ChatPage() {
               onClick={() => setCanalActivo(c)}
               className={`w-full text-left px-2 py-1.5 rounded text-sm flex items-center gap-2 transition-colors mb-0.5 ${
                 canalActivo.id === c.id
-                  ? 'bg-[#1E2535] text-[#F0F4FF]'
-                  : 'text-[#8B9CC8] hover:bg-[#1E2535]/60 hover:text-[#F0F4FF]'
+                  ? 'bg-[#f3f4f6] text-[#111827]'
+                  : 'text-[#6b7280] hover:bg-[#f3f4f6]/60 hover:text-[#111827]'
               }`}
             >
-              <span className="text-[#4B5563]">#</span>
+              <span className="text-[#9ca3af]">#</span>
               <span className="truncate">{c.nombre.toLowerCase()}</span>
               {c.tipo === 'incidente' && (
                 <span className="ml-auto flex-shrink-0 w-1.5 h-1.5 rounded-full bg-[#EA580C]" />
@@ -276,14 +276,14 @@ export default function ChatPage() {
 
         {/* Identidad del usuario */}
         {user && (
-          <div className="border-t border-[#2D3748] px-3 py-2 flex-shrink-0">
+          <div className="border-t border-[#e5e7eb] px-3 py-2 flex-shrink-0">
             <div className="flex items-center gap-2">
               <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold ${rolColor(userRol)}`}>
                 {rolInitial(userRol)}
               </div>
               <div className="min-w-0">
-                <p className="text-[#F0F4FF] text-xs font-medium truncate">{user.nombre}</p>
-                <p className="text-[#4B5563] text-[9px] uppercase">{userRol}</p>
+                <p className="text-[#111827] text-xs font-medium truncate">{user.nombre}</p>
+                <p className="text-[#9ca3af] text-[9px] uppercase">{userRol}</p>
               </div>
             </div>
           </div>

@@ -98,7 +98,7 @@ const INFORME_BADGE: Record<string, { bg: string; text: string; label: string }>
 };
 
 function InformeBadge({ estado }: { estado: string }) {
-  const s = INFORME_BADGE[estado] ?? { bg: 'bg-[#1E2535]', text: 'text-[#8B9CC8]', label: estado };
+  const s = INFORME_BADGE[estado] ?? { bg: 'bg-[#f3f4f6]', text: 'text-[#6b7280]', label: estado };
   return (
     <span className={`inline-flex items-center rounded font-semibold font-display text-xs px-2.5 py-1 ${s.bg} ${s.text}`}>
       {s.label}
@@ -117,14 +117,14 @@ function Section({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="bg-[#111827] border border-[#2D3748] rounded-lg overflow-hidden">
+    <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-lg overflow-hidden">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-[#1E2535] transition-colors"
+        className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-[#f3f4f6] transition-colors"
       >
-        <span className="text-sm font-medium text-[#F0F4FF]">{title}</span>
-        <span className="text-[#8B9CC8] text-lg leading-none">{open ? '−' : '+'}</span>
+        <span className="text-sm font-medium text-[#111827]">{title}</span>
+        <span className="text-[#6b7280] text-lg leading-none">{open ? '−' : '+'}</span>
       </button>
       {open && <div className="px-4 pb-4">{children}</div>}
     </div>
@@ -132,13 +132,13 @@ function Section({
 }
 
 const INPUT_CLASS =
-  'bg-[#1E2535] border border-[#2D3748] rounded px-3 py-1.5 text-[#F0F4FF] text-sm placeholder-[#4B5563] focus:outline-none focus:border-[#4B6BFB]';
+  'bg-[#f3f4f6] border border-[#e5e7eb] rounded px-3 py-1.5 text-[#111827] text-sm placeholder-[#9ca3af] focus:outline-none focus:border-[#4B6BFB]';
 
 const BTN_PRIMARY =
   'px-4 py-2 rounded text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white transition-colors disabled:opacity-50';
 
 const BTN_NEUTRAL =
-  'px-4 py-2 rounded text-sm font-medium bg-[#2D3748] hover:bg-[#3D4758] text-[#F0F4FF] transition-colors disabled:opacity-50';
+  'px-4 py-2 rounded text-sm font-medium bg-[#e5e7eb] hover:bg-[#3D4758] text-[#111827] transition-colors disabled:opacity-50';
 
 const BTN_DANGER =
   'px-3 py-1 rounded text-xs text-red-400 hover:bg-red-900/30 transition-colors';
@@ -311,7 +311,7 @@ export function InformeTab({ incidenteId, estadoIncidente, rol, onEstadoCambiado
   // ────────────────────────────────────────────────────────────────────────────
 
   if (loading) {
-    return <p className="text-[#8B9CC8] text-sm py-4">Cargando informe...</p>;
+    return <p className="text-[#6b7280] text-sm py-4">Cargando informe...</p>;
   }
 
   return (
@@ -320,7 +320,7 @@ export function InformeTab({ incidenteId, estadoIncidente, rol, onEstadoCambiado
       {/* Header: estado + botones */}
       <div className="flex items-center gap-3 flex-wrap justify-between">
         <div className="flex items-center gap-3">
-          <span className="text-xs text-[#8B9CC8] uppercase tracking-wider">Informe:</span>
+          <span className="text-xs text-[#6b7280] uppercase tracking-wider">Informe:</span>
           <InformeBadge estado={informe.estado_informe} />
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -335,7 +335,7 @@ export function InformeTab({ incidenteId, estadoIncidente, rol, onEstadoCambiado
             </button>
           )}
           {canCerrar && (
-            <button onClick={() => setCerrarModal(true)} className="px-4 py-2 rounded text-sm font-medium bg-[#2D3748] hover:bg-[#3D4758] text-[#F0F4FF] transition-colors">
+            <button onClick={() => setCerrarModal(true)} className="px-4 py-2 rounded text-sm font-medium bg-[#e5e7eb] hover:bg-[#3D4758] text-[#111827] transition-colors">
               Cerrar incidente
             </button>
           )}
@@ -349,23 +349,23 @@ export function InformeTab({ incidenteId, estadoIncidente, rol, onEstadoCambiado
       {(informe.estado_informe === 'FIRMADO' || informe.estado_informe === 'PUBLICADO') && informe.hash_documento && (
         <div className="bg-green-900/20 border border-green-700/40 rounded-lg px-4 py-3 space-y-1">
           <p className="text-xs text-green-400 font-semibold uppercase tracking-wider">Documento firmado</p>
-          <p className="text-xs text-[#8B9CC8]">
-            Hash: <span className="font-mono text-[#F0F4FF]">{informe.hash_documento}</span>
+          <p className="text-xs text-[#6b7280]">
+            Hash: <span className="font-mono text-[#111827]">{informe.hash_documento}</span>
           </p>
           {informe.fecha_firma && (
-            <p className="text-xs text-[#8B9CC8]">
+            <p className="text-xs text-[#6b7280]">
               Fecha:{' '}
-              <span className="text-[#F0F4FF]">
+              <span className="text-[#111827]">
                 {new Date(informe.fecha_firma).toLocaleString('es-CO', { timeZone: 'America/Bogota' })}
               </span>
             </p>
           )}
           {informe.firmado_por && (
-            <p className="text-xs text-[#8B9CC8]">
-              Firmado por: <span className="text-[#F0F4FF]">{informe.firmado_por}</span>
+            <p className="text-xs text-[#6b7280]">
+              Firmado por: <span className="text-[#111827]">{informe.firmado_por}</span>
             </p>
           )}
-          <p className="text-xs text-[#4B5563] italic mt-1">La generación de PDF está en desarrollo.</p>
+          <p className="text-xs text-[#9ca3af] italic mt-1">La generación de PDF está en desarrollo.</p>
         </div>
       )}
 
@@ -373,7 +373,7 @@ export function InformeTab({ incidenteId, estadoIncidente, rol, onEstadoCambiado
       <Section title="Cronología de actuaciones">
         <div className="space-y-2 mt-2">
           {informe.cronologia.length === 0 && (
-            <p className="text-[#8B9CC8] text-xs py-1">Sin items. {canEdit && 'Agrega el primero.'}</p>
+            <p className="text-[#6b7280] text-xs py-1">Sin items. {canEdit && 'Agrega el primero.'}</p>
           )}
           {informe.cronologia.map((item, idx) => (
             <div key={idx} className="flex gap-2 items-start">
@@ -411,12 +411,12 @@ export function InformeTab({ incidenteId, estadoIncidente, rol, onEstadoCambiado
       <Section title="Organismos participantes">
         <div className="mt-2 overflow-x-auto">
           {informe.organismos.length === 0 && (
-            <p className="text-[#8B9CC8] text-xs py-1">Sin organismos. {canEdit && 'Agrega el primero.'}</p>
+            <p className="text-[#6b7280] text-xs py-1">Sin organismos. {canEdit && 'Agrega el primero.'}</p>
           )}
           {informe.organismos.length > 0 && (
             <table className="w-full text-xs min-w-[640px]">
               <thead>
-                <tr className="text-[#8B9CC8] text-left border-b border-[#2D3748]">
+                <tr className="text-[#6b7280] text-left border-b border-[#e5e7eb]">
                   <th className="pb-2 pr-2">Organismo</th>
                   <th className="pb-2 pr-2">Activación</th>
                   <th className="pb-2 pr-2">Arribo</th>
@@ -427,7 +427,7 @@ export function InformeTab({ incidenteId, estadoIncidente, rol, onEstadoCambiado
               </thead>
               <tbody>
                 {informe.organismos.map((org, idx) => (
-                  <tr key={idx} className="border-b border-[#2D3748]/50">
+                  <tr key={idx} className="border-b border-[#e5e7eb]/50">
                     <td className="py-1.5 pr-2">
                       <input
                         type="text"
@@ -507,7 +507,7 @@ export function InformeTab({ incidenteId, estadoIncidente, rol, onEstadoCambiado
             ] as { key: keyof Afectados; label: string }[]
           ).map(({ key, label }) => (
             <div key={key}>
-              <label className="block text-xs text-[#8B9CC8] mb-1">{label}</label>
+              <label className="block text-xs text-[#6b7280] mb-1">{label}</label>
               <input
                 type="number"
                 min={0}
@@ -530,7 +530,7 @@ export function InformeTab({ incidenteId, estadoIncidente, rol, onEstadoCambiado
       <Section title="Recursos desplegados">
         <div className="space-y-2 mt-2">
           {informe.recursos.length === 0 && (
-            <p className="text-[#8B9CC8] text-xs py-1">Sin recursos. {canEdit && 'Agrega el primero.'}</p>
+            <p className="text-[#6b7280] text-xs py-1">Sin recursos. {canEdit && 'Agrega el primero.'}</p>
           )}
           {informe.recursos.map((rec, idx) => (
             <div key={idx} className="flex gap-2 items-start">
@@ -591,10 +591,10 @@ export function InformeTab({ incidenteId, estadoIncidente, rol, onEstadoCambiado
       {firmarModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setFirmarModal(false)} />
-          <div className="relative z-10 bg-[#111827] border border-[#2D3748] rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
-            <h2 className="font-display text-lg font-bold text-[#F0F4FF] mb-2">Firmar informe</h2>
-            <p className="text-sm text-[#8B9CC8] mb-4">
-              Esta acción es <strong className="text-[#F0F4FF]">irreversible</strong>. Una vez firmado, el informe
+          <div className="relative z-10 bg-[#ffffff] border border-[#e5e7eb] rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
+            <h2 className="font-display text-lg font-bold text-[#111827] mb-2">Firmar informe</h2>
+            <p className="text-sm text-[#6b7280] mb-4">
+              Esta acción es <strong className="text-[#111827]">irreversible</strong>. Una vez firmado, el informe
               no podrá ser modificado. ¿Confirma?
             </p>
             {firmarError && <p className="text-sm text-red-400 mb-3">{firmarError}</p>}
@@ -602,7 +602,7 @@ export function InformeTab({ incidenteId, estadoIncidente, rol, onEstadoCambiado
               <button
                 onClick={() => setFirmarModal(false)}
                 disabled={firmarLoading}
-                className="px-4 py-2 rounded text-sm text-[#8B9CC8] hover:text-[#F0F4FF] hover:bg-[#1E2535] transition-colors disabled:opacity-50"
+                className="px-4 py-2 rounded text-sm text-[#6b7280] hover:text-[#111827] hover:bg-[#f3f4f6] transition-colors disabled:opacity-50"
               >
                 Cancelar
               </button>
@@ -622,16 +622,16 @@ export function InformeTab({ incidenteId, estadoIncidente, rol, onEstadoCambiado
       {cerrarModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setCerrarModal(false)} />
-          <div className="relative z-10 bg-[#111827] border border-[#2D3748] rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
-            <h2 className="font-display text-lg font-bold text-[#F0F4FF] mb-2">Cerrar incidente</h2>
+          <div className="relative z-10 bg-[#ffffff] border border-[#e5e7eb] rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
+            <h2 className="font-display text-lg font-bold text-[#111827] mb-2">Cerrar incidente</h2>
             {informe.estado_informe !== 'FIRMADO' && informe.estado_informe !== 'PUBLICADO' ? (
               <p className="text-sm text-yellow-300 mb-4">
                 El informe debe estar <strong>FIRMADO</strong> antes de cerrar el incidente.
                 Estado actual del informe: <strong>{informe.estado_informe}</strong>.
               </p>
             ) : (
-              <p className="text-sm text-[#8B9CC8] mb-4">
-                El incidente pasará a estado <strong className="text-[#F0F4FF]">CERRADO</strong>. Esta acción es irreversible
+              <p className="text-sm text-[#6b7280] mb-4">
+                El incidente pasará a estado <strong className="text-[#111827]">CERRADO</strong>. Esta acción es irreversible
                 sin reabrir. ¿Confirma?
               </p>
             )}
@@ -639,7 +639,7 @@ export function InformeTab({ incidenteId, estadoIncidente, rol, onEstadoCambiado
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => { setCerrarModal(false); setCerrarError(null); }}
-                className="px-4 py-2 rounded text-sm text-[#8B9CC8] hover:text-[#F0F4FF] hover:bg-[#1E2535] transition-colors"
+                className="px-4 py-2 rounded text-sm text-[#6b7280] hover:text-[#111827] hover:bg-[#f3f4f6] transition-colors"
               >
                 Cancelar
               </button>
@@ -647,7 +647,7 @@ export function InformeTab({ incidenteId, estadoIncidente, rol, onEstadoCambiado
                 <button
                   onClick={cerrarIncidente}
                   disabled={cerrarLoading}
-                  className="px-4 py-2 rounded text-sm font-medium bg-[#2D3748] hover:bg-[#3D4758] text-[#F0F4FF] transition-colors disabled:opacity-50"
+                  className="px-4 py-2 rounded text-sm font-medium bg-[#e5e7eb] hover:bg-[#3D4758] text-[#111827] transition-colors disabled:opacity-50"
                 >
                   {cerrarLoading ? 'Cerrando...' : 'Cerrar incidente'}
                 </button>
