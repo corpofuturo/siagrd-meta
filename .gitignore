@@ -40,4 +40,6 @@ web-build/
 siagrd-meta-*.json
 docs/google-services*.json
 
-.claude/
+.claude/worktrees/
+.claude/settings.local.json
+# .claude/agents/ y .claude/skills/ SI se versionan — son parte del proyecto

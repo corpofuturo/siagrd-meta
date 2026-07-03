@@ -40,3 +40,39 @@ Estas 4 integraciones requieren gestion externa.
   - Servicio externo (HTML→PDF API): costo operativo
 **Impacto**: El informe firmado existe en BD con hash de integridad; no hay PDF descargable
 **Activar cuando**: Se defina presupuesto o se elija libreria en sprint de cierre v2
+
+---
+
+## ⚠️ Nota sobre numeración duplicada (2026-07-03)
+
+Este repositorio tiene **tres registros de deuda técnica con numeración DT-XXX independiente**:
+1. Este archivo (`TECH_DEBT.md`, raíz) — integraciones externas, DT-001 a DT-005.
+2. `docs/DEUDA_TECNICA.md` — deuda de seguridad/infraestructura, DT-001 a DT-007 (numeración propia, sin relación con esta).
+3. `ARQUITECTURA.md` (raíz) — catálogo de planeación original, DT-001 a DT-012 y SEC-001 a SEC-004.
+
+**No se consolida aquí unilateralmente** para no perder contexto de ninguno de los tres. Recomendación: unificar en una sola numeración (sugerido: `docs/DEUDA_TECNICA.md` como fuente única, por ser el más verificado contra el código real) cuando el usuario lo apruebe.
+
+## Catálogo importado de `ARQUITECTURA.md` — estado verificado contra el código real (2026-07-03)
+
+> Numeración `ARQ-SEC-XXX` / `ARQ-DT-XXX` para no colisionar con los DT-XXX de este archivo. El documento de origen (`ARQUITECTURA.md`) marcaba varios de estos como "pendiente"; se verificó cada uno contra el código real antes de listarlo aquí — varios ya estaban resueltos.
+
+| ID | Descripción | Estado real verificado | Bloqueante prod. |
+|---|---|---|---|
+| ARQ-SEC-001 | `seedDemoUsers()` crea admin/admin al arrancar | **Resuelto** — protegido por `NODE_ENV !== 'production'` + requiere rol ADMIN, no corre al iniciar el servidor (`backend/src/routes/auth.ts`) | No |
+| ARQ-SEC-002 | JWT accesible vía `document.cookie` en Sidebar.tsx | **Resuelto** (2026-07-03) — cookie httpOnly `siagrd_token` + `useCurrentUser()` sobre `/auth/me`; ver `docs/DEUDA_TECNICA.md` DT-006. Queda `siagrd_access` (legible) como transición hasta migrar ~30 call sites menores | No (mitigado) |
+| ARQ-SEC-003 | Validación MIME de archivos incompleta | **Resuelto** — whitelist de MIME + validación de magic bytes reales (primeros bytes del buffer) en `backend/src/routes/archivos.ts`, no solo el header `Content-Type` declarado | No |
+| ARQ-SEC-004 | Rate limiting no aplicado en producción | **Resuelto** — `@fastify/rate-limit` registrado globalmente (200 req/min) en `backend/src/index.ts`, más límites específicos en `alertas.ts`/`archivos.ts`/`reportes.ts` | No |
+| ARQ-DT-001 | `seedDemoUsers()` en arranque del servidor | **Resuelto** — ver ARQ-SEC-001 | No |
+| ARQ-DT-002 | `@fastify/websocket` no funcional en chat | **Resuelto** (2026-07-03) — plugin registrado, ruta `/chats/:id/ws` activa, probada end-to-end (auth por cookie/token, broadcast real) | No |
+| ARQ-DT-003 | VPS sin HTTPS | **Resuelto** — certbot + Nginx activo en producción (`infra/nginx.conf`, `infra/setup-vps.sh`) | No |
+| ARQ-DT-004 | JWT accesible en `document.cookie` | **Resuelto** — ver ARQ-SEC-002 | No |
+| ARQ-DT-005 | POST `/alertas/:id/emitir` no verificado E2E | **Parcialmente resuelto** — existen tests unitarios (`alertas.routes.test.ts`), falta verificación E2E real | No |
+| ARQ-DT-006 | Página `/alcaldias` no implementada | **Resuelto** — 552 líneas de código real en `apps/panel-web/src/app/(dashboard)/alcaldias/page.tsx` | No |
+| ARQ-DT-007 | `GET /api/v1/geo/departamento` faltante | **Parcialmente resuelto** — existe `GET /municipios/geojson` (creado 2026-07-03) con propósito similar (polígonos + nivel de alerta), pero no es el mismo contrato exacto que describía el documento original | No |
+| ARQ-DT-008 | `GET/POST /comites/:id/usuarios` no implementados | **Abierto, verificado** — `backend/src/routes/comites.ts` solo tiene `GET/POST /comites`, `GET/DELETE /comites/:id`, sin sub-recurso de usuarios | No |
+| ARQ-DT-009 | Tap en marcador del mapa no navega a detalle | **Resuelto** — `onIncidenteClick` conectado a `router.push` en el dashboard | No |
+| ARQ-DT-010 | Deploy al VPS manual, sin CI/CD | **Resuelto** — `.github/workflows/deploy.yml` + `ci.yml` activos y verificados funcionando (2026-07-03) | No |
+| ARQ-DT-011 | Página de estadísticas sin implementar | **Resuelto** — 480 líneas de código real en `apps/panel-web/src/app/(dashboard)/estadisticas/page.tsx` | No |
+| ARQ-DT-012 | Módulo damnificados en la app sin implementar | **Resuelto** — `apps/ciudadano/src/app/damnificados.tsx` existe | No |
+
+**Único ítem genuinamente abierto de este catálogo: ARQ-DT-008 (endpoints de usuarios por comité). Todo lo demás — incluyendo los 4 SEC-XXX — ya está resuelto y verificado.**
