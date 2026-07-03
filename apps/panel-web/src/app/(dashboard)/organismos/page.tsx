@@ -422,7 +422,7 @@ export default function OrganismosPage() {
   const municipiosUnicos = [...new Map(organismos.filter(o => o.municipio_id).map(o => [o.municipio_id, { id: o.municipio_id!, nombre: o.municipio_nombre ?? o.municipio_id! }])).values()];
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
+    <div className="flex-1">
       {toast && <Toast msg={toast} onClose={() => setToast('')} />}
       {showCrear && (
         <ModalCrearOrganismo

@@ -286,7 +286,7 @@ export default function UsuariosPage() {
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
+    <div className="flex-1">
       {toast && <Toast mensaje={toast} onClose={() => setToast(null)} />}
       {modalUsuario !== null && (
         <UsuarioModal

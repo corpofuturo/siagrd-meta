@@ -322,7 +322,7 @@ export default function ComitesPage(): React.ReactElement {
   const selectCls = 'bg-[#111827] border border-[#2D3748] text-[#F0F4FF] text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-[#3B82F6] transition-colors';
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
+    <div className="flex-1">
       {toast && <Toast msg={toast} onClose={() => setToast('')} />}
       {showCrear && (
         <ModalCrearComite

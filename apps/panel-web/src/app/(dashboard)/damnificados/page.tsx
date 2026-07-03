@@ -62,7 +62,7 @@ export default function DamnificadosPage() {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
+    <div className="flex-1">
       <div className="mb-6">
         <h1 className="font-display text-2xl font-bold text-[#F0F4FF] uppercase tracking-wider">
           Registro Único de Damnificados

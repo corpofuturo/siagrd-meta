@@ -165,7 +165,7 @@ export default function EstadisticasPage() {
   const añosTendencia = [...new Set(tendencias.map((r) => r.año))].sort();
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
+    <div className="flex-1">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Encabezado y filtros */}
         <div className="flex flex-wrap items-center justify-between gap-3">

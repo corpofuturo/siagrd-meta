@@ -421,7 +421,7 @@ export default function AlcaldiasPage() {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
+    <div className="flex-1">
       {toast && <Toast msg={toast} onClose={() => setToast('')} />}
       {showCrear && (
         <ModalCrearAlcaldia

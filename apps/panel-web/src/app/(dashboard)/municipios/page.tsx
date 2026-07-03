@@ -87,7 +87,7 @@ export default async function MunicipiosPage() {
   }));
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
+    <div className="flex-1">
       <div className="max-w-6xl mx-auto">
         <h1 className="font-display text-2xl font-bold text-[#F0F4FF] uppercase tracking-wider mb-6">
           27 Municipios del Meta

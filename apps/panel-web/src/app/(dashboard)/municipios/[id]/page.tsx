@@ -120,7 +120,7 @@ export default function MunicipioDetallePage() {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
+    <div className="flex-1">
       <button onClick={() => router.back()} className="text-[#8B9CC8] hover:text-[#F0F4FF] text-sm mb-4 flex items-center gap-1 transition-colors">
         ← Volver
       </button>
