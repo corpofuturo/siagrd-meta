@@ -6,12 +6,10 @@
  *   OPERATIVO_EVENTO — solo operadores (por incidente)
  *   GENERAL          — canal general de operadores
  *
- * Dependencia WS: @fastify/websocket (añadido al package.json — ejecutar npm install)
+ * Dependencia WS: @fastify/websocket (registrado globalmente en index.ts)
  */
 
 import type { FastifyInstance } from 'fastify';
-// TODO: descomentar cuando @fastify/websocket esté instalado:
-// import websocketPlugin from '@fastify/websocket';
 import jwt from 'jsonwebtoken';
 import { db } from '../lib/db.js';
 import { authMiddleware } from '../middleware/auth.js';
@@ -62,7 +60,7 @@ function getJwtSecret(): string {
   return s;
 }
 
-async function _authenticateWsToken(token: string): Promise<AuthenticatedUser> {
+async function authenticateWsToken(token: string): Promise<AuthenticatedUser> {
   let payload: { sub: string; email: string; anonymous?: boolean };
   try {
     payload = jwt.verify(token, getJwtSecret()) as any;
@@ -122,9 +120,6 @@ export async function createChatsParaIncidente(incidenteId: string): Promise<voi
 // ─── Registro de rutas ────────────────────────────────────────────────────────
 
 export async function chatRoutes(app: FastifyInstance): Promise<void> {
-  // TODO: registrar plugin WS cuando esté instalado:
-  // await app.register(websocketPlugin);
-
   // ── GET /chats ──────────────────────────────────────────────────────────────
   app.get('/chats', { preHandler: authMiddleware }, async (request, reply) => {
     const user = request.user!;
@@ -253,48 +248,47 @@ export async function chatRoutes(app: FastifyInstance): Promise<void> {
   });
 
   // ── WS /chats/:id/ws ────────────────────────────────────────────────────────
-  // TODO: descomentar cuando @fastify/websocket esté instalado
-  // app.get('/chats/:id/ws', { websocket: true }, async (connection, request) => {
-  //   const { id } = request.params as { id: string };
-  //   const { token } = request.query as { token?: string };
-  //
-  //   if (!token) {
-  //     connection.socket.close(4001, 'Token requerido');
-  //     return;
-  //   }
-  //
-  //   let user: AuthenticatedUser;
-  //   try {
-  //     user = await authenticateWsToken(token);
-  //   } catch (err: any) {
-  //     connection.socket.close(4003, err.message ?? 'No autorizado');
-  //     return;
-  //   }
-  //
-  //   const [chat] = await db`SELECT id, tipo, municipio_id FROM chats WHERE id = ${id} AND activo = true`;
-  //   if (!chat || !puedeVerChat(chat.tipo as TipoChat, user.rol)) {
-  //     connection.socket.close(4004, 'Chat no disponible o sin acceso');
-  //     return;
-  //   }
-  //
-  //   if (user.rol === 'CIUDADANO' && chat.municipio_id !== user.municipio_id) {
-  //     connection.socket.close(4004, 'Sin acceso a este municipio');
-  //     return;
-  //   }
-  //
-  //   // Registrar conexión
-  //   if (!wsConnections.has(id)) wsConnections.set(id, new Set());
-  //   wsConnections.get(id)!.add(connection.socket);
-  //
-  //   connection.socket.send(JSON.stringify({ event: 'connected', chat_id: id }));
-  //
-  //   connection.socket.on('close', () => {
-  //     wsConnections.get(id)?.delete(connection.socket);
-  //   });
-  //
-  //   // Mensajes entrantes por WS (opcional — el envío canónico es vía POST)
-  //   connection.socket.on('message', (raw: Buffer) => {
-  //     // ignorar pings / keep-alive; el envío real usa POST /chats/:id/mensajes
-  //   });
-  // });
+  app.get('/chats/:id/ws', { websocket: true }, async (connection, request) => {
+    const { id } = request.params as { id: string };
+    const { token } = request.query as { token?: string };
+
+    if (!token) {
+      connection.socket.close(4001, 'Token requerido');
+      return;
+    }
+
+    let user: AuthenticatedUser;
+    try {
+      user = await authenticateWsToken(token);
+    } catch (err: any) {
+      connection.socket.close(4003, err.message ?? 'No autorizado');
+      return;
+    }
+
+    const [chat] = await db`SELECT id, tipo, municipio_id FROM chats WHERE id = ${id} AND activo = true`;
+    if (!chat || !puedeVerChat(chat.tipo as TipoChat, user.rol)) {
+      connection.socket.close(4004, 'Chat no disponible o sin acceso');
+      return;
+    }
+
+    if (user.rol === 'CIUDADANO' && chat.municipio_id !== user.municipio_id) {
+      connection.socket.close(4004, 'Sin acceso a este municipio');
+      return;
+    }
+
+    // Registrar conexión
+    if (!wsConnections.has(id)) wsConnections.set(id, new Set());
+    wsConnections.get(id)!.add(connection.socket);
+
+    connection.socket.send(JSON.stringify({ event: 'connected', chat_id: id }));
+
+    connection.socket.on('close', () => {
+      wsConnections.get(id)?.delete(connection.socket);
+    });
+
+    // Mensajes entrantes por WS (opcional — el envío canónico es vía POST)
+    connection.socket.on('message', (_raw: Buffer) => {
+      // ignorar pings / keep-alive; el envío real usa POST /chats/:id/mensajes
+    });
+  });
 }

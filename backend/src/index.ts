@@ -3,6 +3,7 @@ import helmet from '@fastify/helmet';
 import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
 import multipart from '@fastify/multipart';
+import websocket from '@fastify/websocket';
 
 import { logger } from './utils/logger.js';
 import { AppError } from './utils/errors.js';
@@ -95,6 +96,9 @@ async function bootstrap(): Promise<void> {
   await app.register(multipart, {
     limits: { fileSize: 10 * 1024 * 1024 },
   });
+
+  // WebSocket — chat operativo en tiempo real (DT-002)
+  await app.register(websocket);
 
   // Error handler global
   app.setErrorHandler((error, _request, reply) => {
