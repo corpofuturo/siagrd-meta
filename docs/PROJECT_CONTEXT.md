@@ -10,6 +10,7 @@ Sistema de Alertas Tempranas de Amenazas Múltiples (SATAM) para el Departamento
 
 - **Monorepo pnpm** (`node-linker=hoisted`): `backend/` (Fastify + TS + SQL puro vía `postgres.js`), `apps/panel-web` (Next.js 14), `apps/ciudadano` (RN/Expo — única app móvil activa), `apps/socorro` (deprecada, fusionada en ciudadano), `packages/ui` (design system compartido), `packages/types`, `packages/config`.
 - **Producción**: VPS Contabo (`13.140.174.122`), Docker Compose (postgres/postgis + backend + panel-web) + Nginx (TLS via certbot). Ruta real en el servidor: `/opt/siagrd` (existió una copia obsoleta en `/srv/siagrd`, eliminada 2026-07-03).
+- **URLs reales verificadas (2026-07-03)**: API en `https://api.satam.corpofuturo.org` (DNS ok). El panel-web está pensado para `https://panel.satam.corpofuturo.org` (así está en `infra/nginx.conf`) pero **ese registro DNS nunca se creó** — el panel en realidad se accede hoy en `https://satam.corpofuturo.org` (sin el prefijo `panel.`, que sí resuelve). Pendiente menor: crear el registro DNS correcto o ajustar `nginx.conf`/documentación al dominio real en uso.
 - **Despliegue**: push a `main` → GitHub Actions (`deploy.yml`) → SSH → `git pull` + `docker compose up -d --build`. Backup diario de PostgreSQL vía cron en el VPS.
 
 ## Actores/roles
