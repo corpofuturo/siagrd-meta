@@ -18,6 +18,7 @@ import {
   LogOut,
   type LucideIcon,
 } from 'lucide-react';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 interface NavItem {
   href: string;
@@ -60,21 +61,6 @@ const NAV_SECTIONS: NavSection[] = [
   },
 ];
 
-function getUserFromToken(): { nombre: string; email: string } | null {
-  if (typeof window === 'undefined') return null;
-  try {
-    const match = document.cookie.match(/siagrd_access=([^;]+)/);
-    if (!match) return null;
-    const payload = JSON.parse(atob(match[1].split('.')[1]));
-    return {
-      nombre: payload.nombre ?? payload.name ?? payload.sub ?? 'Usuario',
-      email: payload.email ?? '',
-    };
-  } catch {
-    return null;
-  }
-}
-
 interface SidebarProps {
   open?: boolean;
   onClose?: () => void;
@@ -84,7 +70,7 @@ export default function Sidebar({ open = false, onClose }: SidebarProps): React.
   const pathname = usePathname();
   const router = useRouter();
 
-  const user = getUserFromToken();
+  const { user } = useCurrentUser();
 
   function isActive(href: string): boolean {
     if (href === '/') return pathname === '/';

@@ -250,7 +250,10 @@ export async function chatRoutes(app: FastifyInstance): Promise<void> {
   // ── WS /chats/:id/ws ────────────────────────────────────────────────────────
   app.get('/chats/:id/ws', { websocket: true }, async (connection, request) => {
     const { id } = request.params as { id: string };
-    const { token } = request.query as { token?: string };
+    const { token: queryToken } = request.query as { token?: string };
+    // App movil: token en query param. Panel-web: cookie httpOnly siagrd_token
+    // (el navegador la envia sola en el handshake WS, sin necesidad de exponerla via JS — DT-006).
+    const token = queryToken ?? request.cookies?.siagrd_token;
 
     if (!token) {
       connection.socket.close(4001, 'Token requerido');

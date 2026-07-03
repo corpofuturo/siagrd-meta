@@ -2,9 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useChat, TipoMensaje, ChatMensaje, WsStatus } from '@/hooks/useChat';
-import { getToken } from '@/lib/api';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.satam.corpofuturo.org';
+import { API_URL } from '@/lib/api';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 // Roles autorizados para ALERTA_OFICIAL
 const ROLES_ALERTA = ['CMGRD', 'CDGRD', 'ADMIN'];
@@ -14,22 +13,6 @@ interface Canal {
   nombre: string;
   tipo: 'general' | 'incidente';
   incidente_id?: string;
-}
-
-
-
-function getUserFromToken(): { nombre: string; rol: string } | null {
-  const token = getToken();
-  if (!token) return null;
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
-    return {
-      nombre: payload.nombre ?? payload.sub ?? 'Usuario',
-      rol: payload.rol ?? payload.role ?? '',
-    };
-  } catch {
-    return null;
-  }
 }
 
 function rolInitial(rol: string): string {
@@ -131,7 +114,7 @@ function ChatWindow({
 }) {
   const { mensajes, loading, wsStatus, sendMessage } = useChat(canal.id);
   const [texto, setTexto] = useState('');
-  const [tipo, setTipo] = useState<TipoMensaje>('NORMAL');
+  const [tipo, setTipo] = useState<TipoMensaje>('TEXTO');
   const bottomRef = useRef<HTMLDivElement>(null);
   const puedeSendAlerta = ROLES_ALERTA.includes(userRol);
 
@@ -189,8 +172,8 @@ function ChatWindow({
         {puedeSendAlerta && (
           <div className="flex gap-2 mb-2">
             <button
-              onClick={() => setTipo('NORMAL')}
-              className={`px-2 py-1 text-[10px] font-bold rounded uppercase tracking-wider transition-colors ${tipo === 'NORMAL' ? 'bg-[#2563EB] text-white' : 'bg-[#1E2535] text-[#8B9CC8] hover:text-[#F0F4FF]'}`}
+              onClick={() => setTipo('TEXTO')}
+              className={`px-2 py-1 text-[10px] font-bold rounded uppercase tracking-wider transition-colors ${tipo === 'TEXTO' ? 'bg-[#2563EB] text-white' : 'bg-[#1E2535] text-[#8B9CC8] hover:text-[#F0F4FF]'}`}
             >
               Normal
             </button>
@@ -235,15 +218,12 @@ export default function ChatPage() {
     { id: 'general', nombre: 'General', tipo: 'general' },
   ]);
   const [canalActivo, setCanalActivo] = useState<Canal>(canales[0]);
-  const user = getUserFromToken();
+  const { user } = useCurrentUser();
   const userRol = user?.rol ?? '';
 
   // Cargar incidentes activos para crear canales
   useEffect(() => {
-    const token = getToken();
-    fetch(`${API_URL}/api/v1/incidentes?estado=ACTIVO`, {
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    })
+    fetch(`${API_URL}/api/v1/incidentes?estado=ACTIVO`)
       .then((r) => r.ok ? r.json() : null)
       .then((data) => {
         if (!data) return;

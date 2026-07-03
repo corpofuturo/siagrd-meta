@@ -1,14 +1,14 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { getToken } from '@/lib/api';
+import { API_URL } from '@/lib/api';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.satam.corpofuturo.org';
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? 'wss://api.satam.corpofuturo.org';
 
 
 
-export type TipoMensaje = 'NORMAL' | 'SISTEMA' | 'ALERTA_OFICIAL';
+// Debe coincidir exactamente con el enum tipo_mensaje del backend (chat.ts)
+export type TipoMensaje = 'TEXTO' | 'IMAGEN' | 'SISTEMA' | 'ALERTA_OFICIAL';
 
 export interface ChatMensaje {
   id: string;
@@ -35,10 +35,7 @@ export function useChat(chatId: string | null) {
   const fetchHistorial = useCallback(async (id: string) => {
     setLoading(true);
     try {
-      const token = getToken();
-      const res = await fetch(`${API_URL}/api/v1/chats/${id}/mensajes`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+      const res = await fetch(`${API_URL}/api/v1/chats/${id}/mensajes`);
       if (res.ok) {
         const data = await res.json();
         const lista = Array.isArray(data) ? data : (data.data ?? data.results ?? []);
@@ -54,8 +51,9 @@ export function useChat(chatId: string | null) {
   // Conectar WebSocket
   const connectWs = useCallback((id: string) => {
     if (!mountedRef.current) return;
-    const token = getToken();
-    const url = `${WS_URL}/ws/chats/${id}/${token ? `?token=${token}` : ''}`;
+    // La cookie httpOnly siagrd_token viaja sola en el handshake WS — no hace
+    // falta exponer el token via JS (DT-006). El backend la lee como fallback.
+    const url = `${WS_URL}/api/v1/chats/${id}/ws`;
 
     setWsStatus('conectando');
     const ws = new WebSocket(url);
@@ -113,31 +111,23 @@ export function useChat(chatId: string | null) {
   }, [chatId, fetchHistorial, connectWs]);
 
   const sendMessage = useCallback(
-    async (contenido: string, tipo: TipoMensaje = 'NORMAL') => {
+    async (contenido: string, tipo: TipoMensaje = 'TEXTO') => {
       if (!chatId || !contenido.trim()) return;
-      const token = getToken();
 
-      // Enviar via WS si está conectado, si no via HTTP
-      if (wsRef.current?.readyState === WebSocket.OPEN) {
-        wsRef.current.send(JSON.stringify({ contenido, tipo }));
-      } else {
-        try {
-          await fetch(`${API_URL}/api/v1/chats/${chatId}/mensajes`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            },
-            body: JSON.stringify({ contenido, tipo }),
-          });
-          // refrescar historial para ver el mensaje enviado
-          fetchHistorial(chatId);
-        } catch {
-          // ignorar
-        }
+      // El envio canonico es siempre via POST — el backend hace broadcast por
+      // WS a todos los conectados (incluido este cliente). El WS es solo de
+      // recepcion, el servidor ignora mensajes entrantes por ese canal.
+      try {
+        await fetch(`${API_URL}/api/v1/chats/${chatId}/mensajes`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contenido, tipo }),
+        });
+      } catch {
+        // ignorar — el usuario puede reintentar
       }
     },
-    [chatId, fetchHistorial]
+    [chatId]
   );
 
   return { mensajes, loading, wsStatus, sendMessage };

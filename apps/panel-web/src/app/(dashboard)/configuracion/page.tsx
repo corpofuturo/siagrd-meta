@@ -1,9 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { getToken } from '@/lib/api';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.satam.corpofuturo.org';
+import { API_URL } from '@/lib/api';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 interface Configuracion {
   nombre_sistema: string;
@@ -16,20 +15,7 @@ interface Configuracion {
 
 
 function authHeaders(): Record<string, string> {
-  const t = getToken();
-  const h: Record<string, string> = { 'Content-Type': 'application/json' };
-  if (t) h['Authorization'] = `Bearer ${t}`;
-  return h;
-}
-
-function getRole(): string | null {
-  if (typeof window === 'undefined') return null;
-  try {
-    const t = getToken();
-    if (!t) return null;
-    const payload = JSON.parse(atob(t.split('.')[1]));
-    return payload.rol ?? payload.role ?? null;
-  } catch { return null; }
+  return { 'Content-Type': 'application/json' };
 }
 
 function Toast({ msg, onClose }: { msg: string; onClose: () => void }): React.ReactElement {
@@ -110,14 +96,11 @@ export default function ConfiguracionPage(): React.ReactElement {
   const [showInforme, setShowInforme] = useState(false);
   const [informeData, setInformeData] = useState<unknown>(null);
   const [sendingInforme, setSendingInforme] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [copied, setCopied] = useState(false);
+  const { user } = useCurrentUser();
+  const isAdmin = user?.rol === 'ADMIN';
 
   const set = (k: keyof Configuracion, v: string): void => setForm(f => ({ ...f, [k]: v }));
-
-  useEffect(() => {
-    setIsAdmin(getRole() === 'ADMIN');
-  }, []);
 
   const fetchConfig = useCallback(async (): Promise<void> => {
     setLoading(true); setError(null);

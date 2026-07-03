@@ -46,12 +46,15 @@
 - **Bloqueante para desarrollo/pruebas**: No
 - **Resuelto**: 2026-07-03 — plugin registrado globalmente, ruta `/api/v1/chats/:id/ws` activa y probada (auth por token, rechazo de chat inexistente con código 4004)
 
-## DT-006 (parcialmente resuelto — backend listo, frontend pendiente)
-- **Componente**: backend/src/middleware/auth.ts, backend/src/index.ts, apps/panel-web/src/app/api/auth/{login,refresh,logout}/route.ts, apps/panel-web/src/lib/api.ts + 30 archivos que usan `getToken()`
-- **Descripción**: El JWT viajaba solo en una cookie `siagrd_access` con `httpOnly: false`, leída por JS (`getToken()`) para adjuntar `Authorization: Bearer` manualmente en cada fetch — usado en más de 30 archivos del panel-web (todas las páginas del dashboard, hooks de tiempo real, y la URL del WebSocket de chat vía `?token=`).
-- **Resuelto en el backend (2026-07-03)**: `@fastify/cookie` instalado y registrado; `authMiddleware` ahora acepta `Authorization: Bearer` (app móvil, sin cambios) **o** la cookie httpOnly `siagrd_token` (nuevo). Probado: Bearer, cookie, y sin-token responden como se espera (200/200/401). El panel-web ya emite `siagrd_token` con `Domain=.corpofuturo.org` en prod, por lo que viaja automáticamente al backend en fetch directo desde el navegador — sin necesidad de proxyar por rutas de Next.js.
-- **Pendiente**: migrar los 30+ call sites que usan `getToken()` + `Authorization` manual a `credentials: 'include'` (dejando que la cookie httpOnly viaje sola), y el WS de chat (`useChat.ts`) a autenticar por cookie en el handshake en vez de `?token=` en la URL — el backend tendría que leer `request.cookies.siagrd_token` también en la ruta WS de `chat.ts`. Se restauró temporalmente la cookie `siagrd_access` (JS-readable) en login/refresh para no romper esos 30+ archivos mientras se decide cuándo abordar la migración completa.
-- **Impacto actual**: sin cambio de riesgo real todavía — `siagrd_access` sigue expuesta a XSS hasta completar la migración del frontend.
-- **Bloqueante para producción**: No
+## DT-006 (resuelto)
+- **Componente**: backend/src/middleware/auth.ts, backend/src/index.ts, backend/src/routes/chat.ts, apps/panel-web/src/lib/api.ts, apps/panel-web/src/hooks/{useChat,useCurrentUser}.ts, Sidebar.tsx, chat/page.tsx, configuracion/page.tsx
+- **Descripción**: El JWT viajaba en una cookie `siagrd_access` con `httpOnly: false`, leída por JS en 30+ archivos del panel-web (Authorization manual en cada fetch, y la URL del WebSocket de chat vía `?token=`).
+- **Resuelto (2026-07-03)**:
+  - Backend: `@fastify/cookie` registrado; `authMiddleware` acepta `Authorization: Bearer` (app móvil, sin cambios) **o** cookie httpOnly `siagrd_token`. La ruta WS `/chats/:id/ws` también acepta la cookie como fallback del `?token=` de query (la app móvil sigue usando query param).
+  - Frontend: en vez de tocar cada uno de los 60+ `fetch()` directos, se centralizó en `lib/api.ts` un parche de `window.fetch` que agrega `credentials: 'include'` en toda request a `API_URL` — la cookie httpOnly viaja sola. `getToken()` quedó como no-op (`@deprecated`, retorna `null`) para no romper los `if (getToken()) headers.Authorization = ...` existentes (simplemente dejan de enviar el header, ya no hace falta).
+  - Los 3 lugares que decodificaban el JWT en el cliente para leer usuario/rol (`Sidebar.tsx`, `chat/page.tsx`, `configuracion/page.tsx`) se migraron a un hook nuevo `useCurrentUser()` que llama `GET /api/v1/auth/me` (ya existía en el backend).
+  - Se eliminó por completo la cookie `siagrd_access` (JS-readable) de login/refresh/logout.
+  - **Bug adicional encontrado y corregido de paso**: la URL del WS de chat en `useChat.ts` apuntaba a `/ws/chats/:id/` (ruta inexistente) en vez de `/api/v1/chats/:id/ws` (la real) — el chat en tiempo real del panel nunca había conectado. También `tipo: 'NORMAL'` no coincidía con el enum del backend (`TEXTO|IMAGEN|ALERTA_OFICIAL|SISTEMA`) — corregido a `TEXTO`. Y `sendMessage` mandaba el mensaje por WS cuando estaba conectado, pero el backend ignora mensajes entrantes por WS (solo hace broadcast) — se corrigió para enviar siempre por POST, que es el canal canónico documentado en el propio `chat.ts`.
+- **Probado end-to-end**: login real (`admin`/`admin`) → cookie → `GET /auth/me` → `GET /chats` → conexión WS solo con cookie (sin `?token=`) → `POST /mensajes` → broadcast recibido por WS. Build y typecheck limpios en backend y panel-web.
+- **Bloqueante para producción**: No — ya resuelto
 - **Bloqueante para desarrollo/pruebas**: No
-- **Siguiente paso**: sesión dedicada para migrar los 30+ archivos (cambio mecánico pero de alto volumen — no apto para hacerlo a mitad de otra tarea)
