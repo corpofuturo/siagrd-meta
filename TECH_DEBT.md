@@ -69,10 +69,10 @@ Este repositorio tiene **tres registros de deuda técnica con numeración DT-XXX
 | ARQ-DT-005 | POST `/alertas/:id/emitir` no verificado E2E | **Parcialmente resuelto** — existen tests unitarios (`alertas.routes.test.ts`), falta verificación E2E real | No |
 | ARQ-DT-006 | Página `/alcaldias` no implementada | **Resuelto** — 552 líneas de código real en `apps/panel-web/src/app/(dashboard)/alcaldias/page.tsx` | No |
 | ARQ-DT-007 | `GET /api/v1/geo/departamento` faltante | **Parcialmente resuelto** — existe `GET /municipios/geojson` (creado 2026-07-03) con propósito similar (polígonos + nivel de alerta), pero no es el mismo contrato exacto que describía el documento original | No |
-| ARQ-DT-008 | `GET/POST /comites/:id/usuarios` no implementados | **Abierto, verificado** — `backend/src/routes/comites.ts` solo tiene `GET/POST /comites`, `GET/DELETE /comites/:id`, sin sub-recurso de usuarios | No |
+| ARQ-DT-008 | `GET/POST /comites/:id/usuarios` no implementados | **Resuelto** (2026-07-03) — `GET/POST/DELETE /comites/:id/usuarios` agregados en `backend/src/routes/comites.ts`, siguiendo el mismo patrón ya usado en `organismos.ts` (membresía vía columna `comite_id` en `profiles`, no tabla puente). 8 tests nuevos en `comites.routes.test.ts` | No |
 | ARQ-DT-009 | Tap en marcador del mapa no navega a detalle | **Resuelto** — `onIncidenteClick` conectado a `router.push` en el dashboard | No |
 | ARQ-DT-010 | Deploy al VPS manual, sin CI/CD | **Resuelto** — `.github/workflows/deploy.yml` + `ci.yml` activos y verificados funcionando (2026-07-03) | No |
 | ARQ-DT-011 | Página de estadísticas sin implementar | **Resuelto** — 480 líneas de código real en `apps/panel-web/src/app/(dashboard)/estadisticas/page.tsx` | No |
 | ARQ-DT-012 | Módulo damnificados en la app sin implementar | **Resuelto** — `apps/ciudadano/src/app/damnificados.tsx` existe | No |
 
-**Único ítem genuinamente abierto de este catálogo: ARQ-DT-008 (endpoints de usuarios por comité). Todo lo demás — incluyendo los 4 SEC-XXX — ya está resuelto y verificado.**
+**Todos los ítems de este catálogo (16/16) están resueltos y verificados** — el último, ARQ-DT-008, se cerró el 2026-07-03. Queda `ARQ-DT-007` como "parcial" (ver tabla arriba: existe `/municipios/geojson` pero no el contrato exacto `/geo/departamento` del documento original) si se quiere el contrato idéntico.

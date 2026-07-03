@@ -20,12 +20,11 @@ Sistema de Alertas Tempranas de Amenazas Múltiples para el Departamento del Met
 
 ## Hito 2 — Deuda funcional no bloqueante
 
-DT-002, DT-005 a DT-012 (numeración de `ARQUITECTURA.md`, ver tabla completa en `TECH_DEBT.md`). Estado real verificado 2026-07-03: **9 de 11 ya resueltos**. Quedan abiertos:
+DT-002, DT-005 a DT-012 (numeración de `ARQUITECTURA.md`, ver tabla completa en `TECH_DEBT.md`). Estado real verificado 2026-07-03: **10 de 11 resueltos**, incluido ARQ-DT-008 (endpoints de usuarios por comité, cerrado hoy). Queda solo:
 
 | ID | Descripción | Estado |
 |---|---|---|
-| ARQ-DT-007 | `GET /api/v1/geo/departamento` — existe un endpoint similar (`/municipios/geojson`) pero no el contrato exacto | Parcial |
-| ARQ-DT-008 | `GET/POST /comites/:id/usuarios` — sub-recurso de miembros de comité no implementado | Abierto |
+| ARQ-DT-007 | `GET /api/v1/geo/departamento` — existe un endpoint similar (`/municipios/geojson`) pero no el contrato exacto | Parcial (menor) |
 
 ## Deuda de integración externa (bloqueada por decisión humana)
 
