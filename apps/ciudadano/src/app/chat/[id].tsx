@@ -81,7 +81,9 @@ export default function ChatScreen() {
             const payload = JSON.parse(atob(parts[1]));
             setMyId(payload.sub ?? null);
           }
-        } catch {}
+        } catch {
+          // token invalido o malformado — se ignora, myId queda null
+        }
       }
     })();
   }, []);

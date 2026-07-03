@@ -10,7 +10,6 @@ import { logger } from './utils/logger.js';
 import { AppError } from './utils/errors.js';
 import { processNotificationQueue } from './services/notifications.service.js';
 
-import { db } from './lib/db.js';
 import { healthRoutes } from './routes/health.js';
 import { syncRoutes } from './routes/sync.js';
 import { incidentesRoutes } from './routes/incidentes.js';

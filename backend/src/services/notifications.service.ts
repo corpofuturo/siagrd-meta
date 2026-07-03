@@ -148,7 +148,7 @@ export async function processNotificationQueue(): Promise<void> {
     logger.info({ count: pendientes.length }, 'Procesando cola de notificaciones');
 
     for (const row of pendientes) {
-      const { id, canal, alerta_id, nivel, titulo, municipios_ids, reintentos } = row as {
+      const { id, canal, nivel, titulo, reintentos } = row as {
         id: string; canal: CanalNotificacion; alerta_id: string;
         nivel: NivelAlerta; titulo: string; municipios_ids: string[]; reintentos: number;
       };

@@ -38,7 +38,9 @@ async function buildApp() {
 }
 
 describe('GET /alertas', () => {
+  // La ruta hace 2 queries en orden: COUNT(*) y luego SELECT — hay que mockear ambas.
   it('retorna 200 con lista de alertas activas (público)', async () => {
+    (mockDb as any).mockResolvedValueOnce([{ count: 2 }]);
     (mockDb as any).mockResolvedValueOnce([
       { id: 'alerta-1', titulo: 'Alerta Inundación', nivel: 'ROJO', activa: true },
       { id: 'alerta-2', titulo: 'Alerta Sismo', nivel: 'NARANJA', activa: true },
@@ -57,6 +59,7 @@ describe('GET /alertas', () => {
   });
 
   it('retorna 200 con lista vacía cuando no hay alertas', async () => {
+    (mockDb as any).mockResolvedValueOnce([{ count: 0 }]);
     (mockDb as any).mockResolvedValueOnce([]);
 
     const app = await buildApp();
@@ -72,6 +75,7 @@ describe('GET /alertas', () => {
   });
 
   it('retorna 200 filtrado (parámetro activa=true)', async () => {
+    (mockDb as any).mockResolvedValueOnce([{ count: 0 }]);
     (mockDb as any).mockResolvedValueOnce([]);
 
     const app = await buildApp();
@@ -119,7 +123,7 @@ describe('POST /alertas', () => {
       method: 'POST',
       url: '/api/v1/alertas',
       headers: { authorization: 'Bearer mock-token' },
-      payload: { titulo: 'Alerta Inundación', nivel: 'ROJO', municipios_afectados: ['50001'] },
+      payload: { tipo: 'INUNDACION', titulo: 'Alerta Inundación', nivel: 'ROJO', municipios_afectados: ['50001'] },
     });
 
     expect(response.statusCode).toBe(201);

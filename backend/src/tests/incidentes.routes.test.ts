@@ -239,14 +239,14 @@ describe('PATCH /incidentes/:id', () => {
     // Primera query: obtener incidente
     (mockDb as any).mockResolvedValueOnce([{ municipio_id: 'muni-50001', reportado_por: 'other-user' }]);
     // Segunda query: actualizar
-    (mockDb as any).mockResolvedValueOnce([{ id: 'inc-1', estado: 'ATENDIDO' }]);
+    (mockDb as any).mockResolvedValueOnce([{ id: 'inc-1', estado: 'EN_CURSO' }]);
 
     const app = await buildApp();
     const response = await app.inject({
       method: 'PATCH',
       url: '/api/v1/incidentes/inc-1',
       headers: { authorization: 'Bearer mock-token' },
-      payload: { estado: 'ATENDIDO' },
+      payload: { estado: 'EN_CURSO' },
     });
 
     expect(response.statusCode).toBe(200);
