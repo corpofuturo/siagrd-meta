@@ -81,7 +81,7 @@ export default function IncidentesPage() {
   return (
     <div className="flex-1">
       <div className="max-w-6xl mx-auto">
-        <h1 className="font-display text-2xl font-bold text-[#F0F4FF] uppercase tracking-wider mb-6">
+        <h1 className="font-display text-2xl font-bold text-[#111827] uppercase tracking-wider mb-6">
           Incidentes ({total})
         </h1>
 
@@ -90,7 +90,7 @@ export default function IncidentesPage() {
           <select
             value={filtroEstado}
             onChange={(e) => { setFiltroEstado(e.target.value); setPage(0); }}
-            className="bg-[#1E2535] border border-[#2D3748] rounded px-3 py-1.5 text-[#F0F4FF] text-sm focus:outline-none"
+            className="bg-[#f3f4f6] border border-[#e5e7eb] rounded px-3 py-1.5 text-[#111827] text-sm focus:outline-none"
           >
             <option value="">Todos los estados</option>
             <option value="ABIERTO">Abierto</option>
@@ -101,7 +101,7 @@ export default function IncidentesPage() {
           <select
             value={filtroTipo}
             onChange={(e) => { setFiltroTipo(e.target.value); setPage(0); }}
-            className="bg-[#1E2535] border border-[#2D3748] rounded px-3 py-1.5 text-[#F0F4FF] text-sm focus:outline-none"
+            className="bg-[#f3f4f6] border border-[#e5e7eb] rounded px-3 py-1.5 text-[#111827] text-sm focus:outline-none"
           >
             <option value="">Todos los tipos</option>
             {TIPOS_AMENAZA.map((t) => (
@@ -112,7 +112,7 @@ export default function IncidentesPage() {
           <select
             value={filtroMunicipio}
             onChange={(e) => { setFiltroMunicipio(e.target.value); setPage(0); }}
-            className="bg-[#1E2535] border border-[#2D3748] rounded px-3 py-1.5 text-[#F0F4FF] text-sm focus:outline-none"
+            className="bg-[#f3f4f6] border border-[#e5e7eb] rounded px-3 py-1.5 text-[#111827] text-sm focus:outline-none"
           >
             <option value="">Todos los municipios</option>
             {MUNICIPIOS_META.map((m) => (
@@ -123,7 +123,7 @@ export default function IncidentesPage() {
           {(filtroEstado || filtroTipo || filtroMunicipio) && (
             <button
               onClick={() => { setFiltroEstado(''); setFiltroTipo(''); setFiltroMunicipio(''); setPage(0); }}
-              className="text-xs text-[#8B9CC8] hover:text-[#F0F4FF] px-2"
+              className="text-xs text-[#6b7280] hover:text-[#111827] px-2"
             >
               ✕ Limpiar filtros
             </button>
@@ -131,30 +131,30 @@ export default function IncidentesPage() {
         </div>
 
         {/* Tabla */}
-        <div className="bg-[#111827] border border-[#2D3748] rounded-lg overflow-hidden">
+        <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-lg overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-[#2D3748] bg-[#1E2535]">
-                <th className="text-left px-4 py-3 text-xs text-[#8B9CC8] uppercase tracking-wider">Código</th>
-                <th className="text-left px-4 py-3 text-xs text-[#8B9CC8] uppercase tracking-wider">Título</th>
-                <th className="text-left px-4 py-3 text-xs text-[#8B9CC8] uppercase tracking-wider">Tipo</th>
-                <th className="text-left px-4 py-3 text-xs text-[#8B9CC8] uppercase tracking-wider">Nivel</th>
-                <th className="text-left px-4 py-3 text-xs text-[#8B9CC8] uppercase tracking-wider">Estado</th>
-                <th className="text-left px-4 py-3 text-xs text-[#8B9CC8] uppercase tracking-wider">Municipio</th>
-                <th className="text-left px-4 py-3 text-xs text-[#8B9CC8] uppercase tracking-wider">Fecha</th>
+              <tr className="border-b border-[#e5e7eb] bg-[#f3f4f6]">
+                <th className="text-left px-4 py-3 text-xs text-[#6b7280] uppercase tracking-wider">Código</th>
+                <th className="text-left px-4 py-3 text-xs text-[#6b7280] uppercase tracking-wider">Título</th>
+                <th className="text-left px-4 py-3 text-xs text-[#6b7280] uppercase tracking-wider">Tipo</th>
+                <th className="text-left px-4 py-3 text-xs text-[#6b7280] uppercase tracking-wider">Nivel</th>
+                <th className="text-left px-4 py-3 text-xs text-[#6b7280] uppercase tracking-wider">Estado</th>
+                <th className="text-left px-4 py-3 text-xs text-[#6b7280] uppercase tracking-wider">Municipio</th>
+                <th className="text-left px-4 py-3 text-xs text-[#6b7280] uppercase tracking-wider">Fecha</th>
               </tr>
             </thead>
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={7} className="text-center py-8 text-[#8B9CC8] text-sm">
+                  <td colSpan={7} className="text-center py-8 text-[#6b7280] text-sm">
                     Cargando...
                   </td>
                 </tr>
               )}
               {!loading && incidentes.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="text-center py-8 text-[#8B9CC8] text-sm">
+                  <td colSpan={7} className="text-center py-8 text-[#6b7280] text-sm">
                     Sin incidentes con los filtros seleccionados
                   </td>
                 </tr>
@@ -163,21 +163,21 @@ export default function IncidentesPage() {
                 <tr
                   key={inc.id}
                   onClick={() => router.push(`/incidentes/${inc.id}`)}
-                  className={`border-b border-[#2D3748] cursor-pointer transition-colors hover:bg-[#1E2535] ${
-                    idx % 2 === 0 ? '' : 'bg-[#0D1220]'
+                  className={`border-b border-[#e5e7eb] cursor-pointer transition-colors hover:bg-[#f3f4f6] ${
+                    idx % 2 === 0 ? '' : 'bg-[#f9fafb]'
                   }`}
                 >
-                  <td className="px-4 py-3 font-mono text-xs text-[#8B9CC8]">{inc.codigo}</td>
-                  <td className="px-4 py-3 text-[#F0F4FF] max-w-[200px] truncate">{inc.titulo}</td>
-                  <td className="px-4 py-3 text-[#8B9CC8]">{inc.tipo_amenaza}</td>
+                  <td className="px-4 py-3 font-mono text-xs text-[#6b7280]">{inc.codigo}</td>
+                  <td className="px-4 py-3 text-[#111827] max-w-[200px] truncate">{inc.titulo}</td>
+                  <td className="px-4 py-3 text-[#6b7280]">{inc.tipo_amenaza}</td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold font-display ${NIVEL_BADGE[inc.nivel_alerta] ?? 'bg-[#1E2535] text-[#8B9CC8]'}`}>
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold font-display ${NIVEL_BADGE[inc.nivel_alerta] ?? 'bg-[#f3f4f6] text-[#6b7280]'}`}>
                       {inc.nivel_alerta}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-[#8B9CC8] text-xs">{inc.estado}</td>
-                  <td className="px-4 py-3 text-[#8B9CC8] text-xs">{inc.municipio_id}</td>
-                  <td className="px-4 py-3 font-mono text-[10px] text-[#8B9CC8]">
+                  <td className="px-4 py-3 text-[#6b7280] text-xs">{inc.estado}</td>
+                  <td className="px-4 py-3 text-[#6b7280] text-xs">{inc.municipio_id}</td>
+                  <td className="px-4 py-3 font-mono text-[10px] text-[#6b7280]">
                     {new Date(inc.fecha_inicio).toLocaleDateString('es-CO')}
                   </td>
                 </tr>
@@ -189,21 +189,21 @@ export default function IncidentesPage() {
         {/* Paginación */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between mt-4">
-            <p className="text-xs text-[#8B9CC8]">
+            <p className="text-xs text-[#6b7280]">
               Página {page + 1} de {totalPages} · {total} incidentes
             </p>
             <div className="flex gap-2">
               <button
                 disabled={page === 0}
                 onClick={() => setPage((p) => p - 1)}
-                className="px-3 py-1.5 bg-[#1E2535] border border-[#2D3748] rounded text-sm text-[#F0F4FF] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#2D3748] transition-colors"
+                className="px-3 py-1.5 bg-[#f3f4f6] border border-[#e5e7eb] rounded text-sm text-[#111827] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#e5e7eb] transition-colors"
               >
                 ← Anterior
               </button>
               <button
                 disabled={page >= totalPages - 1}
                 onClick={() => setPage((p) => p + 1)}
-                className="px-3 py-1.5 bg-[#1E2535] border border-[#2D3748] rounded text-sm text-[#F0F4FF] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#2D3748] transition-colors"
+                className="px-3 py-1.5 bg-[#f3f4f6] border border-[#e5e7eb] rounded text-sm text-[#111827] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#e5e7eb] transition-colors"
               >
                 Siguiente →
               </button>

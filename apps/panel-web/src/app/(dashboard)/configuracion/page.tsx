@@ -22,7 +22,7 @@ function Toast({ msg, onClose }: { msg: string; onClose: () => void }): React.Re
   useEffect(() => { const t = setTimeout(onClose, 3500); return () => clearTimeout(t); }, [onClose]);
   const isErr = msg.startsWith('Error');
   return (
-    <div className={`fixed bottom-6 right-6 z-50 rounded-lg px-4 py-3 text-sm shadow-xl border backdrop-blur-sm ${isErr ? 'bg-[#1A0A0A] border-[#DC2626]/40 text-[#FCA5A5]' : 'bg-[#0D1A10] border-[#16A34A]/40 text-[#86EFAC]'}`}>
+    <div className={`fixed bottom-6 right-6 z-50 rounded-lg px-4 py-3 text-sm shadow-xl border backdrop-blur-sm ${isErr ? 'bg-[#fef2f2] border-[#DC2626]/40 text-[#b91c1c]' : 'bg-[#f0fdf4] border-[#16A34A]/40 text-[#166534]'}`}>
       {isErr ? '✕ ' : '✓ '}{msg}
     </div>
   );
@@ -31,10 +31,10 @@ function Toast({ msg, onClose }: { msg: string; onClose: () => void }): React.Re
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }): React.ReactElement {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="bg-[#111827] border border-[#2D3748] rounded-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto shadow-2xl">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#2D3748]">
-          <h3 className="text-[#F0F4FF] font-bold text-sm uppercase tracking-wider">{title}</h3>
-          <button onClick={onClose} className="text-[#6B7280] hover:text-[#F0F4FF] text-2xl leading-none w-8 h-8 flex items-center justify-center rounded hover:bg-[#1E2535] transition-colors">×</button>
+      <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#e5e7eb]">
+          <h3 className="text-[#111827] font-bold text-sm uppercase tracking-wider">{title}</h3>
+          <button onClick={onClose} className="text-[#6B7280] hover:text-[#111827] text-2xl leading-none w-8 h-8 flex items-center justify-center rounded hover:bg-[#f3f4f6] transition-colors">×</button>
         </div>
         <div className="px-6 py-5">{children}</div>
       </div>
@@ -45,20 +45,20 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
 function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }): React.ReactElement {
   return (
     <div className="flex flex-col gap-1.5">
-      <label className="text-[#8B9CC8] text-xs font-semibold uppercase tracking-wider">{label}</label>
+      <label className="text-[#6b7280] text-xs font-semibold uppercase tracking-wider">{label}</label>
       {children}
-      {hint && <p className="text-[#4B5563] text-xs">{hint}</p>}
+      {hint && <p className="text-[#9ca3af] text-xs">{hint}</p>}
     </div>
   );
 }
 
-const inputCls = 'bg-[#0A0E1A] border border-[#2D3748] text-[#F0F4FF] text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/20 w-full disabled:opacity-50 disabled:cursor-not-allowed transition-colors placeholder:text-[#374151]';
+const inputCls = 'bg-[#f9fafb] border border-[#e5e7eb] text-[#111827] text-sm rounded-lg px-3 py-2.5 focus:outline-none focus:border-[#3B82F6] focus:ring-1 focus:ring-[#3B82F6]/20 w-full disabled:opacity-50 disabled:cursor-not-allowed transition-colors placeholder:text-[#9ca3af]';
 
 // ─── Card wrapper ─────────────────────────────────────────────────────────────
 
 function Card({ children, className = '' }: { children: ReactNode; className?: string }): React.ReactElement {
   return (
-    <div className={`bg-[#111827] border border-[#2D3748] rounded-xl p-6 ${className}`}>
+    <div className={`bg-[#ffffff] border border-[#e5e7eb] rounded-xl p-6 ${className}`}>
       {children}
     </div>
   );
@@ -67,11 +67,11 @@ function Card({ children, className = '' }: { children: ReactNode; className?: s
 function CardHeader({ icon, title, description }: { icon: string; title: string; description?: string }): React.ReactElement {
   return (
     <div className="flex items-start gap-3 mb-5">
-      <div className="w-9 h-9 rounded-lg bg-[#1E2535] flex items-center justify-center text-lg flex-shrink-0">
+      <div className="w-9 h-9 rounded-lg bg-[#f3f4f6] flex items-center justify-center text-lg flex-shrink-0">
         {icon}
       </div>
       <div>
-        <h2 className="text-[#F0F4FF] font-bold text-sm uppercase tracking-wider">{title}</h2>
+        <h2 className="text-[#111827] font-bold text-sm uppercase tracking-wider">{title}</h2>
         {description && <p className="text-[#6B7280] text-xs mt-0.5">{description}</p>}
       </div>
     </div>
@@ -189,16 +189,16 @@ export default function ConfiguracionPage(): React.ReactElement {
       {/* Modal informe */}
       {showInforme && informeData !== null && (
         <Modal title="📤 Informe UNGRD generado" onClose={() => setShowInforme(false)}>
-          <p className="text-[#8B9CC8] text-xs mb-3">
+          <p className="text-[#6b7280] text-xs mb-3">
             El informe fue generado exitosamente. Revisa el contenido antes de enviarlo.
           </p>
-          <pre className="bg-[#0A0E1A] border border-[#2D3748] rounded-lg p-4 text-[#8B9CC8] text-xs overflow-x-auto whitespace-pre-wrap font-mono max-h-80">
+          <pre className="bg-[#f9fafb] border border-[#e5e7eb] rounded-lg p-4 text-[#6b7280] text-xs overflow-x-auto whitespace-pre-wrap font-mono max-h-80">
             {JSON.stringify(informeData, null, 2)}
           </pre>
           <div className="flex gap-3 justify-end pt-4">
             <button
               onClick={copyInforme}
-              className="bg-[#1E2535] hover:bg-[#2D3748] text-[#F0F4FF] text-sm font-semibold rounded-lg px-4 py-2 transition-colors border border-[#2D3748]"
+              className="bg-[#f3f4f6] hover:bg-[#e5e7eb] text-[#111827] text-sm font-semibold rounded-lg px-4 py-2 transition-colors border border-[#e5e7eb]"
             >
               {copied ? '✓ Copiado' : '📋 Copiar JSON'}
             </button>
@@ -214,7 +214,7 @@ export default function ConfiguracionPage(): React.ReactElement {
 
       {/* Header */}
       <div className="mb-7">
-        <h1 className="text-[#F0F4FF] text-2xl font-bold tracking-tight">
+        <h1 className="text-[#111827] text-2xl font-bold tracking-tight">
           ⚙️ Configuración del Sistema
         </h1>
         <p className="text-[#6B7280] text-sm mt-1">
@@ -223,13 +223,13 @@ export default function ConfiguracionPage(): React.ReactElement {
       </div>
 
       {loading && (
-        <div className="flex items-center gap-3 text-[#8B9CC8] text-sm">
+        <div className="flex items-center gap-3 text-[#6b7280] text-sm">
           <span className="animate-spin">⟳</span>
           Cargando configuración...
         </div>
       )}
       {error && (
-        <div className="flex items-center gap-2 text-[#FCA5A5] text-sm bg-[#DC2626]/10 border border-[#DC2626]/30 rounded-lg px-4 py-3 mb-6">
+        <div className="flex items-center gap-2 text-[#b91c1c] text-sm bg-[#DC2626]/10 border border-[#DC2626]/30 rounded-lg px-4 py-3 mb-6">
           <span>⚠️</span> {error}
         </div>
       )}
@@ -274,7 +274,7 @@ export default function ConfiguracionPage(): React.ReactElement {
                   disabled={!isAdmin}
                 />
               </Field>
-              {formErr && <p className="col-span-2 text-[#FCA5A5] text-xs">⚠️ {formErr}</p>}
+              {formErr && <p className="col-span-2 text-[#b91c1c] text-xs">⚠️ {formErr}</p>}
               {isAdmin && (
                 <div className="col-span-2 flex justify-end pt-1">
                   <button
@@ -337,10 +337,10 @@ export default function ConfiguracionPage(): React.ReactElement {
               title="Generar Informe UNGRD"
               description="Consolida los eventos de los últimos 30 días y envía el informe al nivel nacional"
             />
-            <div className="bg-[#0A0E1A] border border-[#1E2535] rounded-lg p-4 mb-5">
-              <p className="text-[#8B9CC8] text-xs leading-relaxed">
+            <div className="bg-[#f9fafb] border border-[#f3f4f6] rounded-lg p-4 mb-5">
+              <p className="text-[#6b7280] text-xs leading-relaxed">
                 El informe incluye todos los incidentes, alertas emitidas y acciones de respuesta
-                registradas en los últimos <span className="text-[#F0F4FF] font-semibold">30 días</span>.
+                registradas en los últimos <span className="text-[#111827] font-semibold">30 días</span>.
                 El resultado se envía automáticamente al correo UNGRD configurado arriba y se
                 muestra aquí para revisión.
               </p>

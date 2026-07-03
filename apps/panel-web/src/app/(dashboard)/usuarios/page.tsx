@@ -34,7 +34,7 @@ const ROL_STYLES: Record<Rol, string> = {
   CDGRD: 'bg-[#EA580C]/20 text-[#EA580C] border border-[#EA580C]/40',
   CMGRD: 'bg-[#D97706]/20 text-[#D97706] border border-[#D97706]/40',
   SOCORRO: 'bg-blue-900/20 text-blue-400 border border-blue-400/40',
-  CIUDADANO: 'bg-[#1E2535] text-[#8B9CC8] border border-[#2D3748]',
+  CIUDADANO: 'bg-[#f3f4f6] text-[#6b7280] border border-[#e5e7eb]',
 };
 
 function Toast({ mensaje, onClose }: { mensaje: string; onClose: () => void }) {
@@ -43,7 +43,7 @@ function Toast({ mensaje, onClose }: { mensaje: string; onClose: () => void }) {
     return () => clearTimeout(t);
   }, [onClose]);
   return (
-    <div className="fixed bottom-6 right-6 z-50 bg-[#1E2535] border border-[#2D3748] rounded-lg px-4 py-3 text-[#F0F4FF] text-sm shadow-lg">
+    <div className="fixed bottom-6 right-6 z-50 bg-[#f3f4f6] border border-[#e5e7eb] rounded-lg px-4 py-3 text-[#111827] text-sm shadow-lg">
       {mensaje}
     </div>
   );
@@ -114,12 +114,12 @@ function UsuarioModal({ usuario, municipios, onClose, onSaved }: UsuarioModalPro
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="w-full max-w-md rounded-2xl border border-[#2D3748] bg-[#1E293B] shadow-2xl">
-        <div className="flex items-center justify-between border-b border-[#2D3748] px-6 py-4">
-          <h2 className="font-display text-sm font-bold uppercase tracking-wider text-[#F0F4FF]">
+      <div className="w-full max-w-md rounded-2xl border border-[#e5e7eb] bg-[#ffffff] shadow-2xl">
+        <div className="flex items-center justify-between border-b border-[#e5e7eb] px-6 py-4">
+          <h2 className="font-display text-sm font-bold uppercase tracking-wider text-[#111827]">
             {editando ? 'Editar usuario' : 'Nuevo usuario'}
           </h2>
-          <button onClick={onClose} className="text-[#8B9CC8] hover:text-[#F0F4FF]">
+          <button onClick={onClose} className="text-[#6b7280] hover:text-[#111827]">
             <X size={18} />
           </button>
         </div>
@@ -169,7 +169,7 @@ function UsuarioModal({ usuario, municipios, onClose, onSaved }: UsuarioModalPro
                 id="rol"
                 value={rol}
                 onChange={(e) => setRol(e.target.value as Rol)}
-                className="h-11 w-full rounded-lg border border-[#334155] bg-[#0F172A] px-3 text-sm text-[#F0F4FF] outline-none focus-visible:border-[#2D7A27]"
+                className="h-11 w-full rounded-lg border border-[#d1d5db] bg-[#ffffff] px-3 text-sm text-[#111827] outline-none focus-visible:border-[#2D7A27]"
               >
                 {ROLES.map((r) => (
                   <option key={r} value={r}>{r}</option>
@@ -182,7 +182,7 @@ function UsuarioModal({ usuario, municipios, onClose, onSaved }: UsuarioModalPro
                 id="municipio"
                 value={municipioId}
                 onChange={(e) => setMunicipioId(e.target.value)}
-                className="h-11 w-full rounded-lg border border-[#334155] bg-[#0F172A] px-3 text-sm text-[#F0F4FF] outline-none focus-visible:border-[#2D7A27]"
+                className="h-11 w-full rounded-lg border border-[#d1d5db] bg-[#ffffff] px-3 text-sm text-[#111827] outline-none focus-visible:border-[#2D7A27]"
               >
                 <option value="">Sin asignar</option>
                 {municipios.map((m) => (
@@ -193,7 +193,7 @@ function UsuarioModal({ usuario, municipios, onClose, onSaved }: UsuarioModalPro
           </div>
 
           {error && (
-            <div className="rounded-lg border border-[#DC2626]/30 bg-[#DC2626]/10 px-3 py-2 text-sm text-[#FCA5A5]">
+            <div className="rounded-lg border border-[#DC2626]/30 bg-[#DC2626]/10 px-3 py-2 text-sm text-[#b91c1c]">
               {error}
             </div>
           )}
@@ -300,14 +300,14 @@ export default function UsuariosPage() {
       <div className="mb-6 flex items-center justify-between flex-wrap gap-3">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="font-display text-2xl font-bold text-[#F0F4FF] uppercase tracking-wider">
+            <h1 className="font-display text-2xl font-bold text-[#111827] uppercase tracking-wider">
               Usuarios del Sistema
             </h1>
             <span className="px-2 py-0.5 rounded text-xs bg-[#DC2626]/20 text-[#DC2626] border border-[#DC2626]/40 font-mono">
               ADMIN / CDGRD
             </span>
           </div>
-          <p className="text-[#8B9CC8] text-sm mt-1">Gestión de accesos y roles SIAGRD — {total} usuarios</p>
+          <p className="text-[#6b7280] text-sm mt-1">Gestión de accesos y roles SIAGRD — {total} usuarios</p>
         </div>
         <Button onClick={() => setModalUsuario('nuevo')}>
           <Plus size={16} /> Nuevo usuario
@@ -324,7 +324,7 @@ export default function UsuariosPage() {
         <select
           value={filtroRol}
           onChange={(e) => { setPage(0); setFiltroRol(e.target.value); }}
-          className="bg-[#111827] border border-[#2D3748] text-[#F0F4FF] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#8B9CC8]"
+          className="bg-[#ffffff] border border-[#e5e7eb] text-[#111827] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#6b7280]"
         >
           <option value="">Todos los roles</option>
           {ROLES.map((r) => (
@@ -334,7 +334,7 @@ export default function UsuariosPage() {
         <select
           value={filtroMunicipio}
           onChange={(e) => { setPage(0); setFiltroMunicipio(e.target.value); }}
-          className="bg-[#111827] border border-[#2D3748] text-[#F0F4FF] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#8B9CC8]"
+          className="bg-[#ffffff] border border-[#e5e7eb] text-[#111827] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#6b7280]"
         >
           <option value="">Todos los municipios</option>
           {municipios.map((m) => <option key={m.id} value={m.id}>{m.nombre}</option>)}
@@ -342,7 +342,7 @@ export default function UsuariosPage() {
       </div>
 
       {loading && (
-        <div className="text-[#8B9CC8] text-sm font-mono animate-pulse">Cargando usuarios...</div>
+        <div className="text-[#6b7280] text-sm font-mono animate-pulse">Cargando usuarios...</div>
       )}
       {error && (
         <p className="text-[#DC2626] text-sm bg-[#DC2626]/10 border border-[#DC2626]/30 rounded px-3 py-2 mb-4">
@@ -351,36 +351,36 @@ export default function UsuariosPage() {
       )}
 
       {!loading && usuarios.length === 0 && !error && (
-        <p className="text-[#8B9CC8] text-sm">Sin usuarios.</p>
+        <p className="text-[#6b7280] text-sm">Sin usuarios.</p>
       )}
 
       {!loading && usuarios.length > 0 && (
         <>
-          <div className="bg-[#111827] border border-[#2D3748] rounded-lg overflow-hidden">
+          <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-lg overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#2D3748]">
-                  <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Nombre</th>
-                  <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Email</th>
-                  <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Rol</th>
-                  <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Municipio</th>
-                  <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Organismo</th>
-                  <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Activo</th>
+                <tr className="border-b border-[#e5e7eb]">
+                  <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Nombre</th>
+                  <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Email</th>
+                  <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Rol</th>
+                  <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Municipio</th>
+                  <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Organismo</th>
+                  <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Activo</th>
                   <th className="px-4 py-2" />
                 </tr>
               </thead>
               <tbody>
                 {usuarios.map((u) => (
-                  <tr key={u.id} className="border-b border-[#2D3748] hover:bg-[#1E2535] transition-colors">
-                    <td className="px-4 py-3 text-[#F0F4FF]">{u.nombre} {u.apellido}</td>
-                    <td className="px-4 py-3 text-[#8B9CC8] font-mono text-xs">{u.email}</td>
+                  <tr key={u.id} className="border-b border-[#e5e7eb] hover:bg-[#f3f4f6] transition-colors">
+                    <td className="px-4 py-3 text-[#111827]">{u.nombre} {u.apellido}</td>
+                    <td className="px-4 py-3 text-[#6b7280] font-mono text-xs">{u.email}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded text-xs font-bold ${ROL_STYLES[u.rol] ?? ''}`}>
                         {u.rol}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-[#8B9CC8] text-xs">{u.municipio_nombre ?? '—'}</td>
-                    <td className="px-4 py-3 text-[#8B9CC8] text-xs">{u.organismo_nombre ?? '—'}</td>
+                    <td className="px-4 py-3 text-[#6b7280] text-xs">{u.municipio_nombre ?? '—'}</td>
+                    <td className="px-4 py-3 text-[#6b7280] text-xs">{u.organismo_nombre ?? '—'}</td>
                     <td className="px-4 py-3">
                       <button
                         onClick={() => isAdmin && toggleActivo(u)}
@@ -394,7 +394,7 @@ export default function UsuariosPage() {
                     <td className="px-4 py-3">
                       <button
                         onClick={() => setModalUsuario(u)}
-                        className="text-xs text-[#8B9CC8] hover:text-[#F0F4FF] transition-colors"
+                        className="text-xs text-[#6b7280] hover:text-[#111827] transition-colors"
                       >
                         Editar
                       </button>
@@ -405,7 +405,7 @@ export default function UsuariosPage() {
             </table>
           </div>
 
-          <div className="mt-4 flex items-center justify-between text-sm text-[#8B9CC8]">
+          <div className="mt-4 flex items-center justify-between text-sm text-[#6b7280]">
             <span>Página {page + 1} de {totalPages}</span>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>

@@ -89,7 +89,7 @@ export default async function MunicipiosPage() {
   return (
     <div className="flex-1">
       <div className="max-w-6xl mx-auto">
-        <h1 className="font-display text-2xl font-bold text-[#F0F4FF] uppercase tracking-wider mb-6">
+        <h1 className="font-display text-2xl font-bold text-[#111827] uppercase tracking-wider mb-6">
           27 Municipios del Meta
         </h1>
 
@@ -97,19 +97,19 @@ export default async function MunicipiosPage() {
           {stats.map((m) => (
             <div
               key={m.nombre}
-              className={`bg-[#111827] border rounded-lg p-4 transition-colors ${
+              className={`bg-[#ffffff] border rounded-lg p-4 transition-colors ${
                 m.incidentes_activos > 0
                   ? 'border-[#EA580C]/50'
-                  : 'border-[#2D3748]'
+                  : 'border-[#e5e7eb]'
               }`}
             >
               <div className="flex items-start justify-between mb-3">
-                <h2 className="font-display font-bold text-[#F0F4FF] text-base tracking-wide">
+                <h2 className="font-display font-bold text-[#111827] text-base tracking-wide">
                   {m.nombre}
                 </h2>
                 <span
                   className={`px-2 py-0.5 rounded text-[10px] font-bold font-display flex-shrink-0 ml-2 ${
-                    RIESGO_BADGE[m.nivel_riesgo] ?? 'bg-[#1E2535] text-[#8B9CC8]'
+                    RIESGO_BADGE[m.nivel_riesgo] ?? 'bg-[#f3f4f6] text-[#6b7280]'
                   }`}
                 >
                   {RIESGO_LABELS[m.nivel_riesgo] ?? 'N/A'}
@@ -119,18 +119,18 @@ export default async function MunicipiosPage() {
               <div className="flex items-center gap-2">
                 <span
                   className={`text-sm font-bold ${
-                    m.incidentes_activos > 0 ? 'text-[#EA580C]' : 'text-[#8B9CC8]'
+                    m.incidentes_activos > 0 ? 'text-[#EA580C]' : 'text-[#6b7280]'
                   }`}
                 >
                   {m.incidentes_activos}
                 </span>
-                <span className="text-xs text-[#8B9CC8]">
+                <span className="text-xs text-[#6b7280]">
                   {m.incidentes_activos === 1 ? 'incidente activo' : 'incidentes activos'}
                 </span>
               </div>
 
               {m.incidentes_activos > 0 && (
-                <div className="mt-2 h-1 w-full rounded-full bg-[#1E2535] overflow-hidden">
+                <div className="mt-2 h-1 w-full rounded-full bg-[#f3f4f6] overflow-hidden">
                   <div
                     className="h-full rounded-full bg-[#EA580C]"
                     style={{ width: `${Math.min(100, m.incidentes_activos * 20)}%` }}

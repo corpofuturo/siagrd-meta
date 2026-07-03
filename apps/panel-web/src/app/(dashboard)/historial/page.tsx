@@ -90,17 +90,17 @@ export default function HistorialPage() {
   return (
     <div className="flex-1">
       <div className="mb-6">
-        <h1 className="font-display text-2xl font-bold text-[#F0F4FF] uppercase tracking-wider">
+        <h1 className="font-display text-2xl font-bold text-[#111827] uppercase tracking-wider">
           Historial de Alertas
         </h1>
-        <p className="text-[#8B9CC8] text-sm mt-1">Todas las alertas emitidas</p>
+        <p className="text-[#6b7280] text-sm mt-1">Todas las alertas emitidas</p>
       </div>
 
       <div className="flex gap-3 mb-5 flex-wrap items-end">
         <select
           value={filtroNivel}
           onChange={(e) => setFiltroNivel(e.target.value)}
-          className="bg-[#111827] border border-[#2D3748] text-[#F0F4FF] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#8B9CC8]"
+          className="bg-[#ffffff] border border-[#e5e7eb] text-[#111827] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#6b7280]"
         >
           <option value="">Todos los niveles</option>
           {(['VERDE', 'AMARILLO', 'NARANJA', 'ROJO'] as Nivel[]).map((n) => (
@@ -110,7 +110,7 @@ export default function HistorialPage() {
         <select
           value={filtroTipo}
           onChange={(e) => setFiltroTipo(e.target.value)}
-          className="bg-[#111827] border border-[#2D3748] text-[#F0F4FF] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#8B9CC8]"
+          className="bg-[#ffffff] border border-[#e5e7eb] text-[#111827] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#6b7280]"
         >
           <option value="">Todos los tipos</option>
           {tipos.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -120,62 +120,62 @@ export default function HistorialPage() {
             type="date"
             value={fechaDesde}
             onChange={(e) => setFechaDesde(e.target.value)}
-            className="bg-[#111827] border border-[#2D3748] text-[#F0F4FF] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#8B9CC8]"
+            className="bg-[#ffffff] border border-[#e5e7eb] text-[#111827] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#6b7280]"
           />
-          <span className="text-[#8B9CC8] text-xs">—</span>
+          <span className="text-[#6b7280] text-xs">—</span>
           <input
             type="date"
             value={fechaHasta}
             onChange={(e) => setFechaHasta(e.target.value)}
-            className="bg-[#111827] border border-[#2D3748] text-[#F0F4FF] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#8B9CC8]"
+            className="bg-[#ffffff] border border-[#e5e7eb] text-[#111827] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#6b7280]"
           />
         </div>
       </div>
 
       {loading && (
-        <div className="text-[#8B9CC8] text-sm font-mono animate-pulse">Cargando historial...</div>
+        <div className="text-[#6b7280] text-sm font-mono animate-pulse">Cargando historial...</div>
       )}
 
       {!loading && alertas.length === 0 && (
-        <p className="text-[#8B9CC8] text-sm">Sin alertas registradas.</p>
+        <p className="text-[#6b7280] text-sm">Sin alertas registradas.</p>
       )}
 
       {!loading && alertas.length > 0 && (
         <>
-          <div className="bg-[#111827] border border-[#2D3748] rounded-lg overflow-hidden">
+          <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-lg overflow-hidden">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#2D3748]">
-                  <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Código</th>
-                  <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Tipo</th>
-                  <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Nivel</th>
-                  <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Municipios</th>
-                  <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Emisión</th>
-                  <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Fin estimado</th>
-                  <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Estado</th>
+                <tr className="border-b border-[#e5e7eb]">
+                  <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Código</th>
+                  <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Tipo</th>
+                  <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Nivel</th>
+                  <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Municipios</th>
+                  <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Emisión</th>
+                  <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Fin estimado</th>
+                  <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Estado</th>
                 </tr>
               </thead>
               <tbody>
                 {alertas.map((a) => (
-                  <tr key={a.id} className="border-b border-[#2D3748] hover:bg-[#1E2535] transition-colors">
-                    <td className="px-4 py-3 text-[#8B9CC8] font-mono text-xs">{a.codigo ?? a.id.slice(0, 8)}</td>
-                    <td className="px-4 py-3 text-[#F0F4FF]">{a.tipo}</td>
+                  <tr key={a.id} className="border-b border-[#e5e7eb] hover:bg-[#f3f4f6] transition-colors">
+                    <td className="px-4 py-3 text-[#6b7280] font-mono text-xs">{a.codigo ?? a.id.slice(0, 8)}</td>
+                    <td className="px-4 py-3 text-[#111827]">{a.tipo}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded text-xs font-bold ${NIVEL_STYLES[a.nivel] ?? ''}`}>
                         {a.nivel}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-[#8B9CC8] text-xs max-w-[180px]">
+                    <td className="px-4 py-3 text-[#6b7280] text-xs max-w-[180px]">
                       {Array.isArray(a.municipios)
                         ? `${a.municipios.slice(0, 2).join(', ')}${a.municipios.length > 2 ? ` +${a.municipios.length - 2}` : ''}`
                         : '—'}
                     </td>
-                    <td className="px-4 py-3 text-[#8B9CC8] text-xs font-mono">
+                    <td className="px-4 py-3 text-[#6b7280] text-xs font-mono">
                       {a.fecha_emision
                         ? new Date(a.fecha_emision).toLocaleString('es-CO', { timeZone: 'America/Bogota' })
                         : '—'}
                     </td>
-                    <td className="px-4 py-3 text-[#8B9CC8] text-xs font-mono">
+                    <td className="px-4 py-3 text-[#6b7280] text-xs font-mono">
                       {a.fin_estimado
                         ? new Date(a.fin_estimado).toLocaleString('es-CO', { timeZone: 'America/Bogota' })
                         : '—'}
@@ -184,7 +184,7 @@ export default function HistorialPage() {
                       {a.activa ? (
                         <span className="text-xs font-bold text-[#16A34A]">ACTIVA</span>
                       ) : (
-                        <span className="text-xs font-bold text-[#8B9CC8]">FINALIZADA</span>
+                        <span className="text-xs font-bold text-[#6b7280]">FINALIZADA</span>
                       )}
                     </td>
                   </tr>
@@ -198,7 +198,7 @@ export default function HistorialPage() {
               <button
                 disabled={loadingMore}
                 onClick={() => fetchAlertas(false)}
-                className="px-5 py-2 bg-[#1E2535] border border-[#2D3748] rounded text-[#F0F4FF] text-sm hover:bg-[#2D3748] transition-colors disabled:opacity-40"
+                className="px-5 py-2 bg-[#f3f4f6] border border-[#e5e7eb] rounded text-[#111827] text-sm hover:bg-[#e5e7eb] transition-colors disabled:opacity-40"
               >
                 {loadingMore ? 'Cargando...' : 'Cargar más'}
               </button>

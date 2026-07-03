@@ -31,9 +31,9 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es" className={`${fontDisplay.variable} ${fontBody.variable}`}>
-      <body className="bg-[#0A0E1A] text-[#F0F4FF] min-h-screen font-body">
+      <body className="bg-gray-50 text-gray-900 min-h-screen font-sans">
         {children}
-        <Toaster theme="dark" richColors position="top-right" />
+        <Toaster theme="light" richColors position="top-right" />
       </body>
     </html>
   );

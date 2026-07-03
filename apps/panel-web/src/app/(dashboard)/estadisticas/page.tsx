@@ -74,10 +74,10 @@ const TIPO_COLOR: Record<string, string> = {
 
 function KpiCard({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
   return (
-    <div className="bg-[#111827] border border-[#2D3748] rounded-lg p-4">
-      <p className="text-[10px] text-[#8B9CC8] uppercase tracking-wider font-display mb-1">{label}</p>
-      <p className="text-2xl font-bold text-[#F0F4FF] font-display">{value}</p>
-      {sub && <p className="text-xs text-[#8B9CC8] mt-1">{sub}</p>}
+    <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-lg p-4">
+      <p className="text-[10px] text-[#6b7280] uppercase tracking-wider font-display mb-1">{label}</p>
+      <p className="text-2xl font-bold text-[#111827] font-display">{value}</p>
+      {sub && <p className="text-xs text-[#6b7280] mt-1">{sub}</p>}
     </div>
   );
 }
@@ -97,7 +97,7 @@ function BarChart({ data }: { data: { label: string; value: number; color?: stri
               minHeight: d.value > 0 ? 4 : 0,
             }}
           />
-          <span className="text-[8px] text-[#8B9CC8] mt-1 truncate w-full text-center">{d.label}</span>
+          <span className="text-[8px] text-[#6b7280] mt-1 truncate w-full text-center">{d.label}</span>
         </div>
       ))}
     </div>
@@ -169,14 +169,14 @@ export default function EstadisticasPage() {
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Encabezado y filtros */}
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="font-display text-2xl font-bold text-[#F0F4FF] uppercase tracking-wider">
+          <h1 className="font-display text-2xl font-bold text-[#111827] uppercase tracking-wider">
             Estadísticas SATAM
           </h1>
           <div className="flex flex-wrap gap-2">
             <select
               value={filtroAño}
               onChange={(e) => setFiltroAño(Number(e.target.value))}
-              className="bg-[#1E2535] border border-[#2D3748] rounded px-3 py-1.5 text-[#F0F4FF] text-sm focus:outline-none"
+              className="bg-[#f3f4f6] border border-[#e5e7eb] rounded px-3 py-1.5 text-[#111827] text-sm focus:outline-none"
             >
               {AÑOS.map((a) => (
                 <option key={a} value={a}>{a}</option>
@@ -185,7 +185,7 @@ export default function EstadisticasPage() {
             <select
               value={filtroTipo}
               onChange={(e) => setFiltroTipo(e.target.value)}
-              className="bg-[#1E2535] border border-[#2D3748] rounded px-3 py-1.5 text-[#F0F4FF] text-sm focus:outline-none"
+              className="bg-[#f3f4f6] border border-[#e5e7eb] rounded px-3 py-1.5 text-[#111827] text-sm focus:outline-none"
             >
               <option value="">Todos los tipos</option>
               {TIPOS_AMENAZA.map((t) => (
@@ -202,7 +202,7 @@ export default function EstadisticasPage() {
         )}
 
         {loading && (
-          <div className="text-center py-16 text-[#8B9CC8]">Cargando estadísticas...</div>
+          <div className="text-center py-16 text-[#6b7280]">Cargando estadísticas...</div>
         )}
 
         {!loading && resumen && (
@@ -240,15 +240,15 @@ export default function EstadisticasPage() {
             </div>
 
             {/* Estados */}
-            <div className="bg-[#111827] border border-[#2D3748] rounded-lg p-4">
-              <h2 className="text-xs text-[#8B9CC8] uppercase tracking-wider font-display mb-4">
+            <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-lg p-4">
+              <h2 className="text-xs text-[#6b7280] uppercase tracking-wider font-display mb-4">
                 Distribución por estado — {resumen.año}
               </h2>
               <div className="flex flex-wrap gap-3">
                 {Object.entries(resumen.por_estado).map(([estado, total]) => (
-                  <div key={estado} className="bg-[#1E2535] rounded px-3 py-2 text-center">
-                    <p className="text-xs text-[#8B9CC8] font-display uppercase tracking-wider">{estado}</p>
-                    <p className="text-xl font-bold text-[#F0F4FF]">{total}</p>
+                  <div key={estado} className="bg-[#f3f4f6] rounded px-3 py-2 text-center">
+                    <p className="text-xs text-[#6b7280] font-display uppercase tracking-wider">{estado}</p>
+                    <p className="text-xl font-bold text-[#111827]">{total}</p>
                   </div>
                 ))}
               </div>
@@ -256,24 +256,24 @@ export default function EstadisticasPage() {
 
             {/* Gráfico por tipo/mes */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-[#111827] border border-[#2D3748] rounded-lg p-4">
-                <h2 className="text-xs text-[#8B9CC8] uppercase tracking-wider font-display mb-4">
+              <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-lg p-4">
+                <h2 className="text-xs text-[#6b7280] uppercase tracking-wider font-display mb-4">
                   Eventos por mes — {filtroAño}
                 </h2>
                 {barDataPorMes.every((d) => d.value === 0) ? (
-                  <p className="text-[#8B9CC8] text-sm text-center py-8">Sin datos para el período</p>
+                  <p className="text-[#6b7280] text-sm text-center py-8">Sin datos para el período</p>
                 ) : (
                   <BarChart data={barDataPorMes} />
                 )}
               </div>
 
-              <div className="bg-[#111827] border border-[#2D3748] rounded-lg p-4">
-                <h2 className="text-xs text-[#8B9CC8] uppercase tracking-wider font-display mb-4">
+              <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-lg p-4">
+                <h2 className="text-xs text-[#6b7280] uppercase tracking-wider font-display mb-4">
                   Desglose por tipo de amenaza
                 </h2>
                 <div className="space-y-2">
                   {tiposPresentes.length === 0 ? (
-                    <p className="text-[#8B9CC8] text-sm text-center py-8">Sin datos</p>
+                    <p className="text-[#6b7280] text-sm text-center py-8">Sin datos</p>
                   ) : (
                     tiposPresentes.map((tipo) => {
                       const totalTipo = porTipo.filter((r) => r.tipo === tipo).reduce((s, r) => s + r.total, 0);
@@ -283,10 +283,10 @@ export default function EstadisticasPage() {
                       return (
                         <div key={tipo}>
                           <div className="flex justify-between text-xs mb-1">
-                            <span className="text-[#F0F4FF]">{tipo}</span>
-                            <span className="text-[#8B9CC8]">{totalTipo} ({pct}%)</span>
+                            <span className="text-[#111827]">{tipo}</span>
+                            <span className="text-[#6b7280]">{totalTipo} ({pct}%)</span>
                           </div>
-                          <div className="h-2 bg-[#1E2535] rounded-full overflow-hidden">
+                          <div className="h-2 bg-[#f3f4f6] rounded-full overflow-hidden">
                             <div
                               className="h-full rounded-full"
                               style={{
@@ -304,26 +304,26 @@ export default function EstadisticasPage() {
             </div>
 
             {/* Tabla por municipio (mapa de calor) */}
-            <div className="bg-[#111827] border border-[#2D3748] rounded-lg overflow-hidden">
-              <div className="px-4 py-3 border-b border-[#2D3748] bg-[#1E2535]">
-                <h2 className="text-xs text-[#8B9CC8] uppercase tracking-wider font-display">
+            <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-lg overflow-hidden">
+              <div className="px-4 py-3 border-b border-[#e5e7eb] bg-[#f3f4f6]">
+                <h2 className="text-xs text-[#6b7280] uppercase tracking-wider font-display">
                   Ranking por municipio {filtroTipo ? `— ${filtroTipo}` : ''}
                 </h2>
               </div>
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[#2D3748]">
-                    <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">#</th>
-                    <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Municipio</th>
-                    <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Código</th>
-                    <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Total</th>
-                    <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Intensidad</th>
+                  <tr className="border-b border-[#e5e7eb]">
+                    <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">#</th>
+                    <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Municipio</th>
+                    <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Código</th>
+                    <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Total</th>
+                    <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Intensidad</th>
                   </tr>
                 </thead>
                 <tbody>
                   {porMunicipio.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="text-center py-8 text-[#8B9CC8] text-sm">
+                      <td colSpan={5} className="text-center py-8 text-[#6b7280] text-sm">
                         Sin datos
                       </td>
                     </tr>
@@ -335,14 +335,14 @@ export default function EstadisticasPage() {
                       return (
                         <tr
                           key={row.municipio_codigo}
-                          className={`border-b border-[#2D3748] ${idx % 2 === 0 ? '' : 'bg-[#0D1220]'}`}
+                          className={`border-b border-[#e5e7eb] ${idx % 2 === 0 ? '' : 'bg-[#f9fafb]'}`}
                         >
-                          <td className="px-4 py-2 text-[#8B9CC8] text-xs">{idx + 1}</td>
-                          <td className="px-4 py-2 text-[#F0F4FF]">{row.municipio_nombre}</td>
-                          <td className="px-4 py-2 font-mono text-xs text-[#8B9CC8]">{row.municipio_codigo}</td>
-                          <td className="px-4 py-2 text-[#F0F4FF] font-bold">{row.total}</td>
+                          <td className="px-4 py-2 text-[#6b7280] text-xs">{idx + 1}</td>
+                          <td className="px-4 py-2 text-[#111827]">{row.municipio_nombre}</td>
+                          <td className="px-4 py-2 font-mono text-xs text-[#6b7280]">{row.municipio_codigo}</td>
+                          <td className="px-4 py-2 text-[#111827] font-bold">{row.total}</td>
                           <td className="px-4 py-2 w-36">
-                            <div className="h-2 bg-[#1E2535] rounded-full overflow-hidden">
+                            <div className="h-2 bg-[#f3f4f6] rounded-full overflow-hidden">
                               <div
                                 className="h-full rounded-full"
                                 style={{ width: `${pct}%`, backgroundColor: intensity }}
@@ -358,38 +358,38 @@ export default function EstadisticasPage() {
             </div>
 
             {/* Tiempos de respuesta */}
-            <div className="bg-[#111827] border border-[#2D3748] rounded-lg overflow-hidden">
-              <div className="px-4 py-3 border-b border-[#2D3748] bg-[#1E2535]">
-                <h2 className="text-xs text-[#8B9CC8] uppercase tracking-wider font-display">
+            <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-lg overflow-hidden">
+              <div className="px-4 py-3 border-b border-[#e5e7eb] bg-[#f3f4f6]">
+                <h2 className="text-xs text-[#6b7280] uppercase tracking-wider font-display">
                   Tiempos de respuesta por tipo — {filtroAño}
                 </h2>
               </div>
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-[#2D3748]">
-                    <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Tipo</th>
-                    <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Pend → Conf (h)</th>
-                    <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Conf → En curso (h)</th>
-                    <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">En curso → Cerr (h)</th>
-                    <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Incidentes</th>
+                  <tr className="border-b border-[#e5e7eb]">
+                    <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Tipo</th>
+                    <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Pend → Conf (h)</th>
+                    <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Conf → En curso (h)</th>
+                    <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">En curso → Cerr (h)</th>
+                    <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Incidentes</th>
                   </tr>
                 </thead>
                 <tbody>
                   {tiempos.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="text-center py-8 text-[#8B9CC8] text-sm">Sin datos</td>
+                      <td colSpan={5} className="text-center py-8 text-[#6b7280] text-sm">Sin datos</td>
                     </tr>
                   ) : (
                     tiempos.map((row, idx) => (
                       <tr
                         key={row.tipo}
-                        className={`border-b border-[#2D3748] ${idx % 2 === 0 ? '' : 'bg-[#0D1220]'}`}
+                        className={`border-b border-[#e5e7eb] ${idx % 2 === 0 ? '' : 'bg-[#f9fafb]'}`}
                       >
-                        <td className="px-4 py-2 text-[#F0F4FF] font-display text-xs font-bold">{row.tipo}</td>
-                        <td className="px-4 py-2 text-[#F0F4FF]">{row.pendiente_a_confirmado_horas ?? '—'}</td>
-                        <td className="px-4 py-2 text-[#F0F4FF]">{row.confirmado_a_encurso_horas ?? '—'}</td>
-                        <td className="px-4 py-2 text-[#F0F4FF]">{row.encurso_a_cerrado_horas ?? '—'}</td>
-                        <td className="px-4 py-2 text-[#8B9CC8]">{row.total_incidentes}</td>
+                        <td className="px-4 py-2 text-[#111827] font-display text-xs font-bold">{row.tipo}</td>
+                        <td className="px-4 py-2 text-[#111827]">{row.pendiente_a_confirmado_horas ?? '—'}</td>
+                        <td className="px-4 py-2 text-[#111827]">{row.confirmado_a_encurso_horas ?? '—'}</td>
+                        <td className="px-4 py-2 text-[#111827]">{row.encurso_a_cerrado_horas ?? '—'}</td>
+                        <td className="px-4 py-2 text-[#6b7280]">{row.total_incidentes}</td>
                       </tr>
                     ))
                   )}
@@ -398,19 +398,19 @@ export default function EstadisticasPage() {
             </div>
 
             {/* Tendencias estacionales */}
-            <div className="bg-[#111827] border border-[#2D3748] rounded-lg overflow-hidden">
-              <div className="px-4 py-3 border-b border-[#2D3748] bg-[#1E2535]">
-                <h2 className="text-xs text-[#8B9CC8] uppercase tracking-wider font-display">
+            <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-lg overflow-hidden">
+              <div className="px-4 py-3 border-b border-[#e5e7eb] bg-[#f3f4f6]">
+                <h2 className="text-xs text-[#6b7280] uppercase tracking-wider font-display">
                   Tendencias estacionales — últimos 5 años {filtroTipo ? `(${filtroTipo})` : ''}
                 </h2>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm min-w-max">
                   <thead>
-                    <tr className="border-b border-[#2D3748]">
-                      <th className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">Mes</th>
+                    <tr className="border-b border-[#e5e7eb]">
+                      <th className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">Mes</th>
                       {añosTendencia.map((a) => (
-                        <th key={a} className="text-left px-4 py-2 text-xs text-[#8B9CC8] uppercase tracking-wider">{a}</th>
+                        <th key={a} className="text-left px-4 py-2 text-xs text-[#6b7280] uppercase tracking-wider">{a}</th>
                       ))}
                     </tr>
                   </thead>
@@ -418,8 +418,8 @@ export default function EstadisticasPage() {
                     {MESES.map((mesLabel, idx) => {
                       const mes = idx + 1;
                       return (
-                        <tr key={mes} className={`border-b border-[#2D3748] ${idx % 2 === 0 ? '' : 'bg-[#0D1220]'}`}>
-                          <td className="px-4 py-2 text-[#8B9CC8] text-xs font-display uppercase tracking-wider">{mesLabel}</td>
+                        <tr key={mes} className={`border-b border-[#e5e7eb] ${idx % 2 === 0 ? '' : 'bg-[#f9fafb]'}`}>
+                          <td className="px-4 py-2 text-[#6b7280] text-xs font-display uppercase tracking-wider">{mesLabel}</td>
                           {añosTendencia.map((año) => {
                             const cell = tendencias.find((r) => r.año === año && r.mes === mes);
                             const vp = cell?.variacion_pct;
@@ -432,7 +432,7 @@ export default function EstadisticasPage() {
                                 ? 'text-[#DC2626]'
                                 : 'text-[#10B981]';
                             return (
-                              <td key={año} className="px-4 py-2 text-[#F0F4FF]">
+                              <td key={año} className="px-4 py-2 text-[#111827]">
                                 {cell ? (
                                   <>
                                     <span>{cell.total}</span>
@@ -442,7 +442,7 @@ export default function EstadisticasPage() {
                                     </span>
                                   </>
                                 ) : (
-                                  <span className="text-[#2D3748]">—</span>
+                                  <span className="text-[#e5e7eb]">—</span>
                                 )}
                               </td>
                             );
@@ -457,16 +457,16 @@ export default function EstadisticasPage() {
 
             {/* Organismos más activos */}
             {resumen.organismos_mas_activos.length > 0 && (
-              <div className="bg-[#111827] border border-[#2D3748] rounded-lg p-4">
-                <h2 className="text-xs text-[#8B9CC8] uppercase tracking-wider font-display mb-4">
+              <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-lg p-4">
+                <h2 className="text-xs text-[#6b7280] uppercase tracking-wider font-display mb-4">
                   Organismos más activos — {resumen.año}
                 </h2>
                 <div className="space-y-2">
                   {resumen.organismos_mas_activos.map((org, idx) => (
                     <div key={org.organismo_email} className="flex justify-between items-center text-sm">
-                      <span className="text-[#8B9CC8] text-xs mr-2">{idx + 1}.</span>
-                      <span className="text-[#F0F4FF] flex-1 truncate">{org.organismo_email}</span>
-                      <span className="text-[#8B9CC8] text-xs ml-4">{org.acciones} acciones</span>
+                      <span className="text-[#6b7280] text-xs mr-2">{idx + 1}.</span>
+                      <span className="text-[#111827] flex-1 truncate">{org.organismo_email}</span>
+                      <span className="text-[#6b7280] text-xs ml-4">{org.acciones} acciones</span>
                     </div>
                   ))}
                 </div>

@@ -7,7 +7,7 @@ import { apiFetch } from '@/lib/api';
 
 const MapaAlertaDibujo = dynamic(
   () => import('@/components/MapaAlertaDibujo'),
-  { ssr: false, loading: () => <div className="h-[360px] bg-[#111827] border border-[#2D3748] rounded flex items-center justify-center text-[#8B9CC8] text-sm">Cargando mapa…</div> }
+  { ssr: false, loading: () => <div className="h-[360px] bg-[#ffffff] border border-[#e5e7eb] rounded flex items-center justify-center text-[#6b7280] text-sm">Cargando mapa…</div> }
 );
 
 type Nivel = 'VERDE' | 'AMARILLO' | 'NARANJA' | 'ROJO';
@@ -95,11 +95,11 @@ export default function AlertaNuevaPage() {
         <div className="mb-6">
           <button
             onClick={() => router.back()}
-            className="text-[#8B9CC8] hover:text-[#F0F4FF] text-sm mb-4 flex items-center gap-1 transition-colors"
+            className="text-[#6b7280] hover:text-[#111827] text-sm mb-4 flex items-center gap-1 transition-colors"
           >
             ← Volver
           </button>
-          <h1 className="font-display text-2xl font-bold text-[#F0F4FF] uppercase tracking-wider">
+          <h1 className="font-display text-2xl font-bold text-[#111827] uppercase tracking-wider">
             Emitir Nueva Alerta
           </h1>
         </div>
@@ -114,20 +114,20 @@ export default function AlertaNuevaPage() {
                     ? 'bg-[#16A34A] text-white'
                     : paso === idx + 1
                     ? 'bg-[#DC2626] text-white'
-                    : 'bg-[#1E2535] text-[#8B9CC8]'
+                    : 'bg-[#f3f4f6] text-[#6b7280]'
                 }`}
               >
                 {paso > idx + 1 ? '✓' : idx + 1}
               </div>
               <span
                 className={`text-xs hidden sm:block ${
-                  paso === idx + 1 ? 'text-[#F0F4FF]' : 'text-[#8B9CC8]'
+                  paso === idx + 1 ? 'text-[#111827]' : 'text-[#6b7280]'
                 }`}
               >
                 {nombre}
               </span>
               {idx < PASOS.length - 1 && (
-                <div className="w-6 h-px bg-[#2D3748]" />
+                <div className="w-6 h-px bg-[#e5e7eb]" />
               )}
             </div>
           ))}
@@ -137,7 +137,7 @@ export default function AlertaNuevaPage() {
         {paso === 1 && (
           <div className="space-y-6">
             <div>
-              <label className="block text-xs text-[#8B9CC8] uppercase tracking-wider mb-3">
+              <label className="block text-xs text-[#6b7280] uppercase tracking-wider mb-3">
                 Tipo de amenaza
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -147,8 +147,8 @@ export default function AlertaNuevaPage() {
                     onClick={() => setTipo(t)}
                     className={`py-2 px-3 rounded border text-sm text-left transition-colors ${
                       tipo === t
-                        ? 'border-[#8B9CC8] bg-[#1E2535] text-[#F0F4FF]'
-                        : 'border-[#2D3748] bg-[#111827] text-[#8B9CC8] hover:border-[#8B9CC8]'
+                        ? 'border-[#6b7280] bg-[#f3f4f6] text-[#111827]'
+                        : 'border-[#e5e7eb] bg-[#ffffff] text-[#6b7280] hover:border-[#6b7280]'
                     }`}
                   >
                     {t}
@@ -158,7 +158,7 @@ export default function AlertaNuevaPage() {
             </div>
 
             <div>
-              <label className="block text-xs text-[#8B9CC8] uppercase tracking-wider mb-3">
+              <label className="block text-xs text-[#6b7280] uppercase tracking-wider mb-3">
                 Nivel de alerta
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -169,7 +169,7 @@ export default function AlertaNuevaPage() {
                     className={`py-3 px-4 rounded border-2 font-display font-bold tracking-wider text-sm transition-colors ${
                       nivel === n
                         ? NIVEL_STYLES[n]
-                        : 'border-[#2D3748] bg-[#111827] text-[#8B9CC8] hover:border-[#2D3748]'
+                        : 'border-[#e5e7eb] bg-[#ffffff] text-[#6b7280] hover:border-[#e5e7eb]'
                     }`}
                   >
                     {n}
@@ -193,7 +193,7 @@ export default function AlertaNuevaPage() {
           <div className="space-y-6">
             <div>
               <div className="flex items-center justify-between mb-3">
-                <label className="text-xs text-[#8B9CC8] uppercase tracking-wider">
+                <label className="text-xs text-[#6b7280] uppercase tracking-wider">
                   Municipios afectados ({municipiosSeleccionados.length}/27)
                 </label>
                 <button
@@ -204,7 +204,7 @@ export default function AlertaNuevaPage() {
                         : [...MUNICIPIOS_META]
                     )
                   }
-                  className="text-xs text-[#8B9CC8] hover:text-[#F0F4FF] transition-colors"
+                  className="text-xs text-[#6b7280] hover:text-[#111827] transition-colors"
                 >
                   {municipiosSeleccionados.length === MUNICIPIOS_META.length
                     ? 'Deseleccionar todos'
@@ -217,8 +217,8 @@ export default function AlertaNuevaPage() {
                     key={m}
                     className={`flex items-center gap-2 py-2 px-3 rounded border cursor-pointer transition-colors ${
                       municipiosSeleccionados.includes(m)
-                        ? 'border-[#8B9CC8] bg-[#1E2535] text-[#F0F4FF]'
-                        : 'border-[#2D3748] bg-[#111827] text-[#8B9CC8] hover:border-[#8B9CC8]'
+                        ? 'border-[#6b7280] bg-[#f3f4f6] text-[#111827]'
+                        : 'border-[#e5e7eb] bg-[#ffffff] text-[#6b7280] hover:border-[#6b7280]'
                     }`}
                   >
                     <input
@@ -231,7 +231,7 @@ export default function AlertaNuevaPage() {
                       className={`w-4 h-4 rounded border flex-shrink-0 flex items-center justify-center text-xs ${
                         municipiosSeleccionados.includes(m)
                           ? 'bg-[#DC2626] border-[#DC2626] text-white'
-                          : 'border-[#2D3748]'
+                          : 'border-[#e5e7eb]'
                       }`}
                     >
                       {municipiosSeleccionados.includes(m) && '✓'}
@@ -245,7 +245,7 @@ export default function AlertaNuevaPage() {
             <div className="flex gap-3">
               <button
                 onClick={() => setPaso(1)}
-                className="flex-1 py-2.5 bg-[#1E2535] hover:bg-[#2D3748] border border-[#2D3748] text-[#F0F4FF] font-bold rounded text-sm transition-colors"
+                className="flex-1 py-2.5 bg-[#f3f4f6] hover:bg-[#e5e7eb] border border-[#e5e7eb] text-[#111827] font-bold rounded text-sm transition-colors"
               >
                 ← Anterior
               </button>
@@ -264,9 +264,9 @@ export default function AlertaNuevaPage() {
         {paso === 3 && (
           <div className="space-y-5">
             <div>
-              <label className="block text-xs text-[#8B9CC8] uppercase tracking-wider mb-2">
+              <label className="block text-xs text-[#6b7280] uppercase tracking-wider mb-2">
                 Instrucciones para ciudadanos{' '}
-                <span className="text-[#F0F4FF]">
+                <span className="text-[#111827]">
                   ({instruccionesCiudadanos.length}/500)
                 </span>
               </label>
@@ -275,12 +275,12 @@ export default function AlertaNuevaPage() {
                 onChange={(e) => setInstruccionesCiudadanos(e.target.value.slice(0, 500))}
                 rows={5}
                 placeholder="Instrucciones claras y concisas para la población..."
-                className="w-full bg-[#111827] border border-[#2D3748] rounded px-3 py-2 text-[#F0F4FF] text-sm placeholder-[#8B9CC8] focus:outline-none focus:border-[#8B9CC8] resize-none transition-colors"
+                className="w-full bg-[#ffffff] border border-[#e5e7eb] rounded px-3 py-2 text-[#111827] text-sm placeholder-[#6b7280] focus:outline-none focus:border-[#6b7280] resize-none transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-xs text-[#8B9CC8] uppercase tracking-wider mb-2">
+              <label className="block text-xs text-[#6b7280] uppercase tracking-wider mb-2">
                 Instrucciones para organismos de socorro
               </label>
               <textarea
@@ -288,14 +288,14 @@ export default function AlertaNuevaPage() {
                 onChange={(e) => setInstruccionesSocorro(e.target.value)}
                 rows={4}
                 placeholder="Protocolos y acciones para Defensa Civil, Cruz Roja, Bomberos..."
-                className="w-full bg-[#111827] border border-[#2D3748] rounded px-3 py-2 text-[#F0F4FF] text-sm placeholder-[#8B9CC8] focus:outline-none focus:border-[#8B9CC8] resize-none transition-colors"
+                className="w-full bg-[#ffffff] border border-[#e5e7eb] rounded px-3 py-2 text-[#111827] text-sm placeholder-[#6b7280] focus:outline-none focus:border-[#6b7280] resize-none transition-colors"
               />
             </div>
 
             <div className="flex gap-3">
               <button
                 onClick={() => setPaso(2)}
-                className="flex-1 py-2.5 bg-[#1E2535] hover:bg-[#2D3748] border border-[#2D3748] text-[#F0F4FF] font-bold rounded text-sm transition-colors"
+                className="flex-1 py-2.5 bg-[#f3f4f6] hover:bg-[#e5e7eb] border border-[#e5e7eb] text-[#111827] font-bold rounded text-sm transition-colors"
               >
                 ← Anterior
               </button>
@@ -314,11 +314,11 @@ export default function AlertaNuevaPage() {
         {paso === 4 && (
           <div className="space-y-6">
             <div>
-              <label className="block text-xs text-[#8B9CC8] uppercase tracking-wider mb-1">
+              <label className="block text-xs text-[#6b7280] uppercase tracking-wider mb-1">
                 Área geográfica personalizada{' '}
-                <span className="text-[#8B9CC8] font-normal normal-case">(opcional)</span>
+                <span className="text-[#6b7280] font-normal normal-case">(opcional)</span>
               </label>
-              <p className="text-xs text-[#8B9CC8] mb-3">
+              <p className="text-xs text-[#6b7280] mb-3">
                 Dibuja un polígono sobre el mapa para delimitar el área afectada. Haz clic para
                 agregar vértices y clic sobre el primer vértice para cerrar el polígono.
               </p>
@@ -336,7 +336,7 @@ export default function AlertaNuevaPage() {
             <div className="flex gap-3">
               <button
                 onClick={() => setPaso(3)}
-                className="flex-1 py-2.5 bg-[#1E2535] hover:bg-[#2D3748] border border-[#2D3748] text-[#F0F4FF] font-bold rounded text-sm transition-colors"
+                className="flex-1 py-2.5 bg-[#f3f4f6] hover:bg-[#e5e7eb] border border-[#e5e7eb] text-[#111827] font-bold rounded text-sm transition-colors"
               >
                 ← Anterior
               </button>
@@ -353,14 +353,14 @@ export default function AlertaNuevaPage() {
         {/* Paso 5 — Vista previa notificación push */}
         {paso === 5 && (
           <div className="space-y-6">
-            <div className="border border-[#2D3748] rounded-lg overflow-hidden">
-              <div className="bg-[#1E2535] px-4 py-2 border-b border-[#2D3748]">
-                <p className="text-xs text-[#8B9CC8] uppercase tracking-wider">
+            <div className="border border-[#e5e7eb] rounded-lg overflow-hidden">
+              <div className="bg-[#f3f4f6] px-4 py-2 border-b border-[#e5e7eb]">
+                <p className="text-xs text-[#6b7280] uppercase tracking-wider">
                   Vista previa — Notificación Push
                 </p>
               </div>
-              <div className="p-4 bg-[#0A0E1A]">
-                <div className="bg-[#1E2535] rounded-lg p-4 shadow-lg border border-[#2D3748] max-w-sm">
+              <div className="p-4 bg-[#f9fafb]">
+                <div className="bg-[#f3f4f6] rounded-lg p-4 shadow-lg border border-[#e5e7eb] max-w-sm">
                   <div className="flex items-start gap-3">
                     <div
                       className={`w-10 h-10 rounded flex items-center justify-center text-lg flex-shrink-0 ${
@@ -376,13 +376,13 @@ export default function AlertaNuevaPage() {
                       ⚠️
                     </div>
                     <div>
-                      <p className="font-bold text-[#F0F4FF] text-sm">
+                      <p className="font-bold text-[#111827] text-sm">
                         SIAGRD META — Alerta {nivel}
                       </p>
-                      <p className="text-[#8B9CC8] text-xs mt-0.5">
+                      <p className="text-[#6b7280] text-xs mt-0.5">
                         {tipo} · {municipiosSeleccionados.length} municipios
                       </p>
-                      <p className="text-[#F0F4FF] text-xs mt-2 leading-relaxed">
+                      <p className="text-[#111827] text-xs mt-2 leading-relaxed">
                         {instruccionesCiudadanos || '(sin instrucciones)'}
                       </p>
                     </div>
@@ -391,22 +391,22 @@ export default function AlertaNuevaPage() {
               </div>
             </div>
 
-            <div className="bg-[#1E2535] border border-[#2D3748] rounded-lg p-4 space-y-2">
-              <p className="text-xs text-[#8B9CC8] uppercase tracking-wider mb-3">
+            <div className="bg-[#f3f4f6] border border-[#e5e7eb] rounded-lg p-4 space-y-2">
+              <p className="text-xs text-[#6b7280] uppercase tracking-wider mb-3">
                 Resumen
               </p>
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <span className="text-[#8B9CC8] text-xs">Nivel</span>
-                  <p className="text-[#F0F4FF] font-bold">{nivel}</p>
+                  <span className="text-[#6b7280] text-xs">Nivel</span>
+                  <p className="text-[#111827] font-bold">{nivel}</p>
                 </div>
                 <div>
-                  <span className="text-[#8B9CC8] text-xs">Tipo</span>
-                  <p className="text-[#F0F4FF]">{tipo}</p>
+                  <span className="text-[#6b7280] text-xs">Tipo</span>
+                  <p className="text-[#111827]">{tipo}</p>
                 </div>
                 <div className="col-span-2">
-                  <span className="text-[#8B9CC8] text-xs">Municipios</span>
-                  <p className="text-[#F0F4FF]">
+                  <span className="text-[#6b7280] text-xs">Municipios</span>
+                  <p className="text-[#111827]">
                     {municipiosSeleccionados.slice(0, 5).join(', ')}
                     {municipiosSeleccionados.length > 5 &&
                       ` y ${municipiosSeleccionados.length - 5} más`}
@@ -418,7 +418,7 @@ export default function AlertaNuevaPage() {
             <div className="flex gap-3">
               <button
                 onClick={() => setPaso(4)}
-                className="flex-1 py-2.5 bg-[#1E2535] hover:bg-[#2D3748] border border-[#2D3748] text-[#F0F4FF] font-bold rounded text-sm transition-colors"
+                className="flex-1 py-2.5 bg-[#f3f4f6] hover:bg-[#e5e7eb] border border-[#e5e7eb] text-[#111827] font-bold rounded text-sm transition-colors"
               >
                 ← Anterior
               </button>
@@ -441,7 +441,7 @@ export default function AlertaNuevaPage() {
                   ? 'border-[#DC2626] bg-[#DC2626]/5'
                   : nivel === 'NARANJA'
                   ? 'border-[#EA580C] bg-[#EA580C]/5'
-                  : 'border-[#2D3748] bg-[#1E2535]'
+                  : 'border-[#e5e7eb] bg-[#f3f4f6]'
               }`}
             >
               <p
@@ -450,7 +450,7 @@ export default function AlertaNuevaPage() {
                     ? 'text-[#DC2626]'
                     : nivel === 'NARANJA'
                     ? 'text-[#EA580C]'
-                    : 'text-[#F0F4FF]'
+                    : 'text-[#111827]'
                 }`}
               >
                 {nivel === 'ROJO'
@@ -459,10 +459,10 @@ export default function AlertaNuevaPage() {
                   ? '⚠ Confirmar Emisión — Alerta Naranja'
                   : 'Confirmar Emisión de Alerta'}
               </p>
-              <p className="text-[#8B9CC8] text-sm">
+              <p className="text-[#6b7280] text-sm">
                 Esta acción emitirá una alerta de nivel{' '}
-                <span className="font-bold text-[#F0F4FF]">{nivel}</span> para{' '}
-                <span className="font-bold text-[#F0F4FF]">
+                <span className="font-bold text-[#111827]">{nivel}</span> para{' '}
+                <span className="font-bold text-[#111827]">
                   {municipiosSeleccionados.length} municipios
                 </span>{' '}
                 del departamento del Meta.
@@ -472,7 +472,7 @@ export default function AlertaNuevaPage() {
             {/* Alerta ROJO: motivo obligatorio + dos botones separados */}
             {nivel === 'ROJO' && (
               <div>
-                <label className="block text-xs text-[#8B9CC8] uppercase tracking-wider mb-2">
+                <label className="block text-xs text-[#6b7280] uppercase tracking-wider mb-2">
                   Motivo de la alerta roja{' '}
                   <span className="text-[#DC2626]">*</span>
                 </label>
@@ -481,7 +481,7 @@ export default function AlertaNuevaPage() {
                   onChange={(e) => setMotivoRojo(e.target.value)}
                   rows={3}
                   placeholder="Justificación técnica y situación que amerita alerta roja..."
-                  className="w-full bg-[#111827] border border-[#DC2626]/50 rounded px-3 py-2 text-[#F0F4FF] text-sm placeholder-[#8B9CC8] focus:outline-none focus:border-[#DC2626] resize-none transition-colors"
+                  className="w-full bg-[#ffffff] border border-[#DC2626]/50 rounded px-3 py-2 text-[#111827] text-sm placeholder-[#6b7280] focus:outline-none focus:border-[#DC2626] resize-none transition-colors"
                 />
               </div>
             )}
@@ -495,7 +495,7 @@ export default function AlertaNuevaPage() {
             <div className="flex gap-3">
               <button
                 onClick={() => setPaso(5)}
-                className="flex-1 py-2.5 bg-[#1E2535] hover:bg-[#2D3748] border border-[#2D3748] text-[#F0F4FF] font-bold rounded text-sm transition-colors"
+                className="flex-1 py-2.5 bg-[#f3f4f6] hover:bg-[#e5e7eb] border border-[#e5e7eb] text-[#111827] font-bold rounded text-sm transition-colors"
               >
                 ← Anterior
               </button>
@@ -533,7 +533,7 @@ export default function AlertaNuevaPage() {
                       <div className="flex gap-2">
                         <button
                           onClick={() => setConfirmDialogOpen(false)}
-                          className="flex-1 py-1.5 bg-[#1E2535] border border-[#2D3748] rounded text-[#F0F4FF] text-xs"
+                          className="flex-1 py-1.5 bg-[#f3f4f6] border border-[#e5e7eb] rounded text-[#111827] text-xs"
                         >
                           Cancelar
                         </button>
@@ -560,7 +560,7 @@ export default function AlertaNuevaPage() {
                   >
                     {loading ? 'Emitiendo...' : 'EMITIR ALERTA ROJA'}
                   </button>
-                  <p className="text-[10px] text-[#8B9CC8] text-center">
+                  <p className="text-[10px] text-[#6b7280] text-center">
                     Se requiere motivo de al menos 10 caracteres
                   </p>
                 </div>

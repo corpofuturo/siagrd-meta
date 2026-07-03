@@ -137,19 +137,19 @@ export default function ExportacionesPage() {
   return (
     <div className="flex-1">
       <div className="mb-6">
-        <h1 className="font-display text-2xl font-bold text-[#F0F4FF] uppercase tracking-wider">
+        <h1 className="font-display text-2xl font-bold text-[#111827] uppercase tracking-wider">
           Exportación de Datos
         </h1>
-        <p className="text-[#8B9CC8] text-sm mt-1">
+        <p className="text-[#6b7280] text-sm mt-1">
           Informes CSV para gestión de emergencias.{' '}
-          <span className="text-[#8B9CC8]/60 text-xs">DT-004: Exportación PDF requiere librería pesada — pendiente.</span>
+          <span className="text-[#6b7280]/60 text-xs">DT-004: Exportación PDF requiere librería pesada — pendiente.</span>
         </p>
       </div>
 
-      <div className="bg-[#111827] border border-[#2D3748] rounded-lg p-6 flex flex-col gap-5 max-w-lg">
+      <div className="bg-[#ffffff] border border-[#e5e7eb] rounded-lg p-6 flex flex-col gap-5 max-w-lg">
         {/* Selector de tipo */}
         <div className="flex flex-col gap-2">
-          <span className="text-[#8B9CC8] text-xs uppercase tracking-wider">Tipo de datos</span>
+          <span className="text-[#6b7280] text-xs uppercase tracking-wider">Tipo de datos</span>
           <div className="grid grid-cols-2 gap-2">
             {tipos.map((t) => (
               <button
@@ -157,8 +157,8 @@ export default function ExportacionesPage() {
                 onClick={() => setTipo(t)}
                 className={`px-3 py-2 rounded border text-sm font-mono transition-colors ${
                   tipo === t
-                    ? 'bg-[#2D3748] border-[#8B9CC8] text-[#F0F4FF]'
-                    : 'bg-[#1E2535] border-[#2D3748] text-[#8B9CC8] hover:bg-[#2D3748]'
+                    ? 'bg-[#e5e7eb] border-[#6b7280] text-[#111827]'
+                    : 'bg-[#f3f4f6] border-[#e5e7eb] text-[#6b7280] hover:bg-[#e5e7eb]'
                 }`}
               >
                 {TITULOS[t]}
@@ -169,28 +169,28 @@ export default function ExportacionesPage() {
 
         {/* Rango de fechas */}
         <div className="flex flex-col gap-2">
-          <span className="text-[#8B9CC8] text-xs uppercase tracking-wider">Rango de fechas (opcional)</span>
+          <span className="text-[#6b7280] text-xs uppercase tracking-wider">Rango de fechas (opcional)</span>
           <div className="flex items-center gap-2 flex-wrap">
             <input
               type="date"
               value={desde}
               onChange={(e) => setDesde(e.target.value)}
-              className="bg-[#0D1117] border border-[#2D3748] text-[#F0F4FF] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#8B9CC8]"
+              className="bg-[#0D1117] border border-[#e5e7eb] text-[#111827] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#6b7280]"
             />
-            <span className="text-[#8B9CC8] text-xs">—</span>
+            <span className="text-[#6b7280] text-xs">—</span>
             <input
               type="date"
               value={hasta}
               onChange={(e) => setHasta(e.target.value)}
-              className="bg-[#0D1117] border border-[#2D3748] text-[#F0F4FF] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#8B9CC8]"
+              className="bg-[#0D1117] border border-[#e5e7eb] text-[#111827] text-sm rounded px-3 py-1.5 focus:outline-none focus:border-[#6b7280]"
             />
           </div>
         </div>
 
         {/* Columnas que se exportarán */}
         <div className="flex flex-col gap-1">
-          <span className="text-[#8B9CC8] text-xs uppercase tracking-wider">Columnas a exportar</span>
-          <p className="text-[#8B9CC8]/70 text-xs font-mono">
+          <span className="text-[#6b7280] text-xs uppercase tracking-wider">Columnas a exportar</span>
+          <p className="text-[#6b7280]/70 text-xs font-mono">
             {CAMPOS[tipo].map((c) => c.label).join(', ')}
           </p>
         </div>
@@ -204,7 +204,7 @@ export default function ExportacionesPage() {
         <button
           disabled={exportando}
           onClick={handleExport}
-          className="px-4 py-2.5 bg-[#1E3A5F] border border-[#2D5A8E] rounded text-[#F0F4FF] text-sm hover:bg-[#2D5A8E] transition-colors disabled:opacity-40 font-mono"
+          className="px-4 py-2.5 bg-[#1E3A5F] border border-[#2D5A8E] rounded text-[#111827] text-sm hover:bg-[#2D5A8E] transition-colors disabled:opacity-40 font-mono"
         >
           {exportando ? 'Exportando...' : `Exportar ${TITULOS[tipo]} CSV`}
         </button>

@@ -106,7 +106,7 @@ export default function MapaAlertaDibujo({
     if (municipiosSeleccionados.length === 0) return;
 
     const refIcon = Lf.divIcon({
-      html: '<div style="width:10px;height:10px;background:#8B9CC8;border:2px solid #F0F4FF;border-radius:50%;"></div>',
+      html: '<div style="width:10px;height:10px;background:#6b7280;border:2px solid #111827;border-radius:50%;"></div>',
       iconSize: [10, 10],
       iconAnchor: [5, 5],
       className: '',
@@ -242,7 +242,7 @@ export default function MapaAlertaDibujo({
           <button
             type="button"
             onClick={limpiar}
-            className="px-3 py-1.5 bg-[#1E2535] hover:bg-[#2D3748] border border-[#2D3748] text-[#F0F4FF] text-xs font-bold rounded uppercase tracking-wider transition-colors"
+            className="px-3 py-1.5 bg-[#f3f4f6] hover:bg-[#e5e7eb] border border-[#e5e7eb] text-[#111827] text-xs font-bold rounded uppercase tracking-wider transition-colors"
           >
             Limpiar
           </button>
@@ -251,12 +251,12 @@ export default function MapaAlertaDibujo({
 
       <div
         ref={mapRef}
-        className="w-full rounded border border-[#2D3748] overflow-hidden"
+        className="w-full rounded border border-[#e5e7eb] overflow-hidden"
         style={{ height: '360px' }}
       />
 
       {municipiosSeleccionados.length > 0 && (
-        <p className="text-xs text-[#8B9CC8]">
+        <p className="text-xs text-[#6b7280]">
           Puntos azules: centroides de municipios seleccionados (referencia).
         </p>
       )}

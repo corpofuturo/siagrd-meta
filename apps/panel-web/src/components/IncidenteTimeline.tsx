@@ -30,12 +30,12 @@ function SkeletonItem() {
   return (
     <div className="flex gap-3 animate-pulse">
       <div className="flex flex-col items-center">
-        <div className="w-3 h-3 rounded-full bg-[#2D3748] flex-shrink-0 mt-1" />
-        <div className="w-px flex-1 bg-[#2D3748] mt-1" />
+        <div className="w-3 h-3 rounded-full bg-[#e5e7eb] flex-shrink-0 mt-1" />
+        <div className="w-px flex-1 bg-[#e5e7eb] mt-1" />
       </div>
       <div className="flex-1 pb-5">
-        <div className="h-3 bg-[#2D3748] rounded w-3/4 mb-2" />
-        <div className="h-2 bg-[#1E2535] rounded w-1/3" />
+        <div className="h-3 bg-[#e5e7eb] rounded w-3/4 mb-2" />
+        <div className="h-2 bg-[#f3f4f6] rounded w-1/3" />
       </div>
     </div>
   );
@@ -74,7 +74,7 @@ export default function IncidenteTimeline({ incidente_id }: IncidenteTimelinePro
 
   if (actualizaciones.length === 0) {
     return (
-      <p className="text-[#8B9CC8] text-sm font-mono">Sin actualizaciones registradas</p>
+      <p className="text-[#6b7280] text-sm font-mono">Sin actualizaciones registradas</p>
     );
   }
 
@@ -83,21 +83,21 @@ export default function IncidenteTimeline({ incidente_id }: IncidenteTimelinePro
       {actualizaciones.map((act, idx) => (
         <div key={act.id} className="flex gap-3">
           <div className="flex flex-col items-center">
-            <div className="w-3 h-3 rounded-full bg-[#8B9CC8] border-2 border-[#2D3748] flex-shrink-0 mt-1" />
+            <div className="w-3 h-3 rounded-full bg-[#6b7280] border-2 border-[#e5e7eb] flex-shrink-0 mt-1" />
             {idx < actualizaciones.length - 1 && (
-              <div className="w-px flex-1 bg-[#2D3748] mt-1" />
+              <div className="w-px flex-1 bg-[#e5e7eb] mt-1" />
             )}
           </div>
           <div className="flex-1 pb-5">
-            <p className="text-[#F0F4FF] text-sm leading-relaxed">{act.descripcion}</p>
+            <p className="text-[#111827] text-sm leading-relaxed">{act.descripcion}</p>
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-[#8B9CC8] text-xs font-mono">
+              <span className="text-[#6b7280] text-xs font-mono">
                 {formatRelativo(act.created_at)}
               </span>
               {act.autor && (
                 <>
-                  <span className="text-[#2D3748]">·</span>
-                  <span className="text-[#8B9CC8] text-xs">{act.autor}</span>
+                  <span className="text-[#e5e7eb]">·</span>
+                  <span className="text-[#6b7280] text-xs">{act.autor}</span>
                 </>
               )}
             </div>
