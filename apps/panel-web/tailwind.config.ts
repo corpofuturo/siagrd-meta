@@ -10,25 +10,66 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Fondos del sistema
+        // Tokens del tema oscuro anterior — se conservan temporalmente porque
+        // ~19 paginas de listado (Paso 8 del rediseno) aun los usan y no
+        // fueron reescritas linea por linea en esta pasada. Eliminar cuando
+        // se migren esas paginas al patron blanco/azul institucional.
         'bg-primary': '#0A0E1A',
         'bg-secondary': '#111827',
         'bg-tertiary': '#1E2535',
-        // Textos
         'text-primary': '#F0F4FF',
         'text-secondary': '#8B9CC8',
-        // Bordes
         border: '#2D3748',
         surface: '#1E2535',
-        // Niveles de alerta
         alert: {
           verde: '#16A34A',
           amarillo: '#D97706',
           naranja: '#EA580C',
           rojo: '#DC2626',
         },
+        // Sidebar / panel interno
+        sidebar: {
+          bg:         '#1e3a5f',   // blue-900 corporativo
+          hover:      '#1a3352',
+          active:     '#0f2540',
+          border:     '#163155',
+          text:       '#ffffff',
+          muted:      '#93c5fd',   // blue-300
+          label:      '#60a5fa',   // blue-400 (etiquetas de sección)
+        },
+        // Navbar superior
+        navbar: {
+          bg:         '#ffffff',
+          border:     '#e5e7eb',   // gray-200
+          text:       '#1e3a5f',
+          muted:      '#6b7280',
+        },
+        // Fondo general de páginas
+        panel: {
+          bg:         '#f9fafb',   // gray-50
+          card:       '#ffffff',
+          border:     '#e5e7eb',
+          text:       '#111827',
+          muted:      '#6b7280',
+        },
+        // Botones primarios
+        brand: {
+          DEFAULT:    '#1d4ed8',   // blue-700
+          hover:      '#1e40af',   // blue-800
+          light:      '#dbeafe',   // blue-100
+          text:       '#1e40af',   // blue-800 para texto sobre fondo claro
+        },
+        // Niveles de alerta (mantener semántica)
+        alerta: {
+          verde:    { bg: '#dcfce7', text: '#166534', border: '#86efac' },
+          amarillo: { bg: '#fef9c3', text: '#854d0e', border: '#fde047' },
+          naranja:  { bg: '#ffedd5', text: '#9a3412', border: '#fdba74' },
+          rojo:     { bg: '#fee2e2', text: '#991b1b', border: '#fca5a5' },
+        },
       },
       fontFamily: {
+        sans: ["'Segoe UI'", 'system-ui', '-apple-system', 'sans-serif'],
+        // Conservados por las mismas ~19 paginas de listado del tema anterior.
         display: ['var(--font-display)', 'Barlow Condensed', 'sans-serif'],
         body: ['var(--font-body)', 'IBM Plex Sans', 'sans-serif'],
         mono: ['IBM Plex Mono', 'monospace'],
