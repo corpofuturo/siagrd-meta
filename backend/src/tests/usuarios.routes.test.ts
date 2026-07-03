@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const { mockDb } = vi.hoisted(() => {
   const mockDb = vi.fn().mockResolvedValue([]);
   (mockDb as any).array = vi.fn().mockImplementation((arr: any[]) => arr);
+  (mockDb as any).unsafe = vi.fn().mockResolvedValue([]);
   return { mockDb };
 });
 
@@ -42,7 +43,9 @@ describe('GET /usuarios', () => {
   });
 
   it('ADMIN puede listar usuarios', async () => {
-    (mockDb as any).mockResolvedValueOnce([
+    // GET /usuarios hace 2 queries via db.unsafe: COUNT(*) y luego SELECT con joins.
+    (mockDb as any).unsafe.mockResolvedValueOnce([{ count: 2 }]);
+    (mockDb as any).unsafe.mockResolvedValueOnce([
       { id: 'u1', email: 'a@test.com', rol: 'CDGRD' },
       { id: 'u2', email: 'b@test.com', rol: 'CMGRD' },
     ]);
