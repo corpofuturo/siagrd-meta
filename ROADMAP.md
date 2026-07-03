@@ -18,13 +18,9 @@ Sistema de Alertas Tempranas de Amenazas Múltiples para el Departamento del Met
 
 **Pendiente real de este hito:** ninguno de los 5 bloqueantes originales sigue abierto. Antes de declarar el Hito 1 cerrado, `security-auditor` debe hacer una pasada completa de verificación (no solo confiar en este resumen) y `sqa-backend` debe confirmar que la suite de tests (126/126 al 2026-07-03) sigue verde.
 
-## Hito 2 — Deuda funcional no bloqueante
+## Hito 2 — Deuda funcional no bloqueante ✅ CERRADO
 
-DT-002, DT-005 a DT-012 (numeración de `ARQUITECTURA.md`, ver tabla completa en `TECH_DEBT.md`). Estado real verificado 2026-07-03: **10 de 11 resueltos**, incluido ARQ-DT-008 (endpoints de usuarios por comité, cerrado hoy). Queda solo:
-
-| ID | Descripción | Estado |
-|---|---|---|
-| ARQ-DT-007 | `GET /api/v1/geo/departamento` — existe un endpoint similar (`/municipios/geojson`) pero no el contrato exacto | Parcial (menor) |
+DT-002, DT-005 a DT-012 (numeración de `ARQUITECTURA.md`, ver tabla completa en `TECH_DEBT.md`). **16/16 ítems resueltos y verificados** (2026-07-03), incluidos ARQ-DT-008 (endpoints de usuarios por comité) y ARQ-DT-007 (`GET /geo/departamento`, contrato exacto).
 
 ## Deuda de integración externa (bloqueada por decisión humana)
 
