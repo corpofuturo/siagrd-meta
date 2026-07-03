@@ -2,27 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import {
-  Map,
-  Siren,
-  Bell,
-  MessageSquare,
-  Shield,
-  Landmark,
-  Building2,
-  School,
-  Users,
-  Settings,
-  BarChart3,
-  ClipboardList,
-  LogOut,
-  type LucideIcon,
-} from 'lucide-react';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 interface NavItem {
   href: string;
-  icon: LucideIcon;
+  emoji: string;
   label: string;
 }
 
@@ -35,28 +19,29 @@ const NAV_SECTIONS: NavSection[] = [
   {
     title: 'Operaciones',
     items: [
-      { href: '/',              icon: Map,            label: 'Dashboard' },
-      { href: '/incidentes',    icon: Siren,          label: 'Incidentes' },
-      { href: '/alertas',       icon: Bell,           label: 'Alertas' },
-      { href: '/chat',          icon: MessageSquare,  label: 'Comunicaciones' },
+      { href: '/',              emoji: '🗺️', label: 'Dashboard' },
+      { href: '/incidentes',    emoji: '🚨', label: 'Incidentes' },
+      { href: '/alertas',       emoji: '🔔', label: 'Alertas' },
+      { href: '/chat',          emoji: '💬', label: 'Comunicaciones' },
     ],
   },
   {
     title: 'Organizaciones',
     items: [
-      { href: '/organismos',    icon: Shield,         label: 'Organismos de Socorro' },
-      { href: '/comites',       icon: Landmark,       label: 'Comités GRD' },
-      { href: '/jal',           icon: Building2,      label: 'Juntas de Acción Comunal' },
-      { href: '/alcaldias',     icon: School,         label: 'Alcaldías' },
-      { href: '/grupos',        icon: Users,          label: 'Grupos de Usuarios' },
+      { href: '/organismos',    emoji: '🛡️', label: 'Organismos de Socorro' },
+      { href: '/comites',       emoji: '🏛️', label: 'Comités GRD' },
+      { href: '/jal',           emoji: '🏘️', label: 'Juntas de Acción Comunal' },
+      { href: '/alcaldias',     emoji: '🏫', label: 'Alcaldías' },
+      { href: '/grupos',        emoji: '👥', label: 'Grupos de Usuarios' },
     ],
   },
   {
     title: 'Administración',
     items: [
-      { href: '/configuracion', icon: Settings,       label: 'Configuración del Sistema' },
-      { href: '/estadisticas',  icon: BarChart3,      label: 'Estadísticas' },
-      { href: '/reportes',      icon: ClipboardList,  label: 'Reportes' },
+      { href: '/usuarios',      emoji: '👤', label: 'Usuarios del Sistema' },
+      { href: '/configuracion', emoji: '⚙️', label: 'Configuración del Sistema' },
+      { href: '/estadisticas',  emoji: '📊', label: 'Estadísticas' },
+      { href: '/reportes',      emoji: '📋', label: 'Reportes' },
     ],
   },
 ];
@@ -89,16 +74,16 @@ export default function Sidebar({ open = false, onClose }: SidebarProps): React.
   return (
     <aside
       className={`
-        fixed left-0 top-12 bottom-0 w-[220px] bg-[#0D1320] border-r border-[#1E2535]
+        fixed left-0 top-14 bottom-0 w-64 bg-sidebar-bg
         flex flex-col z-40 overflow-y-auto transition-transform duration-200
-        ${open ? 'translate-x-0' : '-translate-x-full'}
         md:translate-x-0
+        ${open ? 'translate-x-0' : '-translate-x-full'}
       `}
     >
-      <nav className="flex-1 py-4 px-2">
+      <nav className="flex-1 py-4 px-3 space-y-1">
         {NAV_SECTIONS.map((section) => (
           <div key={section.title} className="mb-4">
-            <p className="text-[#4B5563] text-[10px] font-bold uppercase tracking-widest px-3 mb-1">
+            <p className="text-sidebar-label text-[10px] font-bold uppercase tracking-widest px-3 mb-2">
               {section.title}
             </p>
             {section.items.map((item) => {
@@ -108,16 +93,16 @@ export default function Sidebar({ open = false, onClose }: SidebarProps): React.
                   key={item.href}
                   href={item.href}
                   onClick={handleNavClick}
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors mb-0.5 relative ${
-                    active
-                      ? 'bg-[#1E2535] text-[#F0F4FF] font-semibold'
-                      : 'text-[#6B7280] hover:bg-[#1E2535]/60 hover:text-[#D1D5DB]'
-                  }`}
+                  className={`
+                    flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+                    transition-colors mb-0.5
+                    ${active
+                      ? 'bg-sidebar-active text-white border-l-4 border-blue-400 pl-2'
+                      : 'text-sidebar-muted hover:bg-sidebar-hover hover:text-white'
+                    }
+                  `}
                 >
-                  {active && (
-                    <span className="absolute left-0 top-1 bottom-1 w-0.5 bg-[#3B82F6] rounded-full" />
-                  )}
-                  <item.icon size={17} strokeWidth={2} className="shrink-0" />
+                  <span className="text-base w-5 text-center shrink-0">{item.emoji}</span>
                   <span className="truncate">{item.label}</span>
                 </Link>
               );
@@ -126,21 +111,23 @@ export default function Sidebar({ open = false, onClose }: SidebarProps): React.
         ))}
       </nav>
 
-      {/* Footer: usuario + logout */}
-      <div className="border-t border-[#1E2535] p-3">
+      {/* Footer usuario */}
+      <div className="border-t border-sidebar-border p-4">
         {user && (
-          <div className="mb-2 px-1">
-            <p className="text-[#F0F4FF] text-xs font-semibold truncate">{user.nombre}</p>
-            {user.email && (
-              <p className="text-[#4B5563] text-[10px] truncate font-mono">{user.email}</p>
-            )}
+          <div className="mb-3">
+            <p className="text-white text-sm font-semibold truncate">{user.nombre}</p>
+            <p className="text-sidebar-muted text-xs truncate">{user.email}</p>
+            <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] bg-brand-light text-brand-text font-bold uppercase">
+              {user.rol}
+            </span>
           </div>
         )}
         <button
           onClick={logout}
-          className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-xs text-[#6B7280] hover:bg-[#1E2535] hover:text-[#F87171] transition-colors"
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm
+                     text-sidebar-muted hover:bg-red-900/30 hover:text-red-300 transition-colors"
         >
-          <LogOut size={15} strokeWidth={2} />
+          <span>🚪</span>
           <span>Cerrar sesión</span>
         </button>
       </div>
