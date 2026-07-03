@@ -23,17 +23,52 @@ const bulkImportSchema = z.object({
 });
 
 export async function usuariosRoutes(app: FastifyInstance): Promise<void> {
-  // GET /usuarios — lista usuarios (solo ADMIN y CDGRD)
+  // GET /usuarios — lista usuarios (solo ADMIN y CDGRD), con filtros y busqueda
   app.get('/usuarios', { preHandler: authMiddleware }, async (request, reply) => {
     const user = request.user!;
     if (!['ADMIN', 'CDGRD'].includes(user.rol)) throw new ForbiddenError('Sin acceso');
 
-    const rows = await db`
-      SELECT id, email, nombre, apellido, rol, municipio_id, organismo_id, activo, created_at
-      FROM profiles
-      ORDER BY created_at DESC
-    `;
-    return reply.send({ data: rows, total: rows.length });
+    const { rol, municipio_id, q, limit, offset } = request.query as {
+      rol?: string; municipio_id?: string; q?: string; limit?: string; offset?: string;
+    };
+    const limitNum = Math.min(limit ? parseInt(limit, 10) || 20 : 20, 100);
+    const offsetNum = offset ? Math.max(parseInt(offset, 10), 0) : 0;
+    const rolFiltro = rol && VALID_ROLES.includes(rol as typeof VALID_ROLES[number]) ? rol : undefined;
+    const busqueda = q?.trim() ? `%${q.trim()}%` : undefined;
+
+    // Se construye la clausula WHERE con parametros posicionales via db.unsafe
+    // en vez de fragmentos anidados (${cond ? db`x` : db`TRUE`}) — mas simple
+    // de testear con mocks y evita anidar tagged templates innecesariamente.
+    const conditions: string[] = [];
+    const params: unknown[] = [];
+    if (rolFiltro) { params.push(rolFiltro); conditions.push(`p.rol = $${params.length}`); }
+    if (municipio_id) { params.push(municipio_id); conditions.push(`p.municipio_id = $${params.length}`); }
+    if (busqueda) {
+      params.push(busqueda);
+      const idx = params.length;
+      conditions.push(`(p.nombre ILIKE $${idx} OR p.apellido ILIKE $${idx} OR p.email ILIKE $${idx})`);
+    }
+    const whereSql = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+
+    const [{ count }] = await db.unsafe(
+      `SELECT COUNT(*)::int AS count FROM profiles p ${whereSql}`,
+      params as any[],
+    );
+
+    const rows = await db.unsafe(
+      `
+      SELECT p.id, p.email, p.nombre, p.apellido, p.rol, p.municipio_id, p.organismo_id, p.activo, p.created_at,
+             m.nombre AS municipio_nombre, o.nombre AS organismo_nombre
+      FROM profiles p
+      LEFT JOIN municipios m ON m.id = p.municipio_id
+      LEFT JOIN organismos o ON o.id = p.organismo_id
+      ${whereSql}
+      ORDER BY p.created_at DESC
+      LIMIT $${params.length + 1} OFFSET $${params.length + 2}
+      `,
+      [...params, limitNum, offsetNum] as any[],
+    );
+    return reply.send({ data: rows, total: count, limit: limitNum, offset: offsetNum });
   });
 
   // GET /usuarios/:id
@@ -75,6 +110,40 @@ export async function usuariosRoutes(app: FastifyInstance): Promise<void> {
     `;
     if (!row) throw new NotFoundError('Usuario');
     return reply.send({ data: row });
+  });
+
+  // PATCH /usuarios/:id — editar datos basicos (ADMIN o CDGRD)
+  app.patch<{ Params: { id: string } }>('/usuarios/:id', { preHandler: authMiddleware }, async (request, reply) => {
+    const user = request.user!;
+    if (!['ADMIN', 'CDGRD'].includes(user.rol)) throw new ForbiddenError('Sin acceso');
+
+    const { id } = request.params;
+    const [existing] = await db`SELECT id FROM profiles WHERE id = ${id}`;
+    if (!existing) throw new NotFoundError('Usuario');
+
+    const body = request.body as Record<string, unknown>;
+    const allowed = ['nombre', 'apellido', 'documento', 'celular', 'municipio_id', 'organismo_id'];
+    const updates: Record<string, unknown> = {};
+    for (const k of allowed) {
+      if (body[k] !== undefined) updates[k] = body[k];
+    }
+    // Solo ADMIN puede reasignar rol via este endpoint (CDGRD usa /usuarios/:id/rol si aplica)
+    if (body.rol !== undefined) {
+      if (user.rol !== 'ADMIN') throw new ForbiddenError('Solo ADMIN puede cambiar el rol');
+      if (!VALID_ROLES.includes(body.rol as typeof VALID_ROLES[number])) throw new ValidationError('Rol inválido');
+      updates.rol = body.rol;
+    }
+    if (Object.keys(updates).length === 0) throw new ValidationError('Sin campos para actualizar');
+
+    updates.updated_at = new Date();
+    const sets = Object.entries(updates).map(([k, v]) => db`${db(k)} = ${v as any}`);
+    const [updated] = await db`
+      UPDATE profiles
+      SET ${sets.reduce((a, b) => db`${a}, ${b}`)}
+      WHERE id = ${id}
+      RETURNING id, email, nombre, apellido, rol, municipio_id, organismo_id, activo
+    `;
+    return reply.send({ data: updated });
   });
 
   // POST /usuarios — crear un único usuario (ADMIN o CDGRD)
