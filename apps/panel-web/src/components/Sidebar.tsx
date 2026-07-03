@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
@@ -54,6 +55,8 @@ interface SidebarProps {
 export default function Sidebar({ open = false, onClose }: SidebarProps): React.ReactElement {
   const pathname = usePathname();
   const router = useRouter();
+  const [hoveredHref, setHoveredHref] = useState<string | null>(null);
+  const [logoutHover, setLogoutHover] = useState(false);
 
   const { user } = useCurrentUser();
 
@@ -74,33 +77,47 @@ export default function Sidebar({ open = false, onClose }: SidebarProps): React.
   return (
     <aside
       className={`
-        fixed left-0 top-14 bottom-0 w-64 bg-sidebar-bg
+        fixed left-0 top-14 bottom-0 w-64
         flex flex-col z-40 overflow-y-auto transition-transform duration-200
         md:translate-x-0
         ${open ? 'translate-x-0' : '-translate-x-full'}
       `}
+      style={{ backgroundColor: '#ffffff', borderRight: '1px solid #c7d2fe' }}
     >
       <nav className="flex-1 py-4 px-3 space-y-1">
         {NAV_SECTIONS.map((section) => (
           <div key={section.title} className="mb-4">
-            <p className="text-sidebar-label text-[10px] font-bold uppercase tracking-widest px-3 mb-2">
+            <p
+              className="text-[10px] font-bold uppercase tracking-widest px-3 mb-2"
+              style={{ color: 'rgba(71,85,105,0.5)' }}
+            >
               {section.title}
             </p>
             {section.items.map((item) => {
               const active = isActive(item.href);
+              const hovered = hoveredHref === item.href;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={handleNavClick}
-                  className={`
-                    flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
-                    transition-colors mb-0.5
-                    ${active
-                      ? 'bg-sidebar-active text-white border-l-4 border-blue-400 pl-2'
-                      : 'text-sidebar-muted hover:bg-sidebar-hover hover:text-white'
-                    }
-                  `}
+                  onMouseEnter={() => setHoveredHref(item.href)}
+                  onMouseLeave={() => setHoveredHref(null)}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors mb-0.5"
+                  style={
+                    active
+                      ? {
+                          backgroundColor: '#e0e7ff',
+                          color: '#312e81',
+                          borderLeft: '3px solid #4f46e5',
+                          paddingLeft: 'calc(0.75rem - 3px)',
+                        }
+                      : {
+                          color: '#475569',
+                          backgroundColor: hovered ? 'rgba(79,70,229,0.06)' : 'transparent',
+                          ...(hovered ? { color: '#4f46e5' } : {}),
+                        }
+                  }
                 >
                   <span className="text-base w-5 text-center shrink-0">{item.emoji}</span>
                   <span className="truncate">{item.label}</span>
@@ -112,20 +129,29 @@ export default function Sidebar({ open = false, onClose }: SidebarProps): React.
       </nav>
 
       {/* Footer usuario */}
-      <div className="border-t border-sidebar-border p-4">
+      <div className="p-4" style={{ borderTop: '1px solid #c7d2fe' }}>
         {user && (
           <div className="mb-3">
-            <p className="text-white text-sm font-semibold truncate">{user.nombre}</p>
-            <p className="text-sidebar-muted text-xs truncate">{user.email}</p>
-            <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] bg-brand-light text-brand-text font-bold uppercase">
+            <p className="text-sm font-semibold truncate" style={{ color: '#0f0a2e' }}>{user.nombre}</p>
+            <p className="text-xs truncate" style={{ color: '#6b7280' }}>{user.email}</p>
+            <span
+              className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-bold uppercase"
+              style={{ backgroundColor: 'rgba(79,70,229,0.15)', color: '#4f46e5' }}
+            >
               {user.rol}
             </span>
           </div>
         )}
         <button
           onClick={logout}
-          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm
-                     text-sidebar-muted hover:bg-red-900/30 hover:text-red-300 transition-colors"
+          onMouseEnter={() => setLogoutHover(true)}
+          onMouseLeave={() => setLogoutHover(false)}
+          className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors"
+          style={
+            logoutHover
+              ? { backgroundColor: 'rgba(239,68,68,0.1)', color: '#ef4444' }
+              : { color: '#475569', backgroundColor: 'transparent' }
+          }
         >
           <span>🚪</span>
           <span>Cerrar sesión</span>

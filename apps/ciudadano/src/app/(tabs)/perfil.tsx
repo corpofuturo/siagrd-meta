@@ -30,7 +30,7 @@ const ROL_COLORS: Record<string, string> = {
   ciudadano: '#34C759',
   coordinador_municipal: '#FF9500',
   coordinador_departamental: '#FF3B30',
-  operador: '#60A5FA',
+  operador: '#4f46e5',
   admin: '#A78BFA',
 };
 
@@ -48,7 +48,7 @@ function MenuItem({ icon, label, desc, onPress, danger }: MenuItemProps) {
   return (
     <TouchableOpacity style={[styles.menuItem, danger && styles.menuItemDanger]} onPress={onPress} activeOpacity={0.7}>
       <View style={[styles.menuIcon, danger && styles.menuIconDanger]}>
-        <Ionicons name={icon as any} size={20} color={danger ? '#EF4444' : '#60A5FA'} />
+        <Ionicons name={icon as any} size={20} color={danger ? '#EF4444' : '#4f46e5'} />
       </View>
       <View style={styles.menuText}>
         <Text style={[styles.menuLabel, danger && styles.menuLabelDanger]}>{label}</Text>
@@ -151,21 +151,21 @@ export default function PerfilScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0A0E1A' },
+  container: { flex: 1, backgroundColor: '#eef2ff' },
   content: { paddingBottom: 48, paddingTop: 48, alignItems: 'center' },
 
   avatarWrapper: { marginBottom: 20 },
   avatar: {
     width: 88, height: 88, borderRadius: 44,
-    backgroundColor: '#1F2937', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#e0e7ff', alignItems: 'center', justifyContent: 'center',
     borderWidth: 2,
   },
 
   card: {
-    width: '90%', backgroundColor: '#1F2937', borderRadius: 16,
+    width: '90%', backgroundColor: '#e0e7ff', borderRadius: 16,
     padding: 20, gap: 6, marginBottom: 24, alignItems: 'center',
   },
-  nombre: { fontSize: 20, fontWeight: '700', color: '#F9FAFB' },
+  nombre: { fontSize: 20, fontWeight: '700', color: '#0f0a2e' },
   email: { fontSize: 13, color: '#9CA3AF' },
   badgeRow: { flexDirection: 'row', marginTop: 4 },
   badge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20, borderWidth: 1 },
@@ -176,14 +176,14 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 11, fontWeight: '700', color: '#4B5563', letterSpacing: 1.2, marginBottom: 8, marginLeft: 4 },
 
   menuItem: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#1F2937',
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#e0e7ff',
     borderRadius: 12, padding: 14, marginBottom: 6, gap: 12,
   },
   menuItemDanger: { backgroundColor: '#1F1010' },
   menuIcon: { width: 36, height: 36, borderRadius: 10, backgroundColor: '#1D4ED822', alignItems: 'center', justifyContent: 'center' },
   menuIconDanger: { backgroundColor: '#EF444422' },
   menuText: { flex: 1 },
-  menuLabel: { fontSize: 14, fontWeight: '600', color: '#F9FAFB' },
+  menuLabel: { fontSize: 14, fontWeight: '600', color: '#0f0a2e' },
   menuLabelDanger: { color: '#EF4444' },
   menuDesc: { fontSize: 12, color: '#6B7280', marginTop: 1 },
 

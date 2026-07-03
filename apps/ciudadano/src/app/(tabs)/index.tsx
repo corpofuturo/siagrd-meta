@@ -90,7 +90,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#0F1117" />
+      <StatusBar barStyle="light-content" backgroundColor="#eef2ff" />
 
       {offline && (
         <View style={styles.offlineBanner}>
@@ -121,10 +121,10 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F1117',
+    backgroundColor: '#eef2ff',
   },
   offlineBanner: {
-    backgroundColor: '#374151',
+    backgroundColor: '#c7d2fe',
     paddingVertical: 8,
     alignItems: 'center',
   },
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   card: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#e0e7ff',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   },
   tipo: {
     flex: 1,
-    color: '#F9FAFB',
+    color: '#0f0a2e',
     fontSize: 15,
     fontWeight: '600',
   },

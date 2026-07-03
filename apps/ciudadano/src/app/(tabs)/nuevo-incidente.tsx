@@ -31,7 +31,7 @@ interface TipoOption {
 }
 
 const TIPOS: TipoOption[] = [
-  { key: 'INUNDACION', label: 'Inundación', icon: 'water', color: '#3B82F6' },
+  { key: 'INUNDACION', label: 'Inundación', icon: 'water', color: '#4f46e5' },
   { key: 'DESLIZAMIENTO', label: 'Deslizamiento', icon: 'alert-circle', color: '#92400E' },
   { key: 'SISMO', label: 'Sismo', icon: 'pulse', color: '#DC2626' },
   { key: 'INCENDIO_FORESTAL', label: 'Incendio Forestal', icon: 'flame', color: '#EA580C' },
@@ -270,11 +270,11 @@ export default function NuevoIncidente() {
             </TouchableOpacity>
             <View style={styles.fotoAcciones}>
               <TouchableOpacity style={styles.fotoBtnSecundario} onPress={tomarFotoCamara}>
-                <Ionicons name="camera" size={15} color="#3B82F6" />
+                <Ionicons name="camera" size={15} color="#4f46e5" />
                 <Text style={styles.fotoBtnSecundarioTexto}>Nueva foto</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.fotoBtnSecundario} onPress={seleccionarDeGaleria}>
-                <Ionicons name="images" size={15} color="#3B82F6" />
+                <Ionicons name="images" size={15} color="#4f46e5" />
                 <Text style={styles.fotoBtnSecundarioTexto}>Galería</Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -289,11 +289,11 @@ export default function NuevoIncidente() {
         ) : (
           <View style={styles.fotoBotonesVacio}>
             <TouchableOpacity style={styles.actionBtn} onPress={tomarFotoCamara}>
-              <Ionicons name="camera" size={20} color="#3B82F6" />
+              <Ionicons name="camera" size={20} color="#4f46e5" />
               <Text style={styles.actionBtnText}>Tomar foto</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionBtn} onPress={seleccionarDeGaleria}>
-              <Ionicons name="images" size={20} color="#3B82F6" />
+              <Ionicons name="images" size={20} color="#4f46e5" />
               <Text style={styles.actionBtnText}>Desde galería</Text>
             </TouchableOpacity>
           </View>
@@ -313,9 +313,9 @@ export default function NuevoIncidente() {
         ) : (
           <TouchableOpacity style={styles.actionBtn} onPress={getLocation} disabled={loadingGps}>
             {loadingGps ? (
-              <ActivityIndicator size="small" color="#3B82F6" />
+              <ActivityIndicator size="small" color="#4f46e5" />
             ) : (
-              <Ionicons name="location" size={20} color="#3B82F6" />
+              <Ionicons name="location" size={20} color="#4f46e5" />
             )}
             <Text style={styles.actionBtnText}>
               {loadingGps ? 'Obteniendo ubicación...' : 'Obtener GPS'}
@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
   blockedTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#111827',
+    color: '#0f0a2e',
   },
   blockedBody: {
     fontSize: 14,
@@ -395,7 +395,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   loginBtn: {
-    backgroundColor: '#2563EB',
+    backgroundColor: '#4f46e5',
     borderRadius: 10,
     paddingVertical: 12,
     paddingHorizontal: 32,
@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#111827',
+    color: '#0f0a2e',
     marginBottom: 4,
     marginTop: 8,
   },
@@ -472,7 +472,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 14,
-    color: '#111827',
+    color: '#0f0a2e',
   },
   multiline: {
     height: 90,
@@ -490,7 +490,7 @@ const styles = StyleSheet.create({
   },
   actionBtnText: {
     fontSize: 14,
-    color: '#3B82F6',
+    color: '#4f46e5',
     fontWeight: '500',
   },
   previewContainer: {
@@ -544,14 +544,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#3B82F6',
+    borderColor: '#4f46e5',
   },
   fotoBtnEliminar: {
     borderColor: '#DC2626',
   },
   fotoBtnSecundarioTexto: {
     fontSize: 13,
-    color: '#3B82F6',
+    color: '#4f46e5',
     fontWeight: '500',
   },
   checkRow: {
@@ -565,14 +565,14 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: 4,
     borderWidth: 2,
-    borderColor: '#3B82F6',
+    borderColor: '#4f46e5',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#fff',
   },
   checkboxActivo: {
-    backgroundColor: '#3B82F6',
-    borderColor: '#3B82F6',
+    backgroundColor: '#4f46e5',
+    borderColor: '#4f46e5',
   },
   checkLabel: {
     fontSize: 13,
@@ -580,7 +580,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   submitBtn: {
-    backgroundColor: '#2563EB',
+    backgroundColor: '#4f46e5',
     borderRadius: 10,
     paddingVertical: 14,
     alignItems: 'center',
@@ -604,7 +604,7 @@ const styles = StyleSheet.create({
   resultTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#111827',
+    color: '#0f0a2e',
     textAlign: 'center',
   },
   resultBody: {

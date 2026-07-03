@@ -6,5 +6,5 @@ export default function ReportarTabScreen() {
   useEffect(() => {
     router.push('/reportar');
   }, []);
-  return <View style={{ flex: 1, backgroundColor: '#0A0E1A' }} />;
+  return <View style={{ flex: 1, backgroundColor: '#eef2ff' }} />;
 }

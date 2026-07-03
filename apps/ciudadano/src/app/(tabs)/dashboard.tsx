@@ -35,7 +35,7 @@ interface Incidente {
 
 const ESTADO_COLORS: Record<EstadoIncidente, string> = {
   PENDIENTE: '#6B7280',
-  CONFIRMADO: '#3B82F6',
+  CONFIRMADO: '#4f46e5',
   EN_CURSO: '#F59E0B',
   CONTROLADO: '#22C55E',
   CERRADO: '#4B5563',
@@ -177,7 +177,7 @@ export default function DashboardScreen() {
     <View style={styles.container}>
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color="#3B82F6" />
+          <ActivityIndicator size="large" color="#4f46e5" />
         </View>
       ) : error ? (
         <View style={styles.center}>
@@ -193,8 +193,8 @@ export default function DashboardScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor="#3B82F6"
-              colors={['#3B82F6']}
+              tintColor="#4f46e5"
+              colors={['#4f46e5']}
             />
           }
           ListEmptyComponent={
@@ -215,7 +215,7 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0E1A',
+    backgroundColor: '#eef2ff',
   },
   center: {
     flex: 1,
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
     paddingBottom: 96,
   },
   card: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#e0e7ff',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   cardCodigo: {
-    color: '#F9FAFB',
+    color: '#0f0a2e',
     fontSize: 15,
     fontWeight: '700',
     letterSpacing: 0.5,
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#2563EB',
+    backgroundColor: '#4f46e5',
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 6,

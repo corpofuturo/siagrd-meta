@@ -1,6 +1,6 @@
 import type { StyleSpecification } from 'maplibre-gl';
 
-export const MAP_STYLE_DARK: StyleSpecification = {
+export const MAP_STYLE_LIGHT: StyleSpecification = {
   version: 8,
   sources: {
     osm: {
@@ -16,8 +16,8 @@ export const MAP_STYLE_DARK: StyleSpecification = {
       type: 'raster',
       source: 'osm',
       paint: {
-        'raster-brightness-max': 0.3,
-        'raster-saturation': -0.8,
+        'raster-brightness-min': 0.15,
+        'raster-saturation': -0.15,
       },
     },
   ],

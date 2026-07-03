@@ -66,7 +66,7 @@ export default function MenuScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0E1A',
+    backgroundColor: '#eef2ff',
   },
   listContent: {
     padding: 16,
@@ -78,18 +78,18 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    backgroundColor: '#1F2937',
+    backgroundColor: '#e0e7ff',
     borderRadius: 14,
     padding: 18,
     gap: 8,
     borderWidth: 1,
-    borderColor: '#374151',
+    borderColor: '#c7d2fe',
   },
   cardIcon: {
     fontSize: 30,
   },
   cardTitle: {
-    color: '#F9FAFB',
+    color: '#0f0a2e',
     fontSize: 14,
     fontWeight: '700',
   },

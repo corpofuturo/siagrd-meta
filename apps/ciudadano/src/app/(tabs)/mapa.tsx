@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   mapa: { flex: 1 },
   centered: {
     flex: 1,
-    backgroundColor: '#0F1117',
+    backgroundColor: '#eef2ff',
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 32,
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
   loadingText: { color: '#9CA3AF', fontSize: 14, marginTop: 12 },
   capaBar: {
     flexDirection: 'row',
-    backgroundColor: '#0A0E1A',
+    backgroundColor: '#eef2ff',
     paddingHorizontal: 12,
     paddingVertical: 8,
     gap: 6,
@@ -194,10 +194,10 @@ const styles = StyleSheet.create({
     paddingVertical: 7,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#374151',
+    borderColor: '#c7d2fe',
     alignItems: 'center',
   },
-  capaBtnActive: { backgroundColor: '#2563EB', borderColor: '#2563EB' },
+  capaBtnActive: { backgroundColor: '#4f46e5', borderColor: '#4f46e5' },
   capaBtnText: { color: '#9CA3AF', fontSize: 11, fontWeight: '600' },
   capaBtnTextActive: { color: '#FFFFFF' },
   contador: {
@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
-  contadorText: { color: '#F9FAFB', fontSize: 12, fontWeight: '600' },
+  contadorText: { color: '#0f0a2e', fontSize: 12, fontWeight: '600' },
   errorBanner: {
     position: 'absolute',
     bottom: 60,
