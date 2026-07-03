@@ -22,6 +22,7 @@ import { damnificadosRoutes } from './routes/damnificados.js';
 import { reportesRoutes } from './routes/reportes.js';
 import { usuariosRoutes } from './routes/usuarios.js';
 import { municipiosRoutes } from './routes/municipios.js';
+import { geoRoutes } from './routes/geo.js';
 import { webhooksRoutes } from './routes/webhooks.js';
 import { chatRoutes } from './routes/chat.js';
 import { estadisticasRoutes } from './routes/estadisticas.js';
@@ -144,6 +145,7 @@ async function bootstrap(): Promise<void> {
   await app.register(reportesRoutes, { prefix: '/api/v1' });
   await app.register(usuariosRoutes, { prefix: '/api/v1' });
   await app.register(municipiosRoutes, { prefix: '/api/v1' });
+  await app.register(geoRoutes, { prefix: '/api/v1' });
   await app.register(webhooksRoutes, { prefix: '/api/v1' });
   await app.register(chatRoutes, { prefix: '/api/v1' });
   await app.register(estadisticasRoutes, { prefix: '/api/v1' });
