@@ -39,6 +39,57 @@ export async function municipiosRoutes(app: FastifyInstance): Promise<void> {
     return reply.send(result);
   });
 
+  // GET /municipios/geojson — poligonos con nivel de alerta maximo activo (publico, cacheado)
+  app.get('/municipios/geojson', async (_request, reply) => {
+    const cacheKey = 'municipios_geojson';
+    const cached = getCached(cacheKey);
+    if (cached) return reply.send(cached);
+
+    const rows = await db`
+      SELECT
+        m.id,
+        m.nombre,
+        m.codigo_dane,
+        ST_AsGeoJSON(ST_Simplify(m.geom, 0.001))::json AS geometry,
+        (
+          SELECT i.nivel_alerta
+          FROM incidentes i
+          WHERE i.municipio_id = m.id AND i.estado != 'CERRADO'
+          ORDER BY
+            CASE i.nivel_alerta
+              WHEN 'ROJO' THEN 4
+              WHEN 'NARANJA' THEN 3
+              WHEN 'AMARILLO' THEN 2
+              WHEN 'VERDE' THEN 1
+              ELSE 0
+            END DESC
+          LIMIT 1
+        ) AS nivel_alerta
+      FROM municipios m
+      WHERE m.geom IS NOT NULL
+    `;
+
+    const geojson = {
+      type: 'FeatureCollection',
+      features: rows
+        .filter((r) => r.geometry)
+        .map((r) => ({
+          type: 'Feature',
+          id: r.id,
+          geometry: r.geometry,
+          properties: {
+            id: r.id,
+            nombre: r.nombre,
+            codigo_dane: r.codigo_dane,
+            nivel_alerta: r.nivel_alerta ?? 'VERDE',
+          },
+        })),
+    };
+
+    setCached(cacheKey, geojson, 60000);
+    return reply.send(geojson);
+  });
+
   // GET /municipios/:id — detalle con incidentes activos
   app.get<{ Params: { id: string } }>('/municipios/:id', async (request, reply) => {
     const [muni] = await db`

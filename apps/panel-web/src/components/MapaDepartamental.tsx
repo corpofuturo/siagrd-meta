@@ -1,12 +1,13 @@
 'use client';
 
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Map, { Layer, Source } from 'react-map-gl/maplibre';
 import type { MapMouseEvent } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { MAP_STYLE_DARK, META_CENTER, META_ZOOM, ALERTA_COLORS } from '@/lib/map-config';
+import { API_URL } from '@/lib/api';
 import type { IncidenteMapData } from '@/hooks/useRealtimeIncidentes';
-import type { FeatureCollection, Point } from 'geojson';
+import type { FeatureCollection, Point, Geometry } from 'geojson';
 
 interface MapaDepartamentalProps {
   incidentes: IncidenteMapData[];
@@ -18,6 +19,23 @@ export default function MapaDepartamental({
   onIncidenteClick,
 }: MapaDepartamentalProps) {
   const hasMany = incidentes.length > 100;
+
+  // Poligonos de municipios coloreados por nivel de alerta maximo activo (DT-007:
+  // vacio hasta que se importe la geometria real — degrada con gracia).
+  const [municipiosGeojson, setMunicipiosGeojson] = useState<FeatureCollection<Geometry> | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    fetch(`${API_URL}/api/v1/municipios/geojson`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (mounted && data?.features?.length) setMunicipiosGeojson(data);
+      })
+      .catch(() => {});
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   const geojson = useMemo<FeatureCollection<Point>>(() => ({
     type: 'FeatureCollection',
@@ -62,6 +80,31 @@ export default function MapaDepartamental({
       onClick={handleClick}
       cursor="auto"
     >
+      {municipiosGeojson && (
+        <Source id="municipios" type="geojson" data={municipiosGeojson}>
+          <Layer
+            id="municipios-fill"
+            type="fill"
+            paint={{
+              'fill-color': [
+                'match',
+                ['get', 'nivel_alerta'],
+                'ROJO', ALERTA_COLORS.ROJO,
+                'NARANJA', ALERTA_COLORS.NARANJA,
+                'AMARILLO', ALERTA_COLORS.AMARILLO,
+                ALERTA_COLORS.VERDE,
+              ],
+              'fill-opacity': 0.2,
+            }}
+          />
+          <Layer
+            id="municipios-border"
+            type="line"
+            paint={{ 'line-color': '#2D3748', 'line-width': 1 }}
+          />
+        </Source>
+      )}
+
       <Source id="incidentes" type="geojson" data={geojson}>
         <Layer
           id="incidentes-circle"

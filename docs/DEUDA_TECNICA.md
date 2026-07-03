@@ -57,4 +57,12 @@
   - **Bug adicional encontrado y corregido de paso**: la URL del WS de chat en `useChat.ts` apuntaba a `/ws/chats/:id/` (ruta inexistente) en vez de `/api/v1/chats/:id/ws` (la real) — el chat en tiempo real del panel nunca había conectado. También `tipo: 'NORMAL'` no coincidía con el enum del backend (`TEXTO|IMAGEN|ALERTA_OFICIAL|SISTEMA`) — corregido a `TEXTO`. Y `sendMessage` mandaba el mensaje por WS cuando estaba conectado, pero el backend ignora mensajes entrantes por WS (solo hace broadcast) — se corrigió para enviar siempre por POST, que es el canal canónico documentado en el propio `chat.ts`.
 - **Probado end-to-end**: login real (`admin`/`admin`) → cookie → `GET /auth/me` → `GET /chats` → conexión WS solo con cookie (sin `?token=`) → `POST /mensajes` → broadcast recibido por WS. Build y typecheck limpios en backend y panel-web.
 - **Bloqueante para producción**: No — ya resuelto
+
+## DT-007 (abierto)
+- **Componente**: tabla `municipios` (PostgreSQL/PostGIS)
+- **Descripción**: La tabla tiene el catálogo completo de 1122 municipios de Colombia (DANE) con la columna `geom GEOMETRY(MULTIPOLYGON,4326)` e índice GIST ya definidos en el schema, pero **ningún registro tiene geometría cargada** (`count(geom) = 0` verificado en producción). El import de polígonos desde la fuente oficial (DANE/IGAC) nunca se ejecutó.
+- **Impacto**: El endpoint `GET /api/v1/municipios/geojson` (nuevo, Fase 2) y cualquier capa de mapa que dependa de polígonos municipales devuelve `features: []` — degrada con gracia (no rompe el mapa, simplemente no muestra los polígonos) pero la funcionalidad de "colorear municipios por nivel de alerta" no tiene datos que mostrar.
+- **Para resolver**: Importar shapefiles/GeoJSON oficiales del DANE o IGAC para los municipios del Meta (mínimo) y actualizar la columna `geom` vía `ST_GeomFromGeoJSON` o `shp2pgsql`.
+- **Bloqueante para producción**: No (el mapa funciona con los puntos de incidentes, que sí tienen coordenadas)
+- **Bloqueante para desarrollo/pruebas**: No
 - **Bloqueante para desarrollo/pruebas**: No

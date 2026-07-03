@@ -1,9 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Bell, Menu } from 'lucide-react';
+import Link from 'next/link';
 
 interface TopBarProps {
   nivelAlerta?: 'VERDE' | 'AMARILLO' | 'NARANJA' | 'ROJO' | null;
+  alertasActivas?: number;
   onMenuClick?: () => void;
 }
 
@@ -54,7 +57,7 @@ function useOnlineStatus() {
   return online;
 }
 
-export default function TopBar({ nivelAlerta, onMenuClick }: TopBarProps) {
+export default function TopBar({ nivelAlerta, alertasActivas = 0, onMenuClick }: TopBarProps) {
   const time = useClock();
   const online = useOnlineStatus();
   const nivel = NIVEL_COLORS[nivelAlerta ?? ''];
@@ -64,12 +67,10 @@ export default function TopBar({ nivelAlerta, onMenuClick }: TopBarProps) {
       {/* Botón hamburguesa — solo mobile */}
       <button
         onClick={onMenuClick}
-        className="md:hidden flex flex-col justify-center items-center w-8 h-8 gap-1 rounded hover:bg-[#1E2535] transition-colors flex-shrink-0"
+        className="md:hidden flex items-center justify-center w-8 h-8 rounded hover:bg-[#1E2535] transition-colors flex-shrink-0"
         aria-label="Abrir menú"
       >
-        <span className="block w-5 h-0.5 bg-[#9CA3AF]" />
-        <span className="block w-5 h-0.5 bg-[#9CA3AF]" />
-        <span className="block w-5 h-0.5 bg-[#9CA3AF]" />
+        <Menu size={18} className="text-[#9CA3AF]" />
       </button>
 
       {/* Logo */}
@@ -105,18 +106,29 @@ export default function TopBar({ nivelAlerta, onMenuClick }: TopBarProps) {
 
       {/* Estado de conexión */}
       <div className="flex items-center gap-1.5">
-        {online ? (
-          <>
-            <span className="text-[#22C55E] text-sm">●</span>
-            <span className="hidden sm:block text-[#22C55E] text-xs font-mono">ONLINE</span>
-          </>
-        ) : (
-          <>
-            <span className="text-[#EF4444] text-sm">✕</span>
-            <span className="hidden sm:block text-[#EF4444] text-xs font-mono">OFFLINE</span>
-          </>
-        )}
+        <span
+          className={`w-2 h-2 rounded-full ${online ? 'bg-[#22C55E] animate-pulse' : 'bg-[#EF4444]'}`}
+        />
+        <span className={`hidden sm:block text-xs font-mono ${online ? 'text-[#22C55E]' : 'text-[#EF4444]'}`}>
+          {online ? 'ONLINE' : 'OFFLINE'}
+        </span>
       </div>
+
+      <div className="w-px h-6 bg-[#2D3748]" />
+
+      {/* Notificaciones */}
+      <Link
+        href="/alertas"
+        className="relative flex items-center justify-center w-8 h-8 rounded hover:bg-[#1E2535] transition-colors"
+        aria-label={`${alertasActivas} alertas activas`}
+      >
+        <Bell size={17} className="text-[#8B9CC8]" />
+        {alertasActivas > 0 && (
+          <span className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-[#EF4444] text-white text-[9px] font-bold leading-none">
+            {alertasActivas > 99 ? '99+' : alertasActivas}
+          </span>
+        )}
+      </Link>
 
       <div className="w-px h-6 bg-[#2D3748]" />
 
