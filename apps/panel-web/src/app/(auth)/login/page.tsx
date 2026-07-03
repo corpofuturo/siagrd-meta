@@ -48,12 +48,15 @@ export default function LoginPage() {
         transition={{ duration: 0.35, ease: 'easeOut' }}
         className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md"
       >
-        {/* Banderas institucionales — pequeñas, decorativas */}
+        {/* Banderas institucionales — pequeñas, decorativas.
+            Width/height explicitos: los SVG no declaran su propio tamaño
+            intrinseco, y sin esto el reset de Tailwind (img{height:auto})
+            las hace ocupar el ancho completo del contenedor. */}
         <div className="flex justify-center gap-3 mb-6">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/bandera-colombia.svg" alt="Colombia" className="h-8 rounded border border-gray-200" />
+          <img src="/images/bandera-colombia.svg" alt="Colombia" width={48} height={32} className="h-8 w-12 rounded border border-gray-200 object-cover" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/bandera-meta.svg" alt="Meta" className="h-8 rounded border border-gray-200" />
+          <img src="/images/bandera-meta.svg" alt="Meta" width={48} height={32} className="h-8 w-12 rounded border border-gray-200 object-cover" />
         </div>
 
         {/* Escudo + título */}
