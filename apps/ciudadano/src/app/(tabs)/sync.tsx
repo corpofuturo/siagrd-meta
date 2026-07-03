@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   header: {
-    backgroundColor: '#e0e7ff',
+    backgroundColor: '#dcfce7',
     padding: 16,
     gap: 12,
   },
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   card: {
-    backgroundColor: '#e0e7ff',
+    backgroundColor: '#dcfce7',
     borderRadius: 10,
     padding: 14,
     flexDirection: 'row',

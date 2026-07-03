@@ -157,12 +157,12 @@ const styles = StyleSheet.create({
   avatarWrapper: { marginBottom: 20 },
   avatar: {
     width: 88, height: 88, borderRadius: 44,
-    backgroundColor: '#e0e7ff', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#dcfce7', alignItems: 'center', justifyContent: 'center',
     borderWidth: 2,
   },
 
   card: {
-    width: '90%', backgroundColor: '#e0e7ff', borderRadius: 16,
+    width: '90%', backgroundColor: '#dcfce7', borderRadius: 16,
     padding: 20, gap: 6, marginBottom: 24, alignItems: 'center',
   },
   nombre: { fontSize: 20, fontWeight: '700', color: '#0f0a2e' },
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 11, fontWeight: '700', color: '#4B5563', letterSpacing: 1.2, marginBottom: 8, marginLeft: 4 },
 
   menuItem: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#e0e7ff',
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#dcfce7',
     borderRadius: 12, padding: 14, marginBottom: 6, gap: 12,
   },
   menuItemDanger: { backgroundColor: '#1F1010' },

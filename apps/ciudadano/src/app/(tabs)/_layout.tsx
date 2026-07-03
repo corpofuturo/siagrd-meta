@@ -33,7 +33,7 @@ export default function TabsLayout() {
     headerTintColor: COLORS.textMain,
     tabBarStyle: {
       backgroundColor: TABBAR_BG,
-      borderTopColor: COLORS.border,
+      borderTopColor: COLORS.tabBorder,
       height: 60,
     },
     tabBarActiveTintColor: ACTIVE_COLOR,

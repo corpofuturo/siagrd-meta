@@ -70,6 +70,14 @@ const config: Config = {
           border:   '#c7d2fe',
           text:     '#312e81',
         },
+        // Paleta Sage & Forest — contenido/cards
+        sage: {
+          DEFAULT:  '#16a34a',
+          light:    '#dcfce7',
+          lighter:  '#ecfccb',
+          dark:     '#14532d',
+          darker:   '#365314',
+        },
       },
       fontFamily: {
         sans: ["'Segoe UI'", 'system-ui', '-apple-system', 'sans-serif'],

@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
   listaSubtitulo: { fontSize: 14, color: '#86EFAC', marginTop: 2 },
   listaContent: { padding: 16, gap: 10 },
   amenazaCard: {
-    backgroundColor: '#e0e7ff',
+    backgroundColor: '#dcfce7',
     borderRadius: 14,
     padding: 18,
     flexDirection: 'row',
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     borderRadius: 10,
-    backgroundColor: '#e0e7ff',
+    backgroundColor: '#dcfce7',
     alignItems: 'center',
   },
   faseBtnTexto: { fontSize: 12, fontWeight: '700', color: '#9CA3AF' },
