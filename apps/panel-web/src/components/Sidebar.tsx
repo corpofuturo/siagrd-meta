@@ -2,10 +2,26 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import {
+  Map,
+  Siren,
+  Bell,
+  MessageSquare,
+  Shield,
+  Landmark,
+  Building2,
+  School,
+  Users,
+  Settings,
+  BarChart3,
+  ClipboardList,
+  LogOut,
+  type LucideIcon,
+} from 'lucide-react';
 
 interface NavItem {
   href: string;
-  icon: string;
+  icon: LucideIcon;
   label: string;
 }
 
@@ -18,28 +34,28 @@ const NAV_SECTIONS: NavSection[] = [
   {
     title: 'Operaciones',
     items: [
-      { href: '/',              icon: '🗺️', label: 'Dashboard' },
-      { href: '/incidentes',    icon: '🚨', label: 'Incidentes' },
-      { href: '/alertas',       icon: '🔔', label: 'Alertas' },
-      { href: '/chat',          icon: '💬', label: 'Comunicaciones' },
+      { href: '/',              icon: Map,            label: 'Dashboard' },
+      { href: '/incidentes',    icon: Siren,          label: 'Incidentes' },
+      { href: '/alertas',       icon: Bell,           label: 'Alertas' },
+      { href: '/chat',          icon: MessageSquare,  label: 'Comunicaciones' },
     ],
   },
   {
     title: 'Organizaciones',
     items: [
-      { href: '/organismos',    icon: '🛡️', label: 'Organismos de Socorro' },
-      { href: '/comites',       icon: '🏛️', label: 'Comités GRD' },
-      { href: '/jal',           icon: '🏘️', label: 'Juntas de Acción Comunal' },
-      { href: '/alcaldias',     icon: '🏫', label: 'Alcaldías' },
-      { href: '/grupos',        icon: '👥', label: 'Grupos de Usuarios' },
+      { href: '/organismos',    icon: Shield,         label: 'Organismos de Socorro' },
+      { href: '/comites',       icon: Landmark,       label: 'Comités GRD' },
+      { href: '/jal',           icon: Building2,      label: 'Juntas de Acción Comunal' },
+      { href: '/alcaldias',     icon: School,         label: 'Alcaldías' },
+      { href: '/grupos',        icon: Users,          label: 'Grupos de Usuarios' },
     ],
   },
   {
     title: 'Administración',
     items: [
-      { href: '/configuracion', icon: '⚙️', label: 'Configuración del Sistema' },
-      { href: '/estadisticas',  icon: '📊', label: 'Estadísticas' },
-      { href: '/reportes',      icon: '📋', label: 'Reportes' },
+      { href: '/configuracion', icon: Settings,       label: 'Configuración del Sistema' },
+      { href: '/estadisticas',  icon: BarChart3,      label: 'Estadísticas' },
+      { href: '/reportes',      icon: ClipboardList,  label: 'Reportes' },
     ],
   },
 ];
@@ -115,7 +131,7 @@ export default function Sidebar({ open = false, onClose }: SidebarProps): React.
                   {active && (
                     <span className="absolute left-0 top-1 bottom-1 w-0.5 bg-[#3B82F6] rounded-full" />
                   )}
-                  <span className="text-base leading-none">{item.icon}</span>
+                  <item.icon size={17} strokeWidth={2} className="shrink-0" />
                   <span className="truncate">{item.label}</span>
                 </Link>
               );
@@ -138,7 +154,7 @@ export default function Sidebar({ open = false, onClose }: SidebarProps): React.
           onClick={logout}
           className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-xs text-[#6B7280] hover:bg-[#1E2535] hover:text-[#F87171] transition-colors"
         >
-          <span>🚪</span>
+          <LogOut size={15} strokeWidth={2} />
           <span>Cerrar sesión</span>
         </button>
       </div>

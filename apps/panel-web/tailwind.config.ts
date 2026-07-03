@@ -29,8 +29,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ['Barlow Condensed', 'sans-serif'],
-        body: ['IBM Plex Sans', 'sans-serif'],
+        display: ['var(--font-display)', 'Barlow Condensed', 'sans-serif'],
+        body: ['var(--font-body)', 'IBM Plex Sans', 'sans-serif'],
         mono: ['IBM Plex Mono', 'monospace'],
       },
       animation: {
@@ -44,7 +44,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [require('tailwindcss-animate')],
 };
 
 export default config;
