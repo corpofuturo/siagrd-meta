@@ -43,3 +43,9 @@ docs/google-services*.json
 .claude/worktrees/
 .claude/settings.local.json
 # .claude/agents/ y .claude/skills/ SI se versionan — son parte del proyecto
+
+# Serena (MCP de retrieval semántico) — cache/índice local, no versionar
+.serena/
+
+# knip
+.knip-reports/

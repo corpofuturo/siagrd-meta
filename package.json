@@ -22,7 +22,8 @@
     "test:e2e": "pnpm --filter panel-web exec playwright test",
     "db:migrate": "pnpm --filter backend db:migrate",
     "db:seed": "psql $DATABASE_URL -f database/seeds/municipios_meta.sql && psql $DATABASE_URL -f database/seeds/organismos_meta.sql",
-    "ci": "pnpm lint && pnpm typecheck && pnpm test"
+    "ci": "pnpm lint && pnpm typecheck && pnpm test",
+    "knip": "knip"
   },
   "workspaces": [
     "apps/*",
@@ -40,6 +41,7 @@
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
     "eslint": "^8.0.0",
+    "knip": "^6.24.0",
     "prettier": "^3.0.0",
     "typescript": "^5.4.0"
   }
