@@ -1,0 +1,24 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": [],
+      "project": []
+    },
+    "backend": {
+      "project": ["src/**/*.ts"]
+    },
+    "apps/panel-web": {
+      "entry": ["src/app/**/{page,layout,route,middleware}.{ts,tsx}"],
+      "project": ["src/**/*.{ts,tsx}"]
+    },
+    "apps/ciudadano": {
+      "entry": ["src/app/**/*.{ts,tsx}"],
+      "project": ["src/**/*.{ts,tsx}"]
+    },
+    "packages/ui": {
+      "project": ["src/**/*.{ts,tsx}"]
+    }
+  },
+  "ignoreWorkspaces": ["apps/socorro", "packages/types", "packages/config"]
+}
