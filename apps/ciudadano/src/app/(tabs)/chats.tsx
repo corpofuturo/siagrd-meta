@@ -25,7 +25,7 @@ interface Chat {
 }
 
 const TIPO_CONFIG: Record<TipoChat, { label: string; color: string; icon: keyof typeof Ionicons.glyphMap }> = {
-  GENERAL: { label: 'General', color: '#3B82F6', icon: 'chatbubbles-outline' },
+  GENERAL: { label: 'General', color: '#4f46e5', icon: 'chatbubbles-outline' },
   OPERATIVO_EVENTO: { label: 'Operativo', color: '#F97316', icon: 'shield-outline' },
   PUBLICO_EVENTO: { label: 'Público', color: '#22C55E', icon: 'people-outline' },
 };
@@ -70,7 +70,7 @@ export default function ChatsScreen() {
   if (loading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#3B82F6" />
+        <ActivityIndicator size="large" color="#4f46e5" />
       </View>
     );
   }
@@ -85,11 +85,11 @@ export default function ChatsScreen() {
       <FlatList
         data={chats}
         keyExtractor={(item) => item.id}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#3B82F6" />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#4f46e5" />}
         contentContainerStyle={chats.length === 0 ? styles.emptyContainer : styles.listContent}
         ListEmptyComponent={
           <View style={styles.centered}>
-            <Ionicons name="chatbubbles-outline" size={48} color="#374151" />
+            <Ionicons name="chatbubbles-outline" size={48} color="#c7d2fe" />
             <Text style={styles.emptyText}>Sin canales disponibles</Text>
           </View>
         }
@@ -112,7 +112,7 @@ export default function ChatsScreen() {
                   <Text style={[styles.tipoText, { color: config.color }]}>{config.label}</Text>
                 </View>
               </View>
-              <Ionicons name="chevron-forward" size={18} color="#374151" />
+              <Ionicons name="chevron-forward" size={18} color="#c7d2fe" />
             </TouchableOpacity>
           );
         }}
@@ -122,7 +122,7 @@ export default function ChatsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0A0E1A' },
+  container: { flex: 1, backgroundColor: '#eef2ff' },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 60 },
   emptyContainer: { flexGrow: 1 },
   listContent: { padding: 16, gap: 10 },
@@ -137,11 +137,11 @@ const styles = StyleSheet.create({
   chatCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#111827',
+    backgroundColor: '#ffffff',
     borderRadius: 12,
     padding: 14,
     borderWidth: 1,
-    borderColor: '#1F2937',
+    borderColor: '#e0e7ff',
     gap: 12,
   },
   iconBox: {
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   chatInfo: { flex: 1, gap: 4 },
-  chatNombre: { color: '#F9FAFB', fontSize: 14, fontWeight: '600' },
+  chatNombre: { color: '#0f0a2e', fontSize: 14, fontWeight: '600' },
   tipoBadge: {
     alignSelf: 'flex-start',
     borderWidth: 1,

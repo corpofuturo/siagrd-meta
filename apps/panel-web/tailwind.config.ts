@@ -52,19 +52,31 @@ const config: Config = {
           text:       '#111827',
           muted:      '#6b7280',
         },
-        // Botones primarios
-        brand: {
-          DEFAULT:    '#1d4ed8',   // blue-700
-          hover:      '#1e40af',   // blue-800
-          light:      '#dbeafe',   // blue-100
-          text:       '#1e40af',   // blue-800 para texto sobre fondo claro
-        },
         // Niveles de alerta (mantener semántica)
         alerta: {
           verde:    { bg: '#dcfce7', text: '#166534', border: '#86efac' },
           amarillo: { bg: '#fef9c3', text: '#854d0e', border: '#fde047' },
           naranja:  { bg: '#ffedd5', text: '#9a3412', border: '#fdba74' },
           rojo:     { bg: '#fee2e2', text: '#991b1b', border: '#fca5a5' },
+        },
+        // Paleta Indigo Pro — oficial del sistema
+        brand: {
+          DEFAULT:  '#4f46e5',
+          hover:    '#4338ca',
+          light:    '#e0e7ff',
+          lighter:  '#eef2ff',
+          dark:     '#312e81',
+          darker:   '#1e1b4b',
+          border:   '#c7d2fe',
+          text:     '#312e81',
+        },
+        // Paleta Sage & Forest — contenido/cards
+        sage: {
+          DEFAULT:  '#16a34a',
+          light:    '#dcfce7',
+          lighter:  '#ecfccb',
+          dark:     '#14532d',
+          darker:   '#365314',
         },
       },
       fontFamily: {

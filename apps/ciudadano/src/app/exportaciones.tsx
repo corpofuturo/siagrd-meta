@@ -127,7 +127,7 @@ export default function ExportacionesScreen() {
             activeOpacity={0.75}
           >
             {loading === item.path ? (
-              <ActivityIndicator size="small" color="#F9FAFB" />
+              <ActivityIndicator size="small" color="#0f0a2e" />
             ) : (
               <Text style={styles.exportIcon}>📥</Text>
             )}
@@ -140,21 +140,21 @@ export default function ExportacionesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0A0E1A' },
+  container: { flex: 1, backgroundColor: '#eef2ff' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingTop: Platform.OS === 'ios' ? 56 : 40,
     paddingBottom: 12,
     paddingHorizontal: 16,
-    backgroundColor: '#0A0E1A',
+    backgroundColor: '#eef2ff',
     borderBottomWidth: 1,
-    borderBottomColor: '#1F2937',
+    borderBottomColor: '#dcfce7',
     gap: 10,
   },
   backBtn: { padding: 4 },
-  backArrow: { fontSize: 22, color: '#3B82F6', fontWeight: '700' },
-  headerTitle: { flex: 1, color: '#F9FAFB', fontSize: 17, fontWeight: '700' },
+  backArrow: { fontSize: 22, color: '#4f46e5', fontWeight: '700' },
+  headerTitle: { flex: 1, color: '#0f0a2e', fontSize: 17, fontWeight: '700' },
   content: { padding: 16, gap: 12 },
   warnCard: {
     backgroundColor: '#F59E0B22',
@@ -166,18 +166,18 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   warnTitle: { color: '#F59E0B', fontSize: 14, fontWeight: '700' },
-  warnText: { color: '#D1D5DB', fontSize: 13, lineHeight: 20 },
+  warnText: { color: '#854d0e', fontSize: 13, lineHeight: 20 },
   exportBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1F2937',
+    backgroundColor: '#dcfce7',
     borderRadius: 14,
     padding: 20,
     gap: 14,
     borderWidth: 1,
-    borderColor: '#374151',
+    borderColor: '#c7d2fe',
   },
   exportBtnDisabled: { opacity: 0.6 },
   exportIcon: { fontSize: 26 },
-  exportLabel: { color: '#F9FAFB', fontSize: 15, fontWeight: '600', flex: 1 },
+  exportLabel: { color: '#0f0a2e', fontSize: 15, fontWeight: '600', flex: 1 },
 });

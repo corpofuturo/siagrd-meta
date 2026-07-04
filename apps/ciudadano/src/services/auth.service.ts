@@ -61,23 +61,32 @@ export async function signIn(email: string, password: string): Promise<Session> 
 }
 
 export async function signInAnonymous(): Promise<Session> {
-  // Sesión local sin red — el token anónimo se genera en el dispositivo
-  const anonId = `anon_${Date.now()}`;
-  const session: Session = {
-    access_token: `anon_${anonId}`,
-    refresh_token: '',
-    user: {
-      id: anonId,
-      email: '',
-      nombre: 'Ciudadano',
-      apellido: 'Anónimo',
-      rol: 'ciudadano',
-      municipio_id: null,
-    },
-  };
-  await SecureStore.setItemAsync(KEYS.access, session.access_token);
-  await SecureStore.setItemAsync(KEYS.refresh, '');
-  return session;
+  // El backend firma un JWT real con claim anonymous:true (ver authMiddleware),
+  // valido para todas las rutas protegidas. Si no hay red, se degrada a una
+  // sesion local solo-offline (autoproteccion, etc.) marcada con prefijo
+  // "local_" para no confundirla con un JWT valido.
+  try {
+    return await handleAuthResponse(
+      await fetchWithTimeout(`${BACKEND}/auth/anonymous`, { method: 'POST' }, 6000),
+    );
+  } catch {
+    const anonId = `local_${Date.now()}`;
+    const session: Session = {
+      access_token: anonId,
+      refresh_token: '',
+      user: {
+        id: anonId,
+        email: '',
+        nombre: 'Ciudadano',
+        apellido: 'Anónimo',
+        rol: 'ciudadano',
+        municipio_id: null,
+      },
+    };
+    await SecureStore.setItemAsync(KEYS.access, session.access_token);
+    await SecureStore.setItemAsync(KEYS.refresh, '');
+    return session;
+  }
 }
 
 export async function register(
@@ -116,8 +125,8 @@ export async function restoreSession(): Promise<Session | null> {
     const access_token = await SecureStore.getItemAsync(KEYS.access);
     if (!access_token) return null;
 
-    // Token anónimo — reconstruir sesión localmente sin red
-    if (access_token.startsWith('anon_')) {
+    // Sesion local sin red (fallback offline de signInAnonymous) — reconstruir sin llamar al backend
+    if (access_token.startsWith('local_')) {
       return {
         access_token,
         refresh_token: '',

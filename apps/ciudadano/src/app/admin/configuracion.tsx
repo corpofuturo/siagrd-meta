@@ -151,7 +151,7 @@ export default function ConfiguracionScreen() {
       </View>
 
       {loading ? (
-        <View style={styles.centered}><ActivityIndicator size="large" color="#2563EB" /></View>
+        <View style={styles.centered}><ActivityIndicator size="large" color="#4f46e5" /></View>
       ) : (
         <ScrollView contentContainerStyle={styles.content}>
 
@@ -159,7 +159,7 @@ export default function ConfiguracionScreen() {
           <TextInput
             style={styles.input}
             placeholder="SIAGRD Meta"
-            placeholderTextColor="#6B7280"
+            placeholderTextColor="#14532d"
             value={form.nombre_sistema ?? ''}
             onChangeText={(v) => setForm((f) => ({ ...f, nombre_sistema: v }))}
             autoCapitalize="none"
@@ -167,7 +167,7 @@ export default function ConfiguracionScreen() {
 
           <Text style={styles.label}>Departamento</Text>
           <TouchableOpacity style={styles.pickerBtn} onPress={() => { setDeptFiltro(''); setDeptModal(true); }}>
-            <Ionicons name="map-outline" size={16} color={form.nombre_departamento ? '#F9FAFB' : '#6B7280'} />
+            <Ionicons name="map-outline" size={16} color={form.nombre_departamento ? '#0f0a2e' : '#6B7280'} />
             <Text style={[styles.pickerBtnText, !form.nombre_departamento && styles.pickerBtnPlaceholder]}>
               {form.nombre_departamento ?? 'Seleccionar departamento'}
             </Text>
@@ -178,7 +178,7 @@ export default function ConfiguracionScreen() {
           <TextInput
             style={styles.input}
             placeholder="50000"
-            placeholderTextColor="#6B7280"
+            placeholderTextColor="#14532d"
             value={form.codigo_dane ?? ''}
             onChangeText={(v) => setForm((f) => ({ ...f, codigo_dane: v }))}
             keyboardType="numeric"
@@ -188,7 +188,7 @@ export default function ConfiguracionScreen() {
           <TextInput
             style={styles.input}
             placeholder="contacto@ungrd.gov.co"
-            placeholderTextColor="#6B7280"
+            placeholderTextColor="#14532d"
             value={form.ungrd_correo ?? ''}
             onChangeText={(v) => setForm((f) => ({ ...f, ungrd_correo: v }))}
             keyboardType="email-address"
@@ -199,7 +199,7 @@ export default function ConfiguracionScreen() {
           <TextInput
             style={styles.input}
             placeholder="https://ungrd.gov.co"
-            placeholderTextColor="#6B7280"
+            placeholderTextColor="#14532d"
             value={form.ungrd_url ?? ''}
             onChangeText={(v) => setForm((f) => ({ ...f, ungrd_url: v }))}
             keyboardType="url"
@@ -232,7 +232,7 @@ export default function ConfiguracionScreen() {
               <TextInput
                 style={styles.buscadorInput}
                 placeholder="Buscar..."
-                placeholderTextColor="#6B7280"
+                placeholderTextColor="#14532d"
                 value={deptFiltro}
                 onChangeText={setDeptFiltro}
                 autoFocus
@@ -279,33 +279,33 @@ export default function ConfiguracionScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0A0E1A' },
+  container: { flex: 1, backgroundColor: '#eef2ff' },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   header: {
     flexDirection: 'row', alignItems: 'center',
     paddingTop: Platform.OS === 'ios' ? 56 : 40,
     paddingBottom: 12, paddingHorizontal: 16,
-    backgroundColor: '#0A0E1A', borderBottomWidth: 1, borderBottomColor: '#1F2937', gap: 10,
+    backgroundColor: '#eef2ff', borderBottomWidth: 1, borderBottomColor: '#dcfce7', gap: 10,
   },
   backBtn: { padding: 4 },
-  backArrow: { fontSize: 22, color: '#2563EB', fontWeight: '700' },
-  headerTitle: { flex: 1, color: '#F9FAFB', fontSize: 17, fontWeight: '700' },
+  backArrow: { fontSize: 22, color: '#4f46e5', fontWeight: '700' },
+  headerTitle: { flex: 1, color: '#0f0a2e', fontSize: 17, fontWeight: '700' },
   content: { padding: 20, gap: 4, paddingBottom: 60 },
-  label: { color: '#9CA3AF', fontSize: 12, fontWeight: '600', marginBottom: 4, marginTop: 14 },
+  label: { color: '#374151', fontSize: 12, fontWeight: '600', marginBottom: 4, marginTop: 14 },
   input: {
-    backgroundColor: '#1F2937', borderRadius: 10, padding: 12,
-    color: '#F9FAFB', fontSize: 14, borderWidth: 1, borderColor: '#374151',
+    backgroundColor: '#dcfce7', borderRadius: 10, padding: 12,
+    color: '#0f0a2e', fontSize: 14, borderWidth: 1, borderColor: '#c7d2fe',
   },
   pickerBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: '#1F2937', borderRadius: 10, padding: 12,
-    borderWidth: 1, borderColor: '#374151',
+    backgroundColor: '#dcfce7', borderRadius: 10, padding: 12,
+    borderWidth: 1, borderColor: '#c7d2fe',
   },
-  pickerBtnText: { flex: 1, color: '#F9FAFB', fontSize: 14 },
-  pickerBtnPlaceholder: { color: '#6B7280' },
+  pickerBtnText: { flex: 1, color: '#0f0a2e', fontSize: 14 },
+  pickerBtnPlaceholder: { color: '#14532d' },
   saveBtn: {
     marginTop: 28, padding: 16, borderRadius: 12,
-    backgroundColor: '#2563EB', alignItems: 'center',
+    backgroundColor: '#4f46e5', alignItems: 'center',
   },
   saveBtnText: { color: '#FFF', fontWeight: '700', fontSize: 15 },
   informeBtn: {
@@ -317,37 +317,37 @@ const styles = StyleSheet.create({
   // Modal departamentos
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
   modalCard: {
-    backgroundColor: '#111827', borderTopLeftRadius: 20, borderTopRightRadius: 20,
+    backgroundColor: '#ffffff', borderTopLeftRadius: 20, borderTopRightRadius: 20,
     maxHeight: '80%', paddingBottom: 24,
   },
   modalHeader: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 20, paddingVertical: 16,
-    borderBottomWidth: 1, borderBottomColor: '#1F2937',
+    borderBottomWidth: 1, borderBottomColor: '#dcfce7',
   },
-  modalTitle: { color: '#F9FAFB', fontSize: 17, fontWeight: '700' },
+  modalTitle: { color: '#0f0a2e', fontSize: 17, fontWeight: '700' },
   buscadorRow: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: '#1F2937', borderRadius: 10, borderWidth: 1, borderColor: '#374151',
+    backgroundColor: '#dcfce7', borderRadius: 10, borderWidth: 1, borderColor: '#c7d2fe',
     marginHorizontal: 16, marginVertical: 12, paddingHorizontal: 12,
   },
-  buscadorInput: { flex: 1, color: '#F9FAFB', fontSize: 14, paddingVertical: 10 },
+  buscadorInput: { flex: 1, color: '#0f0a2e', fontSize: 14, paddingVertical: 10 },
   deptItem: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 20, paddingVertical: 14,
   },
   deptItemActivo: { backgroundColor: '#1E3A5F' },
-  deptItemText: { color: '#F9FAFB', fontSize: 15, flex: 1 },
-  deptItemTextActivo: { color: '#60A5FA', fontWeight: '600' },
+  deptItemText: { color: '#0f0a2e', fontSize: 15, flex: 1 },
+  deptItemTextActivo: { color: '#4f46e5', fontWeight: '600' },
   deptCodigo: { color: '#6B7280', fontSize: 12, marginLeft: 8 },
-  separador: { height: 1, backgroundColor: '#1F2937', marginHorizontal: 16 },
+  separador: { height: 1, backgroundColor: '#dcfce7', marginHorizontal: 16 },
 
   // Modal informe
   informeOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'center', padding: 20 },
-  informeCard: { backgroundColor: '#111827', borderRadius: 16, padding: 20, maxHeight: '80%' },
+  informeCard: { backgroundColor: '#ffffff', borderRadius: 16, padding: 20, maxHeight: '80%' },
   jsonScroll: { maxHeight: 400 },
   jsonContent: { paddingBottom: 8 },
   jsonText: { color: '#6EE7B7', fontSize: 11, fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace' },
-  closeBtn: { marginTop: 16, padding: 14, borderRadius: 10, backgroundColor: '#1F2937', alignItems: 'center' },
-  closeBtnText: { color: '#9CA3AF', fontWeight: '600' },
+  closeBtn: { marginTop: 16, padding: 14, borderRadius: 10, backgroundColor: '#dcfce7', alignItems: 'center' },
+  closeBtnText: { color: '#14532d', fontWeight: '600' },
 });

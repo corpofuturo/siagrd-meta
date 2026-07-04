@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     color: '#111827',
   },
   selectorPlaceholder: {
-    color: '#9CA3AF',
+    color: '#374151',
   },
   loadingIcon: {
     marginRight: 2,

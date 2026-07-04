@@ -10,7 +10,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
   const { nivelMaximo, alertas } = useRealtimeAlertas();
 
   return (
-    <div className="flex h-screen overflow-hidden bg-panel-bg font-sans">
+    <div className="flex h-screen overflow-hidden font-sans" style={{ backgroundColor: '#eef2ff' }}>
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Overlay mobile */}

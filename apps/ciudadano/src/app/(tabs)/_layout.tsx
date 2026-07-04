@@ -3,13 +3,14 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../hooks/useAuth';
+import { COLORS } from '../../constants/colors';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
-const ACTIVE_COLOR = '#60A5FA';
-const INACTIVE_COLOR = '#6B7280';
-const TABBAR_BG = '#0D1320';
-const HEADER_BG = '#0A0E1A';
+const ACTIVE_COLOR = COLORS.tabActive;
+const INACTIVE_COLOR = COLORS.tabInactive;
+const TABBAR_BG = COLORS.tabBg;
+const HEADER_BG = COLORS.headerBg;
 
 function tabIcon(focused: boolean, name: IoniconsName) {
   return (
@@ -29,10 +30,10 @@ export default function TabsLayout() {
   const screenOptions = {
     headerShown: true,
     headerStyle: { backgroundColor: HEADER_BG },
-    headerTintColor: '#F9FAFB',
+    headerTintColor: COLORS.textMain,
     tabBarStyle: {
       backgroundColor: TABBAR_BG,
-      borderTopColor: '#1F2937',
+      borderTopColor: COLORS.tabBorder,
       height: 60,
     },
     tabBarActiveTintColor: ACTIVE_COLOR,

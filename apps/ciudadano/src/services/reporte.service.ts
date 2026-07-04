@@ -79,8 +79,8 @@ export async function enviarReporte(
       tipo_amenaza: tipo,
       latitud: coordenada.latitud,
       longitud: coordenada.longitud,
-      descripcion: descripcion ?? null,
-      foto_url,
+      descripcion: descripcion ?? undefined,
+      foto_url: foto_url ?? undefined,
     }),
   });
 

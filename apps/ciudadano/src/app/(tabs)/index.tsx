@@ -70,7 +70,7 @@ export default function HomeScreen() {
   };
 
   const renderAlerta = ({ item }: { item: Alerta }) => {
-    const dotColor = NIVEL_COLORES[item.nivel] ?? '#9CA3AF';
+    const dotColor = NIVEL_COLORES[item.nivel] ?? '#14532d';
     return (
       <View style={styles.card}>
         <View style={styles.cardHeader}>
@@ -90,7 +90,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#0F1117" />
+      <StatusBar barStyle="light-content" backgroundColor="#eef2ff" />
 
       {offline && (
         <View style={styles.offlineBanner}>
@@ -121,15 +121,15 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0F1117',
+    backgroundColor: '#eef2ff',
   },
   offlineBanner: {
-    backgroundColor: '#374151',
+    backgroundColor: '#c7d2fe',
     paddingVertical: 8,
     alignItems: 'center',
   },
   offlineText: {
-    color: '#D1D5DB',
+    color: '#312e81',
     fontSize: 13,
   },
   listContent: {
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   card: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#dcfce7',
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   },
   tipo: {
     flex: 1,
-    color: '#F9FAFB',
+    color: '#0f0a2e',
     fontSize: 15,
     fontWeight: '600',
   },
@@ -180,13 +180,13 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   descripcion: {
-    color: '#9CA3AF',
+    color: '#14532d',
     fontSize: 13,
     lineHeight: 19,
     marginBottom: 6,
   },
   municipio: {
-    color: '#6B7280',
+    color: '#14532d',
     fontSize: 12,
   },
 });

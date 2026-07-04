@@ -77,6 +77,64 @@ Este repositorio tiene **tres registros de deuda técnica con numeración DT-XXX
 
 **Los 16/16 ítems de este catálogo están resueltos y verificados** (2026-07-03). Ver `ROADMAP_EJECUCION_v1.md` para el trabajo de Fases 3-9 aún pendiente (no es deuda técnica documentada aquí, son features del roadmap original que nunca se implementaron).
 
+## Hallazgos de SQA en dispositivo físico (2026-07-03, rama `feat/diseno-indigo-sage`)
+
+Encontrados probando un APK release (JS embebido, sin Metro) contra el backend real de producción.
+
+### DT-006 — Tab "Reportar" no navega al formulario real (RESUELTO parcialmente, ver DT-010)
+**Archivo**: `apps/ciudadano/src/app/(tabs)/reportar.tsx`, `apps/ciudadano/src/screens/ReportarScreen.tsx`
+**Estado**: **Resuelto** (2026-07-04) — `ReportarScreen` se movió fuera del árbol de rutas (`app/reportar.tsx` → `screens/ReportarScreen.tsx`) y el tab lo renderiza directamente en vez de hacer `router.push()`. El botón "Volver al inicio" ahora resetea el estado local del flujo en vez de depender de `router.back()`. Verificado en dispositivo físico: el grid de tipos y el formulario paso 2 cargan de inmediato al tocar el tab.
+**Pendiente**: el paso 3 (confirmación) y el botón "Volver al inicio" no se verificaron en dispositivo porque el envío del reporte fallaba por un bug distinto — ver DT-010.
+
+### DT-007 — Ciudadano anónimo sin acceso al mapa de incidentes (RESUELTO)
+**Archivo**: `apps/ciudadano/src/services/auth.service.ts`, `apps/ciudadano/src/app/(tabs)/mapa.tsx`
+**Causa raíz encontrada y corregida**: `signInAnonymous()` generaba un token falso (`anon_<timestamp>`) nunca firmado por el backend; el backend ya exponía `POST /auth/anonymous` con JWT real (claim `anonymous:true`) compatible con `authMiddleware`, pero el cliente nunca lo llamaba. Corregido en commit `6614b77` (usa el endpoint real, con fallback local solo offline).
+**Verificado en dispositivo físico (2026-07-04)**: mapa carga en modo anónimo con datos reales (13 eventos), sin 401 en logcat. Cerrado.
+**Decisión de negocio ya tomada por el usuario**: sí, los ciudadanos anónimos son usuarios oficiales y deben tener este acceso.
+
+### DT-010 — POST /reportes-ciudadanos roto de raíz (RESUELTO)
+**Archivos**: `backend/src/routes/reportes.ts`, `apps/ciudadano/src/services/reporte.service.ts`, `database/migrations/027_reportes_foto_url.sql`
+**Estado**: **Resuelto** (2026-07-04) — el envío de reportes ciudadanos fallaba siempre, por tres bugs encadenados: (1) el INSERT leía `tipo`/`ubicacion` del body pero el cliente envía `tipo_amenaza`/`latitud`/`longitud`, nunca coincidían; (2) insertaba en la columna `reportante_id`, que no existe (la real es `reportado_por`); (3) escribía `updated_at`, columna que nunca existió en el esquema original. Encontrado por SQA en dispositivo físico al probar el fix de DT-006 (mensaje "Error: No se pudo enviar el reporte").
+**Fix**: handler reescrito con validación real contra el enum `tipo_amenaza`, geometría PostGIS construida con `ST_SetSRID(ST_MakePoint(...))`, nombres de columna corregidos, migración aditiva 027 (`foto_url`, `updated_at`). 5 tests de integración nuevos.
+**Migración 027**: aplicada en producción (2026-07-04, vía túnel SSH, aprobada explícitamente por el usuario). Verificada dos veces contra el esquema real (`information_schema.columns`). El backend de producción sigue corriendo el código viejo hasta que se despliegue `main` — la migración ya está lista para cuando eso ocurra.
+
+### DT-012 — Subida de foto en reportes ciudadanos nunca funcionó + foto_url sin validar (hallazgo de `security-auditor`, 2026-07-04)
+**Archivos**: `apps/ciudadano/src/services/reporte.service.ts` (`subirFoto`), `backend/src/routes/archivos.ts`, `backend/src/routes/reportes.ts`
+**Bug funcional**: `subirFoto()` hace `POST /archivos` pero la única ruta real es `POST /archivos/upload`, que exige `authMiddleware` y `incidente_id` obligatorio — ninguno de los dos existe en el flujo de reporte ciudadano anónimo. La subida falla siempre (404), `subirFoto` retorna `null` en silencio, y el reporte se envía sin foto. Nunca se ha probado el camino feliz de foto en un reporte real.
+**Hallazgo de seguridad (MEDIO), ya corregido**: como consecuencia, `POST /reportes-ciudadanos` (público, sin auth) aceptaba `foto_url` como cualquier string sin validar que viniera de una subida propia — un cliente anónimo podía insertar una URL a un servidor propio como "beacon" y el panel-web la renderiza en `<img>` para roles privilegiados (fuga de IP/user-agent de funcionarios). Corregido en `backend/src/routes/reportes.ts`: `foto_url` ahora debe iniciar con el prefijo real de `/api/v1/archivos/static/`.
+**Pendiente real**: diseñar un endpoint de subida de foto para reportes ciudadanos que no requiera `incidente_id` ni autenticación (la tabla `archivos` ya tiene una columna `reporte_ciudadano_id` nullable pensada para esto, nunca conectada). Requiere: rate limiting anti-abuso propio (el endpoint de reportes ya tiene 3/hora anónimo), validación MIME/magic-bytes (patrón ya usado en `archivos.ts`), y decidir el orden del flujo (¿subir foto antes de crear el reporte, o crear el reporte primero y adjuntar después?).
+**Prioridad**: Media — la foto es opcional en el reporte, no bloquea el flujo crítico, pero es una funcionalidad anunciada en la UI que nunca funcionó. Delegar en `api-contract` + `mobile-rn-expert`.
+
+### DT-011 — Cola offline de reportes nunca sincroniza sola
+**Archivo**: `apps/ciudadano/src/services/offline-queue.service.ts`
+**Estado**: el comentario de cabecera documenta una función `procesarCola()` que no existe. Los reportes capturados sin conexión se guardan en `AsyncStorage` (`encolarReporte()`) pero nada los reintenta automáticamente al recuperar señal — quedan atrapados hasta que se implemente el reintento.
+**Impacto**: viola el requisito de offline-first descrito en `CLAUDE.md` §12 (capturar sin red → reconectar → debe llegar al backend). Actualmente ese ciclo se rompe en el último paso.
+**Prioridad**: Alta — es funcionalidad crítica para el caso de uso rural/zonas sin cobertura del proyecto. Delegar en `offline-sync-specialist`.
+
+### DT-013 — Gap de cobertura: `vitest.config.ts` del backend no mide `src/routes/**`
+**Archivo**: `backend/vitest.config.ts`
+**Estado**: `coverage.include` solo instrumenta `src/services/**`. El requisito de "mínimo 80% en código nuevo de backend" (`CLAUDE.md` §7) nunca se verifica automáticamente para ninguna ruta del proyecto, no solo `reportes.ts` — hay que forzar `--coverage.include` manualmente para medirlo (hecho una vez para `reportes.ts`: ~88% líneas).
+**Impacto**: no bloqueante hoy (no hay evidencia de rutas mal cubiertas), pero el gate de CI no está haciendo lo que el proyecto exige que haga.
+**Prioridad**: Media — cambiar el `include` global afecta el gate de CI de todo el backend, requiere decisión explícita antes de tocarlo.
+
+### DT-014 — Suite E2E de panel-web nunca pudo correr + falso positivo en `dashboard.spec.ts`
+**Archivos**: `apps/panel-web/e2e/dashboard.spec.ts`, `apps/panel-web/playwright.config.ts`, `apps/panel-web/package.json`
+**Estado**: `@playwright/test` no estaba instalado como dependencia real pese a existir `playwright.config.ts` y el script `test:e2e` — la suite nunca pudo ejecutarse (se agregó la dependencia el 2026-07-04). Al correrla, el único spec (`dashboard.spec.ts`) mockea `/api/v1/auth/me` pero nunca setea la cookie httpOnly `siagrd_token`; el middleware redirige a `/login` antes de cualquier fetch, así que en la práctica el spec prueba la pantalla de login, no el dashboard — falso positivo.
+**Fix pendiente**: agregar `context.addCookies([{ name: 'siagrd_token', ... }])` antes de navegar en el fixture del spec.
+**Prioridad**: Media — no bloquea funcionalidad de producto, pero da falsa confianza de cobertura E2E.
+
+### DT-015 — Dashboard del panel-web no colapsa bien a 360px
+**Archivo**: `apps/panel-web/src/app/(dashboard)/layout.tsx` (y componentes de dashboard que consume)
+**Estado**: hallazgo visual de SQA (2026-07-04, preexistente, no introducido por la migración de paleta): a 360px el texto de "INCIDENTES ACTIVOS" se corta y el botón flotante "EMITIR ALERTA" queda recortado. No genera scroll horizontal, pero el layout está roto en mobile.
+**Prioridad**: Media — viola la matriz responsive exigida en `CLAUDE.md` §14. Delegar en `ux-ui-designer`/`accessibility-expert`.
+
+### DT-008 — Perfil mostraba IP del VPS y dominio inexistente
+**Archivo**: `apps/ciudadano/src/app/(tabs)/perfil.tsx`
+**Estado**: **Resuelto** (commit `6614b77`) — cambiado `panel.satam.corpofuturo.org` (subdominio que nunca existió en DNS, ver `CLAUDE.md` §3.1) por `https://satam.corpofuturo.org`, y el texto descriptivo de "13.140.174.122 (VPS)" por el dominio real.
+
+### Bug de entorno de desarrollo (no es deuda del producto)
+Metro + Expo SDK 50 falla en Windows con Node 24: intenta crear una carpeta llamada literalmente `node:sea` (módulo "solo con prefijo" nuevo de Node), y Windows no permite `:` en nombres de archivo/carpeta. Se parcheó localmente `node_modules/@expo/cli/build/src/start/server/metro/externals.js` (no versionado — hay que reaplicarlo si se reinstalan dependencias, o considerar `patch-package`). Además hay un fallo recurrente de HMR ("Unable to resolve module ./node_modules/expo-router/entry") en este monorepo con `node-linker=hoisted`, no resuelto de raíz — mitigado en esta sesión compilando APKs `release` (JS embebido) en vez de depender del dev server para pruebas en dispositivo.
+
 ## Configuración de GitHub/CI pendiente (hallazgo del PR #10, 2026-07-04)
 
 Ninguno de estos tres bloquea merges (branch protection permite fusión automática), pero conviene resolverlos porque generan checks fallidos permanentes en cada PR. Ninguno se corrige con un commit — son acciones de configuración en las plataformas, no en el código.

@@ -34,7 +34,7 @@ const TAB_ROL: Record<Tab, string> = {
 };
 
 const ROL_COLORS: Record<string, string> = {
-  ADMIN: '#A78BFA', CDGRD: '#F59E0B', SOCORRO: '#22C55E', CIUDADANO: '#9CA3AF',
+  ADMIN: '#A78BFA', CDGRD: '#F59E0B', SOCORRO: '#22C55E', CIUDADANO: '#374151',
 };
 
 async function getHeaders(): Promise<Record<string, string>> {
@@ -43,7 +43,7 @@ async function getHeaders(): Promise<Record<string, string>> {
 }
 
 function RolBadge({ rol }: { rol: string }) {
-  const color = ROL_COLORS[rol] ?? '#9CA3AF';
+  const color = ROL_COLORS[rol] ?? '#374151';
   return (
     <View style={[styles.badge, { backgroundColor: color + '22', borderColor: color }]}>
       <Text style={[styles.badgeText, { color }]}>{rol}</Text>
@@ -144,9 +144,9 @@ export default function GruposScreen() {
   };
 
   const metricas: { label: string; value: number | undefined; color: string }[] = [
-    { label: 'Total Usuarios', value: resumen?.total_usuarios, color: '#2563EB' },
+    { label: 'Total Usuarios', value: resumen?.total_usuarios, color: '#4f46e5' },
     { label: 'Socorro', value: resumen?.total_socorro, color: '#22C55E' },
-    { label: 'Ciudadanos', value: resumen?.total_ciudadanos, color: '#9CA3AF' },
+    { label: 'Ciudadanos', value: resumen?.total_ciudadanos, color: '#14532d' },
     { label: 'Comités', value: resumen?.total_comites, color: '#F59E0B' },
   ];
 
@@ -171,7 +171,7 @@ export default function GruposScreen() {
 
       {loadingResumen ? (
         <View style={styles.metricsRow}>
-          <ActivityIndicator size="small" color="#2563EB" />
+          <ActivityIndicator size="small" color="#4f46e5" />
         </View>
       ) : (
         <View style={styles.metricsRow}>
@@ -197,7 +197,7 @@ export default function GruposScreen() {
       </View>
 
       {loadingList ? (
-        <View style={styles.centered}><ActivityIndicator size="large" color="#2563EB" /></View>
+        <View style={styles.centered}><ActivityIndicator size="large" color="#4f46e5" /></View>
       ) : (
         <FlatList
           data={usuarios}
@@ -225,22 +225,22 @@ export default function GruposScreen() {
               <Text style={styles.modalTitle}>Agregar a {activeTab}</Text>
 
               <Text style={styles.label}>Email *</Text>
-              <TextInput style={styles.input} placeholder="correo@ejemplo.com" placeholderTextColor="#6B7280" value={form.email} onChangeText={(v) => setForm((f) => ({ ...f, email: v }))} keyboardType="email-address" autoCapitalize="none" />
+              <TextInput style={styles.input} placeholder="correo@ejemplo.com" placeholderTextColor="#14532d" value={form.email} onChangeText={(v) => setForm((f) => ({ ...f, email: v }))} keyboardType="email-address" autoCapitalize="none" />
 
               <Text style={styles.label}>Nombre *</Text>
-              <TextInput style={styles.input} placeholder="Nombre" placeholderTextColor="#6B7280" value={form.nombre} onChangeText={(v) => setForm((f) => ({ ...f, nombre: v }))} />
+              <TextInput style={styles.input} placeholder="Nombre" placeholderTextColor="#14532d" value={form.nombre} onChangeText={(v) => setForm((f) => ({ ...f, nombre: v }))} />
 
               <Text style={styles.label}>Apellido *</Text>
-              <TextInput style={styles.input} placeholder="Apellido" placeholderTextColor="#6B7280" value={form.apellido} onChangeText={(v) => setForm((f) => ({ ...f, apellido: v }))} />
+              <TextInput style={styles.input} placeholder="Apellido" placeholderTextColor="#14532d" value={form.apellido} onChangeText={(v) => setForm((f) => ({ ...f, apellido: v }))} />
 
               <Text style={styles.label}>Documento</Text>
-              <TextInput style={styles.input} placeholder="Cédula" placeholderTextColor="#6B7280" value={form.documento} onChangeText={(v) => setForm((f) => ({ ...f, documento: v }))} keyboardType="numeric" />
+              <TextInput style={styles.input} placeholder="Cédula" placeholderTextColor="#14532d" value={form.documento} onChangeText={(v) => setForm((f) => ({ ...f, documento: v }))} keyboardType="numeric" />
 
               <Text style={styles.label}>Celular</Text>
-              <TextInput style={styles.input} placeholder="Celular" placeholderTextColor="#6B7280" value={form.celular} onChangeText={(v) => setForm((f) => ({ ...f, celular: v }))} keyboardType="phone-pad" />
+              <TextInput style={styles.input} placeholder="Celular" placeholderTextColor="#14532d" value={form.celular} onChangeText={(v) => setForm((f) => ({ ...f, celular: v }))} keyboardType="phone-pad" />
 
               <Text style={styles.label}>Contraseña *</Text>
-              <TextInput style={styles.input} placeholder="Contraseña temporal" placeholderTextColor="#6B7280" value={form.password} onChangeText={(v) => setForm((f) => ({ ...f, password: v }))} secureTextEntry />
+              <TextInput style={styles.input} placeholder="Contraseña temporal" placeholderTextColor="#14532d" value={form.password} onChangeText={(v) => setForm((f) => ({ ...f, password: v }))} secureTextEntry />
 
               <View style={styles.modalBtns}>
                 <TouchableOpacity style={styles.cancelBtn} onPress={() => setModalVisible(false)}>
@@ -259,40 +259,40 @@ export default function GruposScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0A0E1A' },
+  container: { flex: 1, backgroundColor: '#eef2ff' },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   header: {
     flexDirection: 'row', alignItems: 'center',
     paddingTop: Platform.OS === 'ios' ? 56 : 40,
     paddingBottom: 12, paddingHorizontal: 16,
-    backgroundColor: '#0A0E1A', borderBottomWidth: 1, borderBottomColor: '#1F2937', gap: 10,
+    backgroundColor: '#eef2ff', borderBottomWidth: 1, borderBottomColor: '#dcfce7', gap: 10,
   },
   backBtn: { padding: 4 },
-  backArrow: { fontSize: 22, color: '#2563EB', fontWeight: '700' },
-  headerTitle: { flex: 1, color: '#F9FAFB', fontSize: 17, fontWeight: '700' },
+  backArrow: { fontSize: 22, color: '#4f46e5', fontWeight: '700' },
+  headerTitle: { flex: 1, color: '#0f0a2e', fontSize: 17, fontWeight: '700' },
   metricsRow: { flexDirection: 'row', padding: 12, gap: 8 },
   metricCard: {
-    flex: 1, backgroundColor: '#1F2937', borderRadius: 12, padding: 10,
+    flex: 1, backgroundColor: '#dcfce7', borderRadius: 12, padding: 10,
     alignItems: 'center', borderTopWidth: 3,
   },
   metricValue: { fontSize: 22, fontWeight: '800' },
-  metricLabel: { color: '#9CA3AF', fontSize: 10, marginTop: 2, textAlign: 'center' },
+  metricLabel: { color: '#14532d', fontSize: 10, marginTop: 2, textAlign: 'center' },
   tabRow: { flexDirection: 'row', paddingHorizontal: 16, gap: 8, marginBottom: 4 },
   tabBtn: {
     flex: 1, paddingVertical: 8, borderRadius: 8,
-    backgroundColor: '#1F2937', alignItems: 'center',
+    backgroundColor: '#dcfce7', alignItems: 'center',
   },
-  tabBtnActive: { backgroundColor: '#2563EB' },
-  tabBtnText: { color: '#9CA3AF', fontSize: 13, fontWeight: '600' },
+  tabBtnActive: { backgroundColor: '#4f46e5' },
+  tabBtnText: { color: '#14532d', fontSize: 13, fontWeight: '600' },
   tabBtnTextActive: { color: '#FFF' },
   listContent: { padding: 16, gap: 8, paddingBottom: 100 },
   userItem: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#1F2937', borderRadius: 12, padding: 12, gap: 10,
+    backgroundColor: '#dcfce7', borderRadius: 12, padding: 12, gap: 10,
   },
   userLeft: { flex: 1 },
-  userName: { color: '#F9FAFB', fontSize: 14, fontWeight: '600' },
-  userEmail: { color: '#9CA3AF', fontSize: 12 },
+  userName: { color: '#0f0a2e', fontSize: 14, fontWeight: '600' },
+  userEmail: { color: '#14532d', fontSize: 12 },
   badge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, borderWidth: 1 },
   badgeText: { fontSize: 10, fontWeight: '700' },
   emptyBox: { paddingTop: 60, alignItems: 'center' },
@@ -300,18 +300,18 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute', bottom: 24, right: 24,
     width: 56, height: 56, borderRadius: 28,
-    backgroundColor: '#2563EB', alignItems: 'center', justifyContent: 'center',
-    elevation: 6, shadowColor: '#2563EB', shadowOpacity: 0.4, shadowRadius: 8, shadowOffset: { width: 0, height: 4 },
+    backgroundColor: '#4f46e5', alignItems: 'center', justifyContent: 'center',
+    elevation: 6, shadowColor: '#4f46e5', shadowOpacity: 0.4, shadowRadius: 8, shadowOffset: { width: 0, height: 4 },
   },
   fabIcon: { color: '#FFF', fontSize: 28, fontWeight: '300', marginTop: -2 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
-  modalCard: { backgroundColor: '#111827', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, maxHeight: '90%' },
-  modalTitle: { color: '#F9FAFB', fontSize: 18, fontWeight: '700', marginBottom: 16 },
-  label: { color: '#9CA3AF', fontSize: 12, fontWeight: '600', marginBottom: 4, marginTop: 10 },
-  input: { backgroundColor: '#1F2937', borderRadius: 10, padding: 12, color: '#F9FAFB', fontSize: 14, borderWidth: 1, borderColor: '#374151' },
+  modalCard: { backgroundColor: '#ffffff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, maxHeight: '90%' },
+  modalTitle: { color: '#0f0a2e', fontSize: 18, fontWeight: '700', marginBottom: 16 },
+  label: { color: '#374151', fontSize: 12, fontWeight: '600', marginBottom: 4, marginTop: 10 },
+  input: { backgroundColor: '#dcfce7', borderRadius: 10, padding: 12, color: '#0f0a2e', fontSize: 14, borderWidth: 1, borderColor: '#c7d2fe' },
   modalBtns: { flexDirection: 'row', gap: 10, marginTop: 20, marginBottom: 8 },
-  cancelBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: '#1F2937', alignItems: 'center' },
-  cancelBtnText: { color: '#9CA3AF', fontWeight: '600' },
-  saveBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: '#2563EB', alignItems: 'center' },
+  cancelBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: '#dcfce7', alignItems: 'center' },
+  cancelBtnText: { color: '#14532d', fontWeight: '600' },
+  saveBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: '#4f46e5', alignItems: 'center' },
   saveBtnText: { color: '#FFF', fontWeight: '700' },
 });

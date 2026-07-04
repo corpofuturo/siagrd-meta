@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Map, { Layer, Source } from 'react-map-gl/maplibre';
 import type { MapMouseEvent } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { MAP_STYLE_DARK, META_CENTER, META_ZOOM, ALERTA_COLORS } from '@/lib/map-config';
+import { MAP_STYLE_LIGHT, META_CENTER, META_ZOOM, ALERTA_COLORS } from '@/lib/map-config';
 import { API_URL } from '@/lib/api';
 import type { IncidenteMapData } from '@/hooks/useRealtimeIncidentes';
 import type { FeatureCollection, Point, Geometry } from 'geojson';
@@ -75,7 +75,7 @@ export default function MapaDepartamental({
         zoom: META_ZOOM,
       }}
       style={{ width: '100%', height: '100%' }}
-      mapStyle={MAP_STYLE_DARK}
+      mapStyle={MAP_STYLE_LIGHT}
       interactiveLayerIds={['incidentes-circle']}
       onClick={handleClick}
       cursor="auto"
@@ -100,7 +100,7 @@ export default function MapaDepartamental({
           <Layer
             id="municipios-border"
             type="line"
-            paint={{ 'line-color': '#2D3748', 'line-width': 1 }}
+            paint={{ 'line-color': '#94a3b8', 'line-width': 1 }}
           />
         </Source>
       )}

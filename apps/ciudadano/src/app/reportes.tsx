@@ -28,7 +28,7 @@ interface ReporteCiudadano {
 const ESTADO_COLORS: Record<EstadoReporte, string> = {
   PENDIENTE: '#F59E0B',
   REVISADO: '#22C55E',
-  DESCARTADO: '#6B7280',
+  DESCARTADO: '#14532d',
 };
 
 async function apiFetch(path: string, options?: RequestInit) {
@@ -53,7 +53,7 @@ function ReporteCard({
   onMarcarRevisado: (id: number | string) => void;
 }) {
   const estado = (item.estado ?? 'PENDIENTE') as EstadoReporte;
-  const estadoColor = ESTADO_COLORS[estado] ?? '#6B7280';
+  const estadoColor = ESTADO_COLORS[estado] ?? '#14532d';
   const municipio = item.municipio_nombre ?? item.municipio ?? '—';
   const fecha = item.fecha ?? item.created_at;
   const fechaStr = fecha
@@ -154,7 +154,7 @@ export default function ReportesScreen() {
       </View>
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color="#3B82F6" />
+          <ActivityIndicator size="large" color="#4f46e5" />
         </View>
       ) : error ? (
         <View style={styles.center}>
@@ -172,8 +172,8 @@ export default function ReportesScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor="#3B82F6"
-              colors={['#3B82F6']}
+              tintColor="#4f46e5"
+              colors={['#4f46e5']}
             />
           }
           ListEmptyComponent={
@@ -188,27 +188,27 @@ export default function ReportesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0A0E1A' },
+  container: { flex: 1, backgroundColor: '#eef2ff' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingTop: Platform.OS === 'ios' ? 56 : 40,
     paddingBottom: 12,
     paddingHorizontal: 16,
-    backgroundColor: '#0A0E1A',
+    backgroundColor: '#eef2ff',
     borderBottomWidth: 1,
-    borderBottomColor: '#1F2937',
+    borderBottomColor: '#dcfce7',
     gap: 10,
   },
   backBtn: { padding: 4 },
-  backArrow: { fontSize: 22, color: '#3B82F6', fontWeight: '700' },
-  headerTitle: { flex: 1, color: '#F9FAFB', fontSize: 17, fontWeight: '700' },
+  backArrow: { fontSize: 22, color: '#4f46e5', fontWeight: '700' },
+  headerTitle: { flex: 1, color: '#0f0a2e', fontSize: 17, fontWeight: '700' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 80 },
   errorText: { color: '#EF4444', fontSize: 14, textAlign: 'center', paddingHorizontal: 24 },
   emptyText: { color: '#6B7280', fontSize: 14 },
   listContent: { padding: 16, paddingBottom: 80 },
   card: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#dcfce7',
     borderRadius: 12,
     padding: 14,
     marginBottom: 10,
@@ -226,9 +226,9 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
   },
   estadoBadgeText: { fontSize: 11, fontWeight: '600', letterSpacing: 0.3 },
-  fecha: { color: '#6B7280', fontSize: 12, marginLeft: 'auto' },
-  descripcion: { color: '#D1D5DB', fontSize: 13, lineHeight: 18 },
-  municipio: { color: '#9CA3AF', fontSize: 12 },
+  fecha: { color: '#14532d', fontSize: 12, marginLeft: 'auto' },
+  descripcion: { color: '#14532d', fontSize: 13, lineHeight: 18 },
+  municipio: { color: '#14532d', fontSize: 12 },
   revisarBtn: {
     backgroundColor: '#22C55E33',
     borderColor: '#22C55E',

@@ -29,9 +29,9 @@ interface Mensaje {
 const ROL_COLORS: Record<string, string> = {
   ADMIN: '#A78BFA',
   CDGRD: '#F59E0B',
-  CMGRD: '#3B82F6',
+  CMGRD: '#4f46e5',
   SOCORRO: '#22C55E',
-  CIUDADANO: '#9CA3AF',
+  CIUDADANO: '#14532d',
 };
 
 function formatHora(dateStr: string): string {
@@ -134,14 +134,14 @@ export default function ChatScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={22} color="#3B82F6" />
+          <Ionicons name="arrow-back" size={22} color="#4f46e5" />
         </TouchableOpacity>
         <Text style={styles.headerTitle} numberOfLines={1}>Canal de comunicación</Text>
       </View>
 
       {loading ? (
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#3B82F6" />
+          <ActivityIndicator size="large" color="#4f46e5" />
         </View>
       ) : error ? (
         <View style={styles.centered}>
@@ -161,7 +161,7 @@ export default function ChatScreen() {
           renderItem={({ item }) => {
             const isMe = item.autor_id === myId;
             const autor = [item.nombre, item.apellido].filter(Boolean).join(' ') || 'Sistema';
-            const rolColor = ROL_COLORS[item.autor_rol ?? ''] ?? '#9CA3AF';
+            const rolColor = ROL_COLORS[item.autor_rol ?? ''] ?? '#14532d';
             return (
               <View style={[styles.msgRow, isMe ? styles.msgRowMe : styles.msgRowOther]}>
                 {item.tipo === 'ALERTA_OFICIAL' && (
@@ -192,7 +192,7 @@ export default function ChatScreen() {
         <TextInput
           style={styles.textInput}
           placeholder="Escribe un mensaje..."
-          placeholderTextColor="#6B7280"
+          placeholderTextColor="#14532d"
           value={texto}
           onChangeText={setTexto}
           multiline
@@ -219,7 +219,7 @@ export default function ChatScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0A0E1A' },
+  container: { flex: 1, backgroundColor: '#eef2ff' },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   header: {
     flexDirection: 'row',
@@ -227,13 +227,13 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'ios' ? 56 : 40,
     paddingBottom: 12,
     paddingHorizontal: 16,
-    backgroundColor: '#0A0E1A',
+    backgroundColor: '#eef2ff',
     borderBottomWidth: 1,
-    borderBottomColor: '#1F2937',
+    borderBottomColor: '#dcfce7',
     gap: 10,
   },
   backBtn: { padding: 4 },
-  headerTitle: { flex: 1, color: '#F9FAFB', fontSize: 16, fontWeight: '700' },
+  headerTitle: { flex: 1, color: '#0f0a2e', fontSize: 16, fontWeight: '700' },
   errorText: { color: '#EF4444', fontSize: 14 },
   listContent: { padding: 12, gap: 6 },
   emptyBox: { paddingTop: 40, alignItems: 'center' },
@@ -248,10 +248,10 @@ const styles = StyleSheet.create({
     gap: 3,
   },
   bubbleMe: { backgroundColor: '#1D4ED8', borderBottomRightRadius: 2 },
-  bubbleOther: { backgroundColor: '#1F2937', borderBottomLeftRadius: 2 },
+  bubbleOther: { backgroundColor: '#dcfce7', borderBottomLeftRadius: 2 },
   bubbleAlerta: { backgroundColor: '#78350F', borderWidth: 1, borderColor: '#F59E0B' },
   bubbleAutor: { fontSize: 10, fontWeight: '700', marginBottom: 2 },
-  bubbleTexto: { color: '#F9FAFB', fontSize: 14, lineHeight: 20 },
+  bubbleTexto: { color: '#0f0a2e', fontSize: 14, lineHeight: 20 },
   bubbleHora: { color: 'rgba(255,255,255,0.4)', fontSize: 10, textAlign: 'right' },
   alertaHeader: {
     flexDirection: 'row',
@@ -265,28 +265,28 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     paddingHorizontal: 12,
     paddingVertical: 10,
-    backgroundColor: '#0A0E1A',
+    backgroundColor: '#eef2ff',
     borderTopWidth: 1,
-    borderTopColor: '#1F2937',
+    borderTopColor: '#dcfce7',
     gap: 8,
   },
   textInput: {
     flex: 1,
-    backgroundColor: '#1F2937',
+    backgroundColor: '#dcfce7',
     borderRadius: 20,
     paddingHorizontal: 14,
     paddingVertical: 10,
-    color: '#F9FAFB',
+    color: '#0f0a2e',
     fontSize: 14,
     maxHeight: 100,
     borderWidth: 1,
-    borderColor: '#374151',
+    borderColor: '#c7d2fe',
   },
   sendBtn: {
     width: 42,
     height: 42,
     borderRadius: 21,
-    backgroundColor: '#2563EB',
+    backgroundColor: '#4f46e5',
     alignItems: 'center',
     justifyContent: 'center',
   },

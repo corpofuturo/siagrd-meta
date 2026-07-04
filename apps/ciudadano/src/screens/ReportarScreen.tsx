@@ -24,7 +24,6 @@ import {
   Image,
   Platform,
 } from 'react-native';
-import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useNetInfo } from '@react-native-community/netinfo';
@@ -209,7 +208,6 @@ function SeccionGPS({ coordenada, obteniendo, onObtener, onEliminar }: SeccionGP
 // ─────────────────────────────────────────────
 
 export default function ReportarScreen() {
-  const router = useRouter();
   const netInfo = useNetInfo();
   const online = netInfo.isConnected !== false;
 
@@ -279,6 +277,16 @@ export default function ReportarScreen() {
     setCoordenada(coord);
     setObteniendo(false);
   };
+
+  // Volver al inicio del flujo (resetea estado local; no depende de historial de navegación)
+  const volverAlInicio = useCallback(() => {
+    setPaso('tipo');
+    setTipoSeleccionado('');
+    setDescripcion('');
+    setFotoUri(null);
+    setFotoAutorizada(false);
+    setCoordenada(null);
+  }, []);
 
   // Enviar
   const enviar = async () => {
@@ -366,7 +374,7 @@ export default function ReportarScreen() {
         <View style={styles.seccion}>
           <Text style={styles.seccionTitulo}>Descripción</Text>
           <View style={styles.infoBanner}>
-            <Ionicons name="information-circle-outline" size={16} color="#2563EB" />
+            <Ionicons name="information-circle-outline" size={16} color="#4f46e5" />
             <Text style={styles.infoBannerTexto}>
               Describe brevemente lo que está ocurriendo. Usa el mic del teclado para dictar.
             </Text>
@@ -437,7 +445,7 @@ export default function ReportarScreen() {
           ? 'Gracias por avisar. Las autoridades han sido notificadas.'
           : 'Sin conexión. El reporte se enviará automáticamente cuando recuperes señal.'}
       </Text>
-      <TouchableOpacity style={styles.volverBtn} onPress={() => router.back()}>
+      <TouchableOpacity style={styles.volverBtn} onPress={volverAlInicio}>
         <Text style={styles.volverBtnTexto}>Volver al inicio</Text>
       </TouchableOpacity>
     </View>
@@ -452,19 +460,19 @@ const styles = StyleSheet.create({
   // Paso 1 / enviado
   container: {
     flex: 1,
-    backgroundColor: '#0F1117',
+    backgroundColor: '#eef2ff',
     padding: 20,
   },
   titulo: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#F9FAFB',
+    color: '#0f0a2e',
     marginTop: 12,
     marginBottom: 6,
   },
   subtitulo: {
     fontSize: 14,
-    color: '#9CA3AF',
+    color: '#374151',
     marginBottom: 16,
   },
   grid: {
@@ -475,7 +483,7 @@ const styles = StyleSheet.create({
   },
   tipoCard: {
     width: '47%',
-    backgroundColor: '#1F2937',
+    backgroundColor: '#dcfce7',
     borderRadius: 16,
     padding: 20,
     alignItems: 'center',
@@ -484,7 +492,7 @@ const styles = StyleSheet.create({
   tipoLabel: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#F3F4F6',
+    color: '#14532d',
   },
 
   // Paso 2 — scroll
@@ -502,7 +510,7 @@ const styles = StyleSheet.create({
   bannerTipo: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1F2937',
+    backgroundColor: '#dcfce7',
     borderRadius: 14,
     padding: 14,
     gap: 12,
@@ -512,17 +520,17 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 17,
     fontWeight: '700',
-    color: '#F9FAFB',
+    color: '#0f0a2e',
   },
   bannerCambiar: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: '#374151',
+    backgroundColor: '#c7d2fe',
     borderRadius: 8,
   },
   bannerCambiarTexto: {
     fontSize: 13,
-    color: '#D1D5DB',
+    color: '#312e81',
     fontWeight: '600',
   },
 
@@ -557,7 +565,7 @@ const styles = StyleSheet.create({
   seccionTitulo: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#111827',
+    color: '#0f0a2e',
     marginBottom: 2,
   },
 
@@ -582,7 +590,7 @@ const styles = StyleSheet.create({
   campoLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#374151',
+    color: '#312e81',
   },
   campoRow: {
     flexDirection: 'row',
@@ -598,7 +606,7 @@ const styles = StyleSheet.create({
   campoInput: {
     flex: 1,
     fontSize: 15,
-    color: '#111827',
+    color: '#0f0a2e',
     padding: 0,
   },
   campoInputMulti: {
@@ -682,7 +690,7 @@ const styles = StyleSheet.create({
   checkboxLabel: {
     flex: 1,
     fontSize: 13,
-    color: '#374151',
+    color: '#0f0a2e',
     lineHeight: 18,
   },
 
@@ -694,7 +702,7 @@ const styles = StyleSheet.create({
   },
   gpsCoordenada: {
     fontSize: 13,
-    color: '#374151',
+    color: '#0f0a2e',
     fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
   },
 
@@ -734,20 +742,20 @@ const styles = StyleSheet.create({
   enviadoTitulo: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#86EFAC',
+    color: '#14532d',
     textAlign: 'center',
     marginBottom: 12,
   },
   enviadoSubtitulo: {
     fontSize: 16,
-    color: '#D1D5DB',
+    color: '#6b7280',
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 40,
     paddingHorizontal: 20,
   },
   volverBtn: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#dcfce7',
     borderRadius: 14,
     height: 56,
     alignItems: 'center',
@@ -755,7 +763,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   volverBtnTexto: {
-    color: '#F9FAFB',
+    color: '#0f0a2e',
     fontSize: 16,
     fontWeight: '600',
   },

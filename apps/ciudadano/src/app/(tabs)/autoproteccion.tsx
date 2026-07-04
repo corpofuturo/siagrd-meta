@@ -270,20 +270,20 @@ export default function AutoproteccionScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0F1117' },
+  container: { flex: 1, backgroundColor: '#eef2ff' },
 
   // Lista
   listaHeader: {
     paddingTop: 54,
     paddingHorizontal: 20,
     paddingBottom: 16,
-    backgroundColor: '#111827',
+    backgroundColor: '#ffffff',
   },
-  listaTitulo: { fontSize: 28, fontWeight: '700', color: '#F9FAFB' },
-  listaSubtitulo: { fontSize: 14, color: '#86EFAC', marginTop: 2 },
+  listaTitulo: { fontSize: 28, fontWeight: '700', color: '#0f0a2e' },
+  listaSubtitulo: { fontSize: 14, color: '#14532d', marginTop: 2 },
   listaContent: { padding: 16, gap: 10 },
   amenazaCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#dcfce7',
     borderRadius: 14,
     padding: 18,
     flexDirection: 'row',
@@ -291,37 +291,37 @@ const styles = StyleSheet.create({
     gap: 14,
   },
   amenazaCardTexto: { flex: 1 },
-  amenazaNombre: { fontSize: 17, fontWeight: '700', color: '#F9FAFB' },
-  amenazaSubtexto: { fontSize: 12, color: '#9CA3AF', marginTop: 2 },
-  amenazaChevron: { fontSize: 24, color: '#6B7280' },
+  amenazaNombre: { fontSize: 17, fontWeight: '700', color: '#0f0a2e' },
+  amenazaSubtexto: { fontSize: 12, color: '#14532d', marginTop: 2 },
+  amenazaChevron: { fontSize: 24, color: '#14532d' },
 
   // Detalle
   detalleHeader: {
     paddingTop: 54,
     paddingHorizontal: 20,
     paddingBottom: 12,
-    backgroundColor: '#111827',
+    backgroundColor: '#ffffff',
     gap: 4,
   },
   volverBtn: { marginBottom: 4 },
-  volverBtnTexto: { color: '#60A5FA', fontSize: 15 },
-  detalleTitulo: { fontSize: 24, fontWeight: '700', color: '#F9FAFB' },
-  offlineBadge: { fontSize: 11, color: '#86EFAC' },
+  volverBtnTexto: { color: '#4f46e5', fontSize: 15 },
+  detalleTitulo: { fontSize: 24, fontWeight: '700', color: '#0f0a2e' },
+  offlineBadge: { fontSize: 11, color: '#14532d' },
 
   fasesRow: {
     flexDirection: 'row',
     padding: 12,
     gap: 8,
-    backgroundColor: '#111827',
+    backgroundColor: '#ffffff',
   },
   faseBtn: {
     flex: 1,
     paddingVertical: 10,
     borderRadius: 10,
-    backgroundColor: '#1F2937',
+    backgroundColor: '#dcfce7',
     alignItems: 'center',
   },
-  faseBtnTexto: { fontSize: 12, fontWeight: '700', color: '#9CA3AF' },
+  faseBtnTexto: { fontSize: 12, fontWeight: '700', color: '#14532d' },
   faseBtnTextoActivo: { color: '#FFF' },
 
   scroll: { flex: 1 },
@@ -335,16 +335,16 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#374151',
+    backgroundColor: '#c7d2fe',
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 2,
   },
-  numeroTexto: { color: '#D1D5DB', fontSize: 13, fontWeight: '700' },
+  numeroTexto: { color: '#312e81', fontSize: 13, fontWeight: '700' },
   instruccionTexto: {
     flex: 1,
     fontSize: 15,
-    color: '#E5E7EB',
+    color: '#0f0a2e',
     lineHeight: 22,
   },
 });

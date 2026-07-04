@@ -41,12 +41,13 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{ backgroundColor: '#eef2ff' }}>
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: 'easeOut' }}
-        className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md"
+        className="p-8 w-full max-w-md"
+        style={{ backgroundColor: '#ffffff', borderRadius: '1rem', boxShadow: '0 8px 32px rgba(79,70,229,0.12)' }}
       >
         {/* Banderas institucionales — pequeñas, decorativas.
             Width/height explicitos: los SVG no declaran su propio tamaño
@@ -61,11 +62,11 @@ export default function LoginPage() {
 
         {/* Escudo + título */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-blue-100 rounded-full mb-4">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full mb-4" style={{ backgroundColor: '#e0e7ff' }}>
             <span className="text-3xl">🛡️</span>
           </div>
-          <h1 className="text-3xl font-bold text-blue-900 tracking-wide">SATAM</h1>
-          <p className="text-sm text-gray-500 mt-1">Sistema de Alertas Tempranas de Amenazas Múltiples</p>
+          <h1 className="text-3xl font-bold tracking-wide" style={{ color: '#312e81' }}>SATAM</h1>
+          <p className="text-sm mt-1" style={{ color: '#6b7280' }}>Sistema de Alertas Tempranas de Amenazas Múltiples</p>
         </div>
 
         {/* Formulario */}
@@ -79,7 +80,7 @@ export default function LoginPage() {
               id="email"
               type="text"
               className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm
-                         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                         focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="admin o usuario@cdgrd.gov.co"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -95,7 +96,7 @@ export default function LoginPage() {
               id="password"
               type="password"
               className="w-full px-3 py-2.5 border border-gray-300 rounded-lg text-sm
-                         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                         focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -107,8 +108,10 @@ export default function LoginPage() {
             type="submit"
             disabled={loading}
             className="w-full flex items-center justify-center gap-2 py-3 px-4 mt-2
-                       bg-blue-700 hover:bg-blue-800 disabled:bg-blue-400
                        text-white font-semibold rounded-lg transition-colors"
+            style={{ backgroundColor: loading ? '#a5b4fc' : '#4f46e5' }}
+            onMouseEnter={(e) => { if (!loading) e.currentTarget.style.backgroundColor = '#4338ca'; }}
+            onMouseLeave={(e) => { if (!loading) e.currentTarget.style.backgroundColor = '#4f46e5'; }}
           >
             {loading ? '⏳ Ingresando...' : '→ Ingresar'}
           </button>

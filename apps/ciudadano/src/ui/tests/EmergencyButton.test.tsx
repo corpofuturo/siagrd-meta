@@ -24,7 +24,7 @@ describe('EmergencyButton', () => {
   it('disabled aplica color deshabilitado del design system', () => {
     // Verificar que el color disabled está definido en tokens
     expect(colors.text.disabled).toBeDefined();
-    expect(colors.text.disabled).toBe('#4A5568');
+    expect(colors.text.disabled).toBe('#94a3b8');
   });
 
   it('loading=true oculta el label (ActivityIndicator en su lugar)', () => {

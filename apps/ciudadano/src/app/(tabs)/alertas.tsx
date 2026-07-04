@@ -352,7 +352,7 @@ export default function AlertasScreen() {
     <View style={styles.container}>
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color="#3B82F6" />
+          <ActivityIndicator size="large" color="#4f46e5" />
         </View>
       ) : error ? (
         <View style={styles.center}>
@@ -374,8 +374,8 @@ export default function AlertasScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor="#3B82F6"
-              colors={['#3B82F6']}
+              tintColor="#4f46e5"
+              colors={['#4f46e5']}
             />
           }
           ListHeaderComponent={
@@ -415,7 +415,7 @@ export default function AlertasScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0A0E1A' },
+  container: { flex: 1, backgroundColor: '#eef2ff' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 80 },
   errorText: { color: '#EF4444', fontSize: 14, textAlign: 'center', paddingHorizontal: 24 },
   emptyText: { color: '#6B7280', fontSize: 14 },
@@ -424,14 +424,14 @@ const styles = StyleSheet.create({
     borderRadius: 14, borderWidth: 2, padding: 20,
     alignItems: 'center', marginBottom: 20,
   },
-  nivelMaxLabel: { color: '#9CA3AF', fontSize: 13, marginBottom: 6 },
+  nivelMaxLabel: { color: '#374151', fontSize: 13, marginBottom: 6 },
   nivelMaxValue: { fontSize: 32, fontWeight: '800', letterSpacing: 2 },
-  card: { backgroundColor: '#1F2937', borderRadius: 12, padding: 14, marginBottom: 12, gap: 6 },
+  card: { backgroundColor: '#e0e7ff', borderRadius: 12, padding: 14, marginBottom: 12, gap: 6 },
   cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  cardFecha: { color: '#6B7280', fontSize: 12, marginLeft: 'auto' },
-  cardTipo: { color: '#F9FAFB', fontSize: 14, fontWeight: '600' },
-  cardMunicipio: { color: '#9CA3AF', fontSize: 12 },
-  cardDesc: { color: '#D1D5DB', fontSize: 13, lineHeight: 18 },
+  cardFecha: { color: '#312e81', fontSize: 12, marginLeft: 'auto' },
+  cardTipo: { color: '#0f0a2e', fontSize: 14, fontWeight: '600' },
+  cardMunicipio: { color: '#312e81', fontSize: 12 },
+  cardDesc: { color: '#312e81', fontSize: 13, lineHeight: 18 },
   badge: { borderRadius: 6, borderWidth: 1, paddingHorizontal: 8, paddingVertical: 3 },
   badgeText: { fontSize: 11, fontWeight: '600', letterSpacing: 0.3 },
   activaBadge: {
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute', bottom: 24, right: 24,
     width: 56, height: 56, borderRadius: 28,
-    backgroundColor: '#3B82F6', alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#4f46e5', alignItems: 'center', justifyContent: 'center',
     elevation: 6,
   },
 
@@ -454,30 +454,30 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContainer: {
-    backgroundColor: '#111827', borderTopLeftRadius: 20, borderTopRightRadius: 20,
+    backgroundColor: '#ffffff', borderTopLeftRadius: 20, borderTopRightRadius: 20,
     maxHeight: '90%', flex: 0,
   },
   modalHeader: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    padding: 20, borderBottomWidth: 1, borderBottomColor: '#1F2937',
+    padding: 20, borderBottomWidth: 1, borderBottomColor: '#e0e7ff',
   },
-  modalTitle: { color: '#F9FAFB', fontSize: 18, fontWeight: '700' },
+  modalTitle: { color: '#0f0a2e', fontSize: 18, fontWeight: '700' },
   modalBody: { paddingHorizontal: 20, paddingTop: 16, flexShrink: 1 },
   modalFooter: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 32 },
-  fieldLabel: { color: '#9CA3AF', fontSize: 12, fontWeight: '600', marginBottom: 6, marginTop: 14 },
+  fieldLabel: { color: '#374151', fontSize: 12, fontWeight: '600', marginBottom: 6, marginTop: 14 },
   input: {
-    backgroundColor: '#1F2937', borderRadius: 10, color: '#F9FAFB',
+    backgroundColor: '#e0e7ff', borderRadius: 10, color: '#0f0a2e',
     paddingHorizontal: 14, paddingVertical: 12, fontSize: 14,
   },
   inputMultiline: { minHeight: 72, textAlignVertical: 'top' },
   chipRow: { flexDirection: 'row', marginBottom: 4 },
   chip: {
-    borderRadius: 20, borderWidth: 1, borderColor: '#374151',
+    borderRadius: 20, borderWidth: 1, borderColor: '#c7d2fe',
     paddingHorizontal: 12, paddingVertical: 6, marginRight: 8, marginBottom: 4,
   },
-  chipSelected: { backgroundColor: '#3B82F633', borderColor: '#3B82F6' },
-  chipText: { color: '#9CA3AF', fontSize: 12 },
-  chipTextSelected: { color: '#3B82F6', fontWeight: '600' },
+  chipSelected: { backgroundColor: '#4f46e533', borderColor: '#4f46e5' },
+  chipText: { color: '#374151', fontSize: 12 },
+  chipTextSelected: { color: '#4f46e5', fontWeight: '600' },
   nivelRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
   nivelChip: {
     borderWidth: 2, borderRadius: 8, paddingHorizontal: 14, paddingVertical: 8, flex: 1,
@@ -486,7 +486,7 @@ const styles = StyleSheet.create({
   nivelChipText: { fontSize: 12, fontWeight: '700' },
   errText: { color: '#EF4444', fontSize: 13, marginTop: 12, textAlign: 'center' },
   btnGuardar: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#4f46e5',
     borderRadius: 12, paddingVertical: 14, alignItems: 'center',
   },
   btnGuardarText: { color: '#FFF', fontWeight: '700', fontSize: 15 },
