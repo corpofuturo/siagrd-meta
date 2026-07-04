@@ -34,7 +34,7 @@ const ROL_COLORS: Record<string, string> = {
   admin: '#A78BFA',
 };
 
-const PANEL_URL = 'https://panel.satam.corpofuturo.org';
+const PANEL_URL = 'https://satam.corpofuturo.org';
 
 interface MenuItemProps {
   icon: string;
@@ -122,7 +122,7 @@ export default function PerfilScreen() {
             <MenuItem icon="bar-chart-outline" label="Estadísticas" desc="Reportes y análisis" onPress={() => openPanel('/estadisticas')} />
           )}
           {isAdmin && (
-            <MenuItem icon="grid-outline" label="Panel Completo" desc="13.140.174.122 (VPS)" onPress={() => Linking.openURL(PANEL_URL)} />
+            <MenuItem icon="grid-outline" label="Panel Completo" desc="satam.corpofuturo.org" onPress={() => Linking.openURL(PANEL_URL)} />
           )}
         </View>
       )}
@@ -138,7 +138,7 @@ export default function PerfilScreen() {
       {/* Menú general */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>PANEL WEB</Text>
-        <MenuItem icon="globe-outline" label="Abrir Panel Completo" desc="13.140.174.122 (VPS)" onPress={() => openPanel('/')} />
+        <MenuItem icon="globe-outline" label="Abrir Panel Completo" desc="satam.corpofuturo.org" onPress={() => openPanel('/')} />
       </View>
 
       {/* Cerrar sesión */}
