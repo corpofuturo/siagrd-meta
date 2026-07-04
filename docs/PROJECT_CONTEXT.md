@@ -1,6 +1,6 @@
 # PROJECT_CONTEXT.md — SIAGRD Meta (SATAM)
 
-> Estado real verificado — 2026-07-03. Ver `CLAUDE.md` para las reglas de trabajo.
+> Estado real verificado — última actualización 2026-07-04. Ver `CLAUDE.md` para las reglas de trabajo. Ver también la sección "Sesión 2026-07-04" al final para lo más reciente — puede corregir afirmaciones de secciones anteriores.
 
 ## Qué es
 
@@ -48,4 +48,37 @@ Ver `docs/DECISIONES.md` para el registro completo. Puntos clave: PostGIS en vez
 
 ## Deuda técnica y bloqueos
 
-Ver `TECH_DEBT.md` (raíz), `docs/DEUDA_TECNICA.md` y `BLOCKERS.md`. **Advertencia activa:** existen tres registros de deuda técnica con numeración DT-XXX independiente en este repo — no asumir a cuál se refiere un DT-XXX sin especificar el archivo.
+Ver `TECH_DEBT.md` (raíz), `docs/DEUDA_TECNICA.md` y `BLOCKERS.md`. **Advertencia activa:** existen tres registros de deuda técnica con numeración DT-XXX independiente en este repo — no asumir a cuál se refiere un DT-XXX sin especificar el archivo. Dentro de `TECH_DEBT.md` mismo hay además dos numeraciones que conviven: `ARQ-DT-00X` (heredada de `ARQUITECTURA.md`, Hito 2, cerrada 16/16) y `DT-00X` nueva para hallazgos de SQA en dispositivo de la sesión 2026-07-04 — no son el mismo espacio de números.
+
+## Sesión 2026-07-04 — rama `feat/diseno-indigo-sage`
+
+**Rama**: `feat/diseno-indigo-sage`, 9 commits sobre `main` (`e0a7687` … `e03f020`), **sin PR abierto**. `git status`: sin cambios trackeados pendientes; quedan sin trackear `docs/PROMPT_*.md`, imágenes de WhatsApp en `docs/`, `tests/evidencia/` y `tests/sqa_siagrd01.ps1` — decidir si se commitean o se descartan antes de abrir el PR.
+
+**Verificado contra código (no contra lo que dicen los documentos):**
+
+- **Hito 1 (Seguridad, `ROADMAP.md` dice 5/5)**: el propio `ROADMAP.md` (línea 19) ya trae la salvedad correcta — no darlo por cerrado sin una pasada de `security-auditor` + confirmación de `sqa-backend` de que la suite (126/126 al 2026-07-03) sigue verde. Esa verificación independiente **no se hizo en esta sesión**. No hay evidencia de código que contradiga el 5/5, pero sigue sin auditoría fresca.
+- **Hito 2 (deuda funcional, `TECH_DEBT.md` dice 16/16)**: confirmado por lectura directa — ARQ-DT-006 (`/alcaldias`, 552 líneas reales), ARQ-DT-007 (`GET /api/v1/geo/departamento` real en `backend/src/routes/geo.ts`), ARQ-DT-010 (CI/CD real: `.github/workflows/deploy.yml` + `ci.yml` existen), ARQ-DT-011 (`/estadisticas`, 480 líneas reales) todos tienen código real detrás, no son afirmaciones vacías.
+- **DT-006** (tab Reportar no navegaba) — resuelto parcialmente: `ReportarScreen` sacado del árbol de rutas, tab lo renderiza directo (commit `7cd11d4`). Pendiente: paso 3 (confirmación) y botón "Volver al inicio" sin verificar en dispositivo, bloqueado por el bug de DT-010 en su momento.
+- **DT-007** (mapa 401 anónimo) — resuelto: `signInAnonymous()` ahora llama a `POST /auth/anonymous` real en vez de fabricar un token falso (commit `6614b77`). Verificado en dispositivo físico: mapa carga con datos reales, sin 401 en logcat.
+- **DT-010** (`POST /reportes-ciudadanos` roto de raíz) — fix de código resuelto y commiteado (`43ac83b`): tres bugs de esquema encadenados (nombres de campo `tipo_amenaza`/`latitud`/`longitud` vs `tipo`/`ubicacion`; columna `reportado_por` en vez de `reportante_id`; columna `updated_at` que no existía). Incluye migración aditiva `database/migrations/027_reportes_foto_url.sql` y 5 tests de integración nuevos.
+- **DT-011** (cola offline nunca sincroniza) — **abierto, sin implementar.** `apps/ciudadano/src/services/offline-queue.service.ts` tiene `encolarReporte()` pero la función `procesarCola()` descrita en el comentario de cabecera no existe en el archivo — nada reintenta el envío al recuperar señal. Viola el ciclo offline-first exigido en `CLAUDE.md` §12. Prioridad alta, delegar en `offline-sync-specialist`.
+
+**Migración 027 — RECONCILIADO**: el agente de revisión de estado marcó esto como discrepancia porque `TECH_DEBT.md` commit `e03f020` decía "no aplicada aún" — correcto en ese momento. Después de ese commit, en la misma sesión, se abrió un túnel SSH a producción (`ssh -L 5434:172.18.0.2:5432 root@13.140.174.122`, aprobado explícitamente por el usuario) y se aplicó la migración. **Verificado dos veces contra `information_schema.columns` de la base real** (antes y después de un segundo túnel de confirmación): `foto_url` y `updated_at` existen en `reportes_ciudadanos` de producción. `TECH_DEBT.md` (commit `4e7ad0c`) ya quedó actualizado con este estado. Dar la migración por **aplicada en producción**.
+
+**DT-012 (nuevo, 2026-07-04)** — hallazgo de `security-auditor`: `POST /reportes-ciudadanos` (público) aceptaba `foto_url` como cualquier string sin validar que viniera de una subida propia — vector de tracking/fingerprinting contra funcionarios vía `<img>` en el panel-web. Corregido (commit `4e7ad0c`): ahora exige el prefijo real de `/api/v1/archivos/static/`. Además se confirmó que la subida de foto en reportes ciudadanos nunca funcionó de punta a punta (cliente apunta a un endpoint/contrato que no existe para el caso anónimo) — documentado como deuda abierta, requiere diseño de endpoint nuevo.
+
+**SQA post-fixes (2026-07-04, 4 agentes en paralelo tras los commits anteriores):**
+- `security-auditor`: sin hallazgos críticos/altos. 1 medio (foto_url, ya corregido arriba). 1 bajo aceptado (bypass de rate-limit anónimo→autenticado forjando JWT sin firma verificada — impacto bajo, backpressure sigue existiendo).
+- `sqa-backend`: 159/159 tests verdes (incluye 24 en `reportes.routes.test.ts`, ampliados de 5). Cobertura real de `reportes.ts` ~88% líneas (medida manualmente). **Hallazgo de infraestructura**: `vitest.config.ts` (`coverage.include`) excluye `src/routes/**` de la medición de cobertura de TODO el backend, no solo esta rama — el gate de "80% mínimo" nunca se verifica automáticamente para rutas. No corregido (cambiaría el gate de CI global), reportado para decisión aparte.
+- `sqa-frontend`: `tsc --noEmit` limpio. Vitest de `packages/ui` 16/16. **Hallazgo de infraestructura**: `@playwright/test` no estaba instalado como dependencia real pese a existir `playwright.config.ts` — la suite E2E nunca pudo correr. Instalado como devDependency (commit pendiente). El único spec E2E existente (`dashboard.spec.ts`) es un **falso positivo**: nunca setea la cookie httpOnly real, así que en la práctica prueba la pantalla de login, no el dashboard — pendiente de fix del fixture. **Bug preexistente encontrado** (no introducido por la migración de paleta): el dashboard no colapsa bien a 360px (texto de "INCIDENTES ACTIVOS" cortado, botón "EMITIR ALERTA" recortado) — no genera scroll horizontal pero el layout está roto en mobile. Pendiente, no bloqueante para este merge, delegar en `ux-ui-designer`.
+- Accesibilidad de login: labels correctos, foco visible con buen contraste.
+
+**Riesgo activo**: el backend de producción en el VPS sigue con el código viejo (bug de reportes sin corregir) hasta que se mergee `main` y se despliegue — pero la migración 027 ya está aplicada, así que el deploy es seguro en cuanto a esquema.
+
+**Pendientes exactos para cerrar la rama:**
+1. ~~Verificar migración 027~~ — hecho, aplicada y confirmada.
+2. Resolver los archivos sin trackear (`docs/PROMPT_*.md`, imágenes WhatsApp, `tests/evidencia/`, `tests/sqa_siagrd01.ps1`) — decisión del usuario, no son parte del código de esta rama.
+3. Abrir PR `feat/diseno-indigo-sage` → `main`, CI verde.
+4. Con aprobación explícita del usuario (ya dada: "aprobado todo"): merge y despliegue vía `deploy.yml`.
+5. Post-deploy: verificar en dispositivo físico que el envío de reportes (DT-010) funciona contra producción real.
+6. Deuda no bloqueante para después: DT-011 (offline sync), DT-012 (subida de foto en reportes), gap de cobertura en `vitest.config.ts`, fix del fixture E2E de `dashboard.spec.ts`, bug de responsive del dashboard a 360px, auditoría independiente de Hito 1.

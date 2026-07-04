@@ -111,6 +111,23 @@ Encontrados probando un APK release (JS embebido, sin Metro) contra el backend r
 **Impacto**: viola el requisito de offline-first descrito en `CLAUDE.md` §12 (capturar sin red → reconectar → debe llegar al backend). Actualmente ese ciclo se rompe en el último paso.
 **Prioridad**: Alta — es funcionalidad crítica para el caso de uso rural/zonas sin cobertura del proyecto. Delegar en `offline-sync-specialist`.
 
+### DT-013 — Gap de cobertura: `vitest.config.ts` del backend no mide `src/routes/**`
+**Archivo**: `backend/vitest.config.ts`
+**Estado**: `coverage.include` solo instrumenta `src/services/**`. El requisito de "mínimo 80% en código nuevo de backend" (`CLAUDE.md` §7) nunca se verifica automáticamente para ninguna ruta del proyecto, no solo `reportes.ts` — hay que forzar `--coverage.include` manualmente para medirlo (hecho una vez para `reportes.ts`: ~88% líneas).
+**Impacto**: no bloqueante hoy (no hay evidencia de rutas mal cubiertas), pero el gate de CI no está haciendo lo que el proyecto exige que haga.
+**Prioridad**: Media — cambiar el `include` global afecta el gate de CI de todo el backend, requiere decisión explícita antes de tocarlo.
+
+### DT-014 — Suite E2E de panel-web nunca pudo correr + falso positivo en `dashboard.spec.ts`
+**Archivos**: `apps/panel-web/e2e/dashboard.spec.ts`, `apps/panel-web/playwright.config.ts`, `apps/panel-web/package.json`
+**Estado**: `@playwright/test` no estaba instalado como dependencia real pese a existir `playwright.config.ts` y el script `test:e2e` — la suite nunca pudo ejecutarse (se agregó la dependencia el 2026-07-04). Al correrla, el único spec (`dashboard.spec.ts`) mockea `/api/v1/auth/me` pero nunca setea la cookie httpOnly `siagrd_token`; el middleware redirige a `/login` antes de cualquier fetch, así que en la práctica el spec prueba la pantalla de login, no el dashboard — falso positivo.
+**Fix pendiente**: agregar `context.addCookies([{ name: 'siagrd_token', ... }])` antes de navegar en el fixture del spec.
+**Prioridad**: Media — no bloquea funcionalidad de producto, pero da falsa confianza de cobertura E2E.
+
+### DT-015 — Dashboard del panel-web no colapsa bien a 360px
+**Archivo**: `apps/panel-web/src/app/(dashboard)/layout.tsx` (y componentes de dashboard que consume)
+**Estado**: hallazgo visual de SQA (2026-07-04, preexistente, no introducido por la migración de paleta): a 360px el texto de "INCIDENTES ACTIVOS" se corta y el botón flotante "EMITIR ALERTA" queda recortado. No genera scroll horizontal, pero el layout está roto en mobile.
+**Prioridad**: Media — viola la matriz responsive exigida en `CLAUDE.md` §14. Delegar en `ux-ui-designer`/`accessibility-expert`.
+
 ### DT-008 — Perfil mostraba IP del VPS y dominio inexistente
 **Archivo**: `apps/ciudadano/src/app/(tabs)/perfil.tsx`
 **Estado**: **Resuelto** (commit `6614b77`) — cambiado `panel.satam.corpofuturo.org` (subdominio que nunca existió en DNS, ver `CLAUDE.md` §3.1) por `https://satam.corpofuturo.org`, y el texto descriptivo de "13.140.174.122 (VPS)" por el dominio real.
