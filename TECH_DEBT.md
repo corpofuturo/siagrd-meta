@@ -76,3 +76,26 @@ Este repositorio tiene **tres registros de deuda técnica con numeración DT-XXX
 | ARQ-DT-012 | Módulo damnificados en la app sin implementar | **Resuelto** — `apps/ciudadano/src/app/damnificados.tsx` existe | No |
 
 **Los 16/16 ítems de este catálogo están resueltos y verificados** (2026-07-03). Ver `ROADMAP_EJECUCION_v1.md` para el trabajo de Fases 3-9 aún pendiente (no es deuda técnica documentada aquí, son features del roadmap original que nunca se implementaron).
+
+## Configuración de GitHub/CI pendiente (hallazgo del PR #10, 2026-07-04)
+
+Ninguno de estos tres bloquea merges (branch protection permite fusión automática), pero conviene resolverlos porque generan checks fallidos permanentes en cada PR. Ninguno se corrige con un commit — son acciones de configuración en las plataformas, no en el código.
+
+### DT-016 — Integración de Netlify sigue activa pese a estar eliminada del stack
+**Hallazgo**: el PR #10 mostró 4 checks fallidos de Netlify (`deploy-preview`, `Header rules`, `Pages changed`, `Redirect rules`) para el sitio `siagrd-panel-web`. **No hay ningún `netlify.toml` en el repositorio** (`git ls-files | grep netlify` no encuentra nada) — la integración vive a nivel de cuenta/GitHub App de Netlify, no en el código. Esto contradice `CLAUDE.md` §2, que dice que Netlify fue **eliminado permanentemente y nunca debe reintroducirse**.
+**Causa del fallo** (por si se quiere diagnosticar antes de borrar): el build command configurado en el sitio Netlify hace `cd ../..` asumiendo que el cwd inicial es `apps/panel-web`, pero el cwd real de Netlify es la raíz del repo ya clonado — termina en `/opt`, sin `package.json`.
+**Acción correcta — NO es arreglar el build, es desconectar Netlify por completo**:
+1. En https://app.netlify.com: entrar al sitio `siagrd-panel-web` → Site settings → General → "Delete this site" (o al menos "Stop builds" si se quiere conservar el historial).
+2. En GitHub: `github.com/corpofuturo/siagrd-meta/settings/installations` → revisar si la app "Netlify" sigue instalada con acceso al repo → revocar acceso.
+3. Verificar en el siguiente PR que los 4 checks de Netlify ya no aparecen.
+**Prioridad**: Baja (no bloquea nada), pero es ruido recurrente en cada PR y una integración fantasma de un servicio que se decidió eliminar.
+
+### DT-017 — GitHub App "Claude Code" no instalada (check `claude-review` siempre falla)
+**Hallazgo**: el workflow que corre `claude-review` en cada PR falla con `401 Unauthorized - Claude Code is not installed on this repository` porque la GitHub App no está instalada en `corpofuturo/siagrd-meta`.
+**Acción**: instalar la app en https://github.com/apps/claude y autorizarla para este repositorio (requiere acceso admin al repo/organización). Si no se va a usar la revisión automática de PRs con `@claude`, la alternativa es eliminar el workflow correspondiente en `.github/workflows/` (esto sí sería un commit de código).
+**Prioridad**: Baja.
+
+### DT-018 — Dependency graph deshabilitado (check `Dependency Review` siempre falla)
+**Hallazgo**: `Dependency Review` falla con `Dependency review is not supported on this repository. Please ensure that Dependency graph is enabled.`
+**Acción**: en `github.com/corpofuturo/siagrd-meta/settings/security_analysis`, habilitar "Dependency graph" (requiere acceso admin del repositorio).
+**Prioridad**: Baja, pero deseable — es la única forma de que el check de dependencias vulnerables realmente funcione en PRs.
