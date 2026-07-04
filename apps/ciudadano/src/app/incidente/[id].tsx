@@ -55,7 +55,7 @@ interface Actualizacion {
 
 const ESTADO_COLORS: Record<string, string> = {
   PENDIENTE: '#6B7280',
-  CONFIRMADO: '#3B82F6',
+  CONFIRMADO: '#4f46e5',
   EN_CURSO: '#F59E0B',
   CONTROLADO: '#22C55E',
   CERRADO: '#4B5563',
@@ -193,7 +193,7 @@ export default function IncidenteDetalleScreen() {
           </TouchableOpacity>
         </View>
         <View style={styles.center}>
-          <ActivityIndicator size="large" color="#3B82F6" />
+          <ActivityIndicator size="large" color="#4f46e5" />
         </View>
       </View>
     );
@@ -310,7 +310,7 @@ export default function IncidenteDetalleScreen() {
           <Text style={styles.sectionTitle}>Actualizaciones</Text>
 
           {loadingActualizaciones ? (
-            <ActivityIndicator color="#3B82F6" style={{ marginVertical: 12 }} />
+            <ActivityIndicator color="#4f46e5" style={{ marginVertical: 12 }} />
           ) : actualizaciones.length === 0 ? (
             <Text style={styles.emptyText}>Sin actualizaciones aún.</Text>
           ) : (
@@ -373,7 +373,7 @@ export default function IncidenteDetalleScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0A0E1A',
+    backgroundColor: '#eef2ff',
   },
   center: {
     flex: 1,
@@ -393,22 +393,22 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'ios' ? 56 : 40,
     paddingBottom: 12,
     paddingHorizontal: 16,
-    backgroundColor: '#0A0E1A',
+    backgroundColor: '#eef2ff',
     borderBottomWidth: 1,
-    borderBottomColor: '#1F2937',
+    borderBottomColor: '#dcfce7',
   },
   backBtn: {
     paddingRight: 12,
     paddingVertical: 4,
   },
   backText: {
-    color: '#3B82F6',
+    color: '#4f46e5',
     fontSize: 15,
     fontWeight: '600',
   },
   headerTitle: {
     flex: 1,
-    color: '#F9FAFB',
+    color: '#0f0a2e',
     fontSize: 16,
     fontWeight: '700',
     letterSpacing: 0.5,
@@ -429,7 +429,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   titulo: {
-    color: '#F9FAFB',
+    color: '#0f0a2e',
     fontSize: 20,
     fontWeight: '700',
     marginBottom: 4,
@@ -463,7 +463,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    backgroundColor: '#1F2937',
+    backgroundColor: '#dcfce7',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
@@ -474,14 +474,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   infoValue: {
-    color: '#F9FAFB',
+    color: '#0f0a2e',
     fontSize: 13,
     fontWeight: '600',
     flex: 1,
     textAlign: 'right',
   },
   descBox: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#dcfce7',
     borderRadius: 8,
     padding: 12,
   },
@@ -499,13 +499,13 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   actCard: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#dcfce7',
     borderRadius: 8,
     padding: 12,
     marginBottom: 8,
   },
   actTexto: {
-    color: '#F9FAFB',
+    color: '#0f0a2e',
     fontSize: 13,
     lineHeight: 19,
     marginBottom: 8,
@@ -528,17 +528,17 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
   textInput: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#dcfce7',
     borderRadius: 8,
     padding: 12,
-    color: '#F9FAFB',
+    color: '#0f0a2e',
     fontSize: 14,
     lineHeight: 20,
     minHeight: 96,
     textAlignVertical: 'top',
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: '#374151',
+    borderColor: '#c7d2fe',
   },
   okText: {
     color: '#22C55E',
@@ -546,7 +546,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   submitBtn: {
-    backgroundColor: '#2563EB',
+    backgroundColor: '#4f46e5',
     borderRadius: 8,
     paddingVertical: 14,
     alignItems: 'center',
@@ -563,7 +563,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#374151',
+    borderColor: '#c7d2fe',
   },
   miniMap: {
     width: '100%',

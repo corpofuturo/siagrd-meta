@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../hooks/useAuth';
+import { COLORS } from '../constants/colors';
 
 function BanderaColombia({ size = 56 }: { size?: number }) {
   const h = Math.round(size * 0.667);
@@ -201,44 +202,54 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  outer: { flex: 1, backgroundColor: '#0A0E1A' },
+  outer: { flex: 1, backgroundColor: COLORS.pageBg },
   flagLeft: { position: 'absolute', top: 48, left: 16, zIndex: 10 },
   flagRight: { position: 'absolute', top: 48, right: 16, zIndex: 10 },
   container: { flex: 1 },
   scroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingVertical: 40 },
   header: { alignItems: 'center', marginBottom: 40 },
-  logo: { fontSize: 36, fontWeight: '700', color: '#60A5FA', letterSpacing: 3 },
-  subtitle: { fontSize: 13, color: '#9CA3AF', marginTop: 6, letterSpacing: 1, textAlign: 'center', lineHeight: 20 },
-  card: { backgroundColor: '#1F2937', borderRadius: 12, padding: 24, gap: 14 },
-  tabs: { flexDirection: 'row', backgroundColor: '#111827', borderRadius: 8, padding: 4 },
+  logo: { fontSize: 36, fontWeight: '700', color: COLORS.primaryDark, letterSpacing: 3 },
+  subtitle: { fontSize: 13, color: COLORS.textMuted, marginTop: 6, letterSpacing: 1, textAlign: 'center', lineHeight: 20 },
+  card: {
+    backgroundColor: COLORS.headerBg,
+    borderRadius: 16,
+    padding: 24,
+    gap: 14,
+    shadowColor: COLORS.primary,
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 4,
+  },
+  tabs: { flexDirection: 'row', backgroundColor: COLORS.pageBg, borderRadius: 8, padding: 4 },
   tab: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 6 },
-  tabActive: { backgroundColor: '#2563EB' },
-  tabText: { color: '#9CA3AF', fontSize: 14, fontWeight: '600' },
+  tabActive: { backgroundColor: COLORS.primary },
+  tabText: { color: COLORS.textMuted, fontSize: 14, fontWeight: '600' },
   tabTextActive: { color: '#FFFFFF' },
   input: {
-    backgroundColor: '#111827',
+    backgroundColor: COLORS.pageBg,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    color: '#F9FAFB',
+    color: COLORS.textMain,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#374151',
+    borderColor: COLORS.border,
   },
-  errorText: { color: '#EF4444', fontSize: 13, textAlign: 'center' },
-  button: { backgroundColor: '#2563EB', borderRadius: 8, paddingVertical: 14, alignItems: 'center' },
+  errorText: { color: COLORS.dangerText, fontSize: 13, textAlign: 'center' },
+  button: { backgroundColor: COLORS.primary, borderRadius: 8, paddingVertical: 14, alignItems: 'center' },
   buttonDisabled: { opacity: 0.6 },
   buttonText: { color: '#FFFFFF', fontSize: 16, fontWeight: '600' },
   divider: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  dividerLine: { flex: 1, height: 1, backgroundColor: '#374151' },
-  dividerText: { color: '#6B7280', fontSize: 13 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: COLORS.border },
+  dividerText: { color: COLORS.textMuted, fontSize: 13 },
   buttonAnon: {
     backgroundColor: 'transparent',
     borderRadius: 8,
     paddingVertical: 12,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#374151',
+    borderColor: COLORS.border,
   },
-  buttonAnonText: { color: '#9CA3AF', fontSize: 14, fontWeight: '500' },
+  buttonAnonText: { color: COLORS.textMuted, fontSize: 14, fontWeight: '500' },
 });

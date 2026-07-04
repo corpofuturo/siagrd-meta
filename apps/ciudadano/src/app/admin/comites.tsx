@@ -25,7 +25,7 @@ type TipoComite = typeof TIPOS[number];
 
 const TIPO_COLORS: Record<TipoComite, string> = {
   CONGRD: '#7C3AED',
-  CDGRD: '#2563EB',
+  CDGRD: '#4f46e5',
   SDGRD: '#4F46E5',
   CMGRD: '#0D9488',
 };
@@ -135,7 +135,7 @@ export default function ComitesScreen() {
       </View>
 
       {loading ? (
-        <View style={styles.centered}><ActivityIndicator size="large" color="#2563EB" /></View>
+        <View style={styles.centered}><ActivityIndicator size="large" color="#4f46e5" /></View>
       ) : (
         <FlatList
           data={comites}
@@ -217,47 +217,47 @@ export default function ComitesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0A0E1A' },
+  container: { flex: 1, backgroundColor: '#eef2ff' },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   header: {
     flexDirection: 'row', alignItems: 'center',
     paddingTop: Platform.OS === 'ios' ? 56 : 40,
     paddingBottom: 12, paddingHorizontal: 16,
-    backgroundColor: '#0A0E1A', borderBottomWidth: 1, borderBottomColor: '#1F2937', gap: 10,
+    backgroundColor: '#eef2ff', borderBottomWidth: 1, borderBottomColor: '#dcfce7', gap: 10,
   },
   backBtn: { padding: 4 },
-  backArrow: { fontSize: 22, color: '#2563EB', fontWeight: '700' },
-  headerTitle: { flex: 1, color: '#F9FAFB', fontSize: 17, fontWeight: '700' },
+  backArrow: { fontSize: 22, color: '#4f46e5', fontWeight: '700' },
+  headerTitle: { flex: 1, color: '#0f0a2e', fontSize: 17, fontWeight: '700' },
   listContent: { padding: 16, gap: 10, paddingBottom: 100 },
-  item: { backgroundColor: '#1F2937', borderRadius: 14, padding: 14, gap: 6 },
+  item: { backgroundColor: '#dcfce7', borderRadius: 14, padding: 14, gap: 6 },
   itemTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  itemNombre: { flex: 1, color: '#F9FAFB', fontSize: 15, fontWeight: '700' },
+  itemNombre: { flex: 1, color: '#0f0a2e', fontSize: 15, fontWeight: '700' },
   itemSub: { color: '#9CA3AF', fontSize: 12 },
   badge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, borderWidth: 1 },
   badgeText: { fontSize: 10, fontWeight: '700' },
   editBtn: { alignSelf: 'flex-end', marginTop: 4 },
-  editBtnText: { color: '#2563EB', fontSize: 12, fontWeight: '600' },
+  editBtnText: { color: '#4f46e5', fontSize: 12, fontWeight: '600' },
   emptyBox: { paddingTop: 60, alignItems: 'center' },
   emptyText: { color: '#6B7280', fontSize: 14 },
   fab: {
     position: 'absolute', bottom: 24, right: 24,
     width: 56, height: 56, borderRadius: 28,
-    backgroundColor: '#2563EB', alignItems: 'center', justifyContent: 'center',
-    elevation: 6, shadowColor: '#2563EB', shadowOpacity: 0.4, shadowRadius: 8, shadowOffset: { width: 0, height: 4 },
+    backgroundColor: '#4f46e5', alignItems: 'center', justifyContent: 'center',
+    elevation: 6, shadowColor: '#4f46e5', shadowOpacity: 0.4, shadowRadius: 8, shadowOffset: { width: 0, height: 4 },
   },
   fabIcon: { color: '#FFF', fontSize: 28, fontWeight: '300', marginTop: -2 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
-  modalCard: { backgroundColor: '#111827', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, maxHeight: '90%' },
-  modalTitle: { color: '#F9FAFB', fontSize: 18, fontWeight: '700', marginBottom: 16 },
+  modalCard: { backgroundColor: '#ffffff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, maxHeight: '90%' },
+  modalTitle: { color: '#0f0a2e', fontSize: 18, fontWeight: '700', marginBottom: 16 },
   label: { color: '#9CA3AF', fontSize: 12, fontWeight: '600', marginBottom: 4, marginTop: 10 },
-  input: { backgroundColor: '#1F2937', borderRadius: 10, padding: 12, color: '#F9FAFB', fontSize: 14, borderWidth: 1, borderColor: '#374151' },
+  input: { backgroundColor: '#dcfce7', borderRadius: 10, padding: 12, color: '#0f0a2e', fontSize: 14, borderWidth: 1, borderColor: '#c7d2fe' },
   tiposRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
-  tipoBtn: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8, backgroundColor: '#1F2937', borderWidth: 1, borderColor: '#374151' },
+  tipoBtn: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8, backgroundColor: '#dcfce7', borderWidth: 1, borderColor: '#c7d2fe' },
   tipoBtnText: { color: '#9CA3AF', fontSize: 12, fontWeight: '600' },
   tipoBtnTextActive: { color: '#FFF' },
   modalBtns: { flexDirection: 'row', gap: 10, marginTop: 20, marginBottom: 8 },
-  cancelBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: '#1F2937', alignItems: 'center' },
+  cancelBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: '#dcfce7', alignItems: 'center' },
   cancelBtnText: { color: '#9CA3AF', fontWeight: '600' },
-  saveBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: '#2563EB', alignItems: 'center' },
+  saveBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: '#4f46e5', alignItems: 'center' },
   saveBtnText: { color: '#FFF', fontWeight: '700' },
 });

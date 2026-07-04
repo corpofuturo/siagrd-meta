@@ -1,18 +1,18 @@
 export const colors = {
   bg: {
-    primary:   '#0A0E1A',
-    secondary: '#111827',
-    tertiary:  '#1E2535',
-    overlay:   'rgba(0,0,0,0.8)',
+    primary:   '#eef2ff',
+    secondary: '#ffffff',
+    tertiary:  '#dcfce7',
+    overlay:   'rgba(15,10,46,0.6)',
   },
-  surface: { default: '#1E2535', elevated: '#252D3D', pressed: '#2D3748' },
+  surface: { default: '#ffffff', elevated: '#ffffff', pressed: '#e0e7ff' },
   text: {
-    primary:  '#F0F4FF',
-    secondary: '#8B9CC8',
-    disabled:  '#4A5568',
-    inverse:   '#0A0E1A',
+    primary:  '#0f0a2e',
+    secondary: '#6b7280',
+    disabled:  '#94a3b8',
+    inverse:   '#ffffff',
   },
-  border: { default: '#2D3748', strong: '#4A5568', focus: '#3B82F6' },
+  border: { default: '#c7d2fe', strong: '#a5b4fc', focus: '#4f46e5' },
   alerta: {
     verde:   { bg:'#052E16', surface:'#14532D', text:'#86EFAC', solid:'#16A34A', icon:'#4ADE80' },
     amarillo:{ bg:'#1C1700', surface:'#422006', text:'#FDE68A', solid:'#D97706', icon:'#FBBF24' },

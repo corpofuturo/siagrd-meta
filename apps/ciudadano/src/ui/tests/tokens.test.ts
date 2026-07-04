@@ -26,8 +26,8 @@ describe('tokens de diseño', () => {
     expect(Object.keys(typography.size).length).toBeGreaterThanOrEqual(8);
   });
 
-  it('colors.bg.primary es el azul marino oscuro correcto', () => {
-    expect(colors.bg.primary).toBe('#0A0E1A');
+  it('colors.bg.primary es el fondo de página Indigo Pro correcto', () => {
+    expect(colors.bg.primary).toBe('#eef2ff');
   });
 
   it('nivel ROJO tiene campo pulse', () => {

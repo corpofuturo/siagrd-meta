@@ -152,7 +152,7 @@ export default function OrganismoDetalleScreen() {
 
       {loading ? (
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#2563EB" />
+          <ActivityIndicator size="large" color="#4f46e5" />
         </View>
       ) : (
         <FlatList
@@ -167,8 +167,8 @@ export default function OrganismoDetalleScreen() {
               <View style={styles.orgCard}>
                 <Text style={styles.orgNombre}>{organismo.nombre}</Text>
                 <View style={styles.badge2Row}>
-                  <View style={[styles.badge, { backgroundColor: '#2563EB22', borderColor: '#2563EB' }]}>
-                    <Text style={[styles.badgeText, { color: '#60A5FA' }]}>{organismo.tipo}</Text>
+                  <View style={[styles.badge, { backgroundColor: '#4f46e522', borderColor: '#4f46e5' }]}>
+                    <Text style={[styles.badgeText, { color: '#4f46e5' }]}>{organismo.tipo}</Text>
                   </View>
                 </View>
                 {organismo.municipio_nombre && <Text style={styles.orgMeta}>📍 {organismo.municipio_nombre}</Text>}
@@ -238,31 +238,31 @@ export default function OrganismoDetalleScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0A0E1A' },
+  container: { flex: 1, backgroundColor: '#eef2ff' },
   centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   header: {
     flexDirection: 'row', alignItems: 'center',
     paddingTop: Platform.OS === 'ios' ? 56 : 40,
     paddingBottom: 12, paddingHorizontal: 16,
-    backgroundColor: '#0A0E1A', borderBottomWidth: 1, borderBottomColor: '#1F2937', gap: 10,
+    backgroundColor: '#eef2ff', borderBottomWidth: 1, borderBottomColor: '#dcfce7', gap: 10,
   },
   backBtn: { padding: 4 },
-  backArrow: { fontSize: 22, color: '#2563EB', fontWeight: '700' },
-  headerTitle: { flex: 1, color: '#F9FAFB', fontSize: 17, fontWeight: '700' },
+  backArrow: { fontSize: 22, color: '#4f46e5', fontWeight: '700' },
+  headerTitle: { flex: 1, color: '#0f0a2e', fontSize: 17, fontWeight: '700' },
   listContent: { padding: 16, gap: 8, paddingBottom: 100 },
-  orgCard: { backgroundColor: '#1F2937', borderRadius: 14, padding: 16, marginBottom: 16, gap: 6 },
-  orgNombre: { color: '#F9FAFB', fontSize: 18, fontWeight: '700' },
+  orgCard: { backgroundColor: '#dcfce7', borderRadius: 14, padding: 16, marginBottom: 16, gap: 6 },
+  orgNombre: { color: '#0f0a2e', fontSize: 18, fontWeight: '700' },
   badge2Row: { flexDirection: 'row', marginVertical: 2 },
   badge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, borderWidth: 1 },
   badgeText: { fontSize: 10, fontWeight: '700' },
   orgMeta: { color: '#9CA3AF', fontSize: 13 },
-  usersTitle: { color: '#F9FAFB', fontSize: 14, fontWeight: '700', marginTop: 10 },
+  usersTitle: { color: '#0f0a2e', fontSize: 14, fontWeight: '700', marginTop: 10 },
   userItem: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: '#1F2937', borderRadius: 12, padding: 12, gap: 10,
+    backgroundColor: '#dcfce7', borderRadius: 12, padding: 12, gap: 10,
   },
   userLeft: { flex: 1 },
-  userName: { color: '#F9FAFB', fontSize: 14, fontWeight: '600' },
+  userName: { color: '#0f0a2e', fontSize: 14, fontWeight: '600' },
   userEmail: { color: '#9CA3AF', fontSize: 12 },
   userMeta: { color: '#6B7280', fontSize: 11 },
   emptyBox: { paddingTop: 40, alignItems: 'center' },
@@ -270,18 +270,18 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute', bottom: 24, right: 24,
     width: 56, height: 56, borderRadius: 28,
-    backgroundColor: '#2563EB', alignItems: 'center', justifyContent: 'center',
-    elevation: 6, shadowColor: '#2563EB', shadowOpacity: 0.4, shadowRadius: 8, shadowOffset: { width: 0, height: 4 },
+    backgroundColor: '#4f46e5', alignItems: 'center', justifyContent: 'center',
+    elevation: 6, shadowColor: '#4f46e5', shadowOpacity: 0.4, shadowRadius: 8, shadowOffset: { width: 0, height: 4 },
   },
   fabIcon: { color: '#FFF', fontSize: 28, fontWeight: '300', marginTop: -2 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
-  modalCard: { backgroundColor: '#111827', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, maxHeight: '90%' },
-  modalTitle: { color: '#F9FAFB', fontSize: 18, fontWeight: '700', marginBottom: 16 },
+  modalCard: { backgroundColor: '#ffffff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, maxHeight: '90%' },
+  modalTitle: { color: '#0f0a2e', fontSize: 18, fontWeight: '700', marginBottom: 16 },
   label: { color: '#9CA3AF', fontSize: 12, fontWeight: '600', marginBottom: 4, marginTop: 10 },
-  input: { backgroundColor: '#1F2937', borderRadius: 10, padding: 12, color: '#F9FAFB', fontSize: 14, borderWidth: 1, borderColor: '#374151' },
+  input: { backgroundColor: '#dcfce7', borderRadius: 10, padding: 12, color: '#0f0a2e', fontSize: 14, borderWidth: 1, borderColor: '#c7d2fe' },
   modalBtns: { flexDirection: 'row', gap: 10, marginTop: 20, marginBottom: 8 },
-  cancelBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: '#1F2937', alignItems: 'center' },
+  cancelBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: '#dcfce7', alignItems: 'center' },
   cancelBtnText: { color: '#9CA3AF', fontWeight: '600' },
-  saveBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: '#2563EB', alignItems: 'center' },
+  saveBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: '#4f46e5', alignItems: 'center' },
   saveBtnText: { color: '#FFF', fontWeight: '700' },
 });

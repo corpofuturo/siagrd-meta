@@ -107,7 +107,7 @@ export default function DamnificadosScreen() {
       </View>
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color="#3B82F6" />
+          <ActivityIndicator size="large" color="#4f46e5" />
         </View>
       ) : error ? (
         <View style={styles.center}>
@@ -123,8 +123,8 @@ export default function DamnificadosScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor="#3B82F6"
-              colors={['#3B82F6']}
+              tintColor="#4f46e5"
+              colors={['#4f46e5']}
             />
           }
           ListEmptyComponent={
@@ -139,44 +139,44 @@ export default function DamnificadosScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0A0E1A' },
+  container: { flex: 1, backgroundColor: '#eef2ff' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingTop: Platform.OS === 'ios' ? 56 : 40,
     paddingBottom: 12,
     paddingHorizontal: 16,
-    backgroundColor: '#0A0E1A',
+    backgroundColor: '#eef2ff',
     borderBottomWidth: 1,
-    borderBottomColor: '#1F2937',
+    borderBottomColor: '#dcfce7',
     gap: 10,
   },
   backBtn: { padding: 4 },
-  backArrow: { fontSize: 22, color: '#3B82F6', fontWeight: '700' },
-  headerTitle: { flex: 1, color: '#F9FAFB', fontSize: 17, fontWeight: '700' },
+  backArrow: { fontSize: 22, color: '#4f46e5', fontWeight: '700' },
+  headerTitle: { flex: 1, color: '#0f0a2e', fontSize: 17, fontWeight: '700' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 80 },
   errorText: { color: '#EF4444', fontSize: 14, textAlign: 'center', paddingHorizontal: 24 },
   emptyText: { color: '#6B7280', fontSize: 14 },
   listContent: { padding: 16, paddingBottom: 80 },
   card: {
-    backgroundColor: '#1F2937',
+    backgroundColor: '#dcfce7',
     borderRadius: 12,
     padding: 14,
     marginBottom: 10,
     gap: 6,
   },
-  nombre: { color: '#F9FAFB', fontSize: 15, fontWeight: '600' },
+  nombre: { color: '#0f0a2e', fontSize: 15, fontWeight: '600' },
   row: { flexDirection: 'row', justifyContent: 'space-between' },
   muted: { color: '#9CA3AF', fontSize: 13 },
   fecha: { color: '#6B7280', fontSize: 12 },
   tipoBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: '#3B82F633',
-    borderColor: '#3B82F6',
+    backgroundColor: '#4f46e533',
+    borderColor: '#4f46e5',
     borderWidth: 1,
     borderRadius: 6,
     paddingHorizontal: 8,
     paddingVertical: 3,
   },
-  tipoBadgeText: { color: '#3B82F6', fontSize: 11, fontWeight: '600' },
+  tipoBadgeText: { color: '#4f46e5', fontSize: 11, fontWeight: '600' },
 });

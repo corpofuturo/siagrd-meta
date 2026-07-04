@@ -73,7 +73,7 @@ export default function EstadisticasScreen() {
       <View style={styles.container}>
         <Header />
         <View style={styles.center}>
-          <ActivityIndicator size="large" color="#3B82F6" />
+          <ActivityIndicator size="large" color="#4f46e5" />
         </View>
       </View>
     );
@@ -99,8 +99,8 @@ export default function EstadisticasScreen() {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor="#3B82F6"
-            colors={['#3B82F6']}
+            tintColor="#4f46e5"
+            colors={['#4f46e5']}
           />
         }
       >
@@ -146,21 +146,21 @@ function Header() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0A0E1A' },
+  container: { flex: 1, backgroundColor: '#eef2ff' },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingTop: Platform.OS === 'ios' ? 56 : 40,
     paddingBottom: 12,
     paddingHorizontal: 16,
-    backgroundColor: '#0A0E1A',
+    backgroundColor: '#eef2ff',
     borderBottomWidth: 1,
-    borderBottomColor: '#1F2937',
+    borderBottomColor: '#dcfce7',
     gap: 10,
   },
   backBtn: { padding: 4 },
-  backArrow: { fontSize: 22, color: '#3B82F6', fontWeight: '700' },
-  headerTitle: { flex: 1, color: '#F9FAFB', fontSize: 17, fontWeight: '700' },
+  backArrow: { fontSize: 22, color: '#4f46e5', fontWeight: '700' },
+  headerTitle: { flex: 1, color: '#0f0a2e', fontSize: 17, fontWeight: '700' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 80 },
   errorText: { color: '#EF4444', fontSize: 14, textAlign: 'center', paddingHorizontal: 24 },
   listContent: { padding: 16, paddingBottom: 80 },
@@ -170,12 +170,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#1F2937',
+    backgroundColor: '#dcfce7',
     borderRadius: 8,
     paddingHorizontal: 14,
     paddingVertical: 12,
     marginBottom: 6,
   },
-  tableLabel: { color: '#F9FAFB', fontSize: 14, flex: 1 },
-  tableValue: { color: '#3B82F6', fontSize: 16, fontWeight: '700' },
+  tableLabel: { color: '#0f0a2e', fontSize: 14, flex: 1 },
+  tableValue: { color: '#4f46e5', fontSize: 16, fontWeight: '700' },
 });
