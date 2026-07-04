@@ -76,3 +76,29 @@ Este repositorio tiene **tres registros de deuda técnica con numeración DT-XXX
 | ARQ-DT-012 | Módulo damnificados en la app sin implementar | **Resuelto** — `apps/ciudadano/src/app/damnificados.tsx` existe | No |
 
 **Los 16/16 ítems de este catálogo están resueltos y verificados** (2026-07-03). Ver `ROADMAP_EJECUCION_v1.md` para el trabajo de Fases 3-9 aún pendiente (no es deuda técnica documentada aquí, son features del roadmap original que nunca se implementaron).
+
+## Hallazgos de SQA en dispositivo físico (2026-07-03, rama `feat/diseno-indigo-sage`)
+
+Encontrados probando un APK release (JS embebido, sin Metro) contra el backend real de producción.
+
+### DT-006 — Tab "Reportar" no navega al formulario real
+**Archivo**: `apps/ciudadano/src/app/(tabs)/reportar.tsx`
+**Estado**: El tab hace `useEffect(() => router.push('/reportar'), [])` pero la navegación no ocurre — la pantalla queda vacía con el tab "Reportar" resaltado. Confirmado en dispositivo físico (no es un problema de la paleta).
+**Causa probable**: patrón conocido de Expo Router — el push disparado en el `useEffect` de una pantalla de tab entra en conflicto con el comportamiento de foco/reset del propio tab navigator.
+**Formulario real**: `apps/ciudadano/src/app/reportar.tsx` (616 líneas, flujo de 3 pasos, ya migrado a la paleta Indigo+Sage) — funciona si se navega a él directamente por otra vía.
+**Fix recomendado (no aplicado)**: renderizar el componente `ReportarScreen` directamente dentro de `(tabs)/reportar.tsx` en vez de redirigir, y cambiar el botón "Volver al inicio" (usa `router.back()`) para resetear el estado local del paso (`setPaso('tipo')`) en vez de depender de historial de navegación.
+**Impacto**: Ciudadanos no pueden reportar incidentes desde el tab principal — funcionalidad crítica del producto bloqueada en el flujo más obvio.
+**Prioridad**: Alta — retomar próxima sesión.
+
+### DT-007 — Ciudadano anónimo sin acceso al mapa de incidentes (parcialmente resuelto)
+**Archivo**: `apps/ciudadano/src/services/auth.service.ts`, `apps/ciudadano/src/app/(tabs)/mapa.tsx`
+**Causa raíz encontrada y corregida**: `signInAnonymous()` generaba un token falso (`anon_<timestamp>`) nunca firmado por el backend; el backend ya exponía `POST /auth/anonymous` con JWT real (claim `anonymous:true`) compatible con `authMiddleware`, pero el cliente nunca lo llamaba. Corregido en commit `6614b77` (usa el endpoint real, con fallback local solo offline).
+**Pendiente de verificar**: reinstalar el APK release con el fix y confirmar en dispositivo que `/incidentes/mapa` ya no devuelve 401 para sesión anónima.
+**Decisión de negocio ya tomada por el usuario**: sí, los ciudadanos anónimos son usuarios oficiales y deben tener este acceso — no requiere más aprobación, solo verificación.
+
+### DT-008 — Perfil mostraba IP del VPS y dominio inexistente
+**Archivo**: `apps/ciudadano/src/app/(tabs)/perfil.tsx`
+**Estado**: **Resuelto** (commit `6614b77`) — cambiado `panel.satam.corpofuturo.org` (subdominio que nunca existió en DNS, ver `CLAUDE.md` §3.1) por `https://satam.corpofuturo.org`, y el texto descriptivo de "13.140.174.122 (VPS)" por el dominio real.
+
+### Bug de entorno de desarrollo (no es deuda del producto)
+Metro + Expo SDK 50 falla en Windows con Node 24: intenta crear una carpeta llamada literalmente `node:sea` (módulo "solo con prefijo" nuevo de Node), y Windows no permite `:` en nombres de archivo/carpeta. Se parcheó localmente `node_modules/@expo/cli/build/src/start/server/metro/externals.js` (no versionado — hay que reaplicarlo si se reinstalan dependencias, o considerar `patch-package`). Además hay un fallo recurrente de HMR ("Unable to resolve module ./node_modules/expo-router/entry") en este monorepo con `node-linker=hoisted`, no resuelto de raíz — mitigado en esta sesión compilando APKs `release` (JS embebido) en vez de depender del dev server para pruebas en dispositivo.
