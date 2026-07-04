@@ -82,6 +82,15 @@ markers.forEach(function(m) {
     circle.bindPopup('<b>' + m.titulo + '</b><br>' + m.estado + (m.municipio ? '<br>' + m.municipio : ''));
   }
 });
+
+// Leaflet calcula el tamano del contenedor al inicializar. Si el WebView
+// monta antes de que React Native termine el layout (comun en pantallas
+// con ScrollView, como el detalle de incidente), el mapa arranca con 0px
+// y las teselas nunca se cargan hasta forzar un recalculo de tamano.
+function fixSize() { map.invalidateSize(); }
+setTimeout(fixSize, 100);
+setTimeout(fixSize, 400);
+window.addEventListener('resize', fixSize);
 </script>
 </body>
 </html>`;
