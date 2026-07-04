@@ -10,6 +10,13 @@ const ROLES_CORROBORAR: RolUsuario[] = ['CDGRD', 'CMGRD', 'ALCALDIA', 'GOBERNACI
 const ESTADOS_VALIDOS = ['PENDIENTE', 'REVISADO', 'CORROBORADO', 'VINCULADO', 'DESCARTADO'] as const;
 type EstadoReporte = typeof ESTADOS_VALIDOS[number];
 
+// Debe coincidir exactamente con el enum tipo_amenaza de Postgres
+// (database/migrations/001_initial_schema.sql línea 5).
+const TIPOS_AMENAZA_VALIDOS = [
+  'INUNDACION', 'REMOCION', 'SISMO', 'INCENDIO_FORESTAL',
+  'ACCIDENTE_VIA', 'DERRAME_HC', 'OTRO',
+] as const;
+
 export async function reportesRoutes(app: FastifyInstance): Promise<void> {
   // GET /reportes-ciudadanos — solo roles autorizados
   app.get(
@@ -94,23 +101,46 @@ export async function reportesRoutes(app: FastifyInstance): Promise<void> {
       },
     },
     async (request, reply) => {
-      const body = request.body as Record<string, unknown>;
+      const body = request.body as {
+        tipo_amenaza?: string;
+        latitud?: number | string;
+        longitud?: number | string;
+        descripcion?: string;
+        foto_url?: string;
+        municipio_id?: string;
+        anonimo?: boolean;
+      };
 
-      let reportante_id: string | null = null;
+      if (!body.tipo_amenaza?.trim()) {
+        throw new ValidationError('tipo_amenaza es requerido');
+      }
+      if (!TIPOS_AMENAZA_VALIDOS.includes(body.tipo_amenaza as typeof TIPOS_AMENAZA_VALIDOS[number])) {
+        throw new ValidationError(`tipo_amenaza debe ser uno de: ${TIPOS_AMENAZA_VALIDOS.join(', ')}`);
+      }
+
+      const latNum = typeof body.latitud === 'number' ? body.latitud : parseFloat(String(body.latitud));
+      const lngNum = typeof body.longitud === 'number' ? body.longitud : parseFloat(String(body.longitud));
+      if (Number.isNaN(latNum) || Number.isNaN(lngNum)) {
+        throw new ValidationError('latitud y longitud son requeridas y deben ser números válidos');
+      }
+      if (latNum < -90 || latNum > 90) throw new ValidationError('latitud debe estar entre -90 y 90');
+      if (lngNum < -180 || lngNum > 180) throw new ValidationError('longitud debe estar entre -180 y 180');
+
+      let reportado_por: string | null = null;
       let anonimo = true;
 
       if (body.anonimo === true) {
         anonimo = true;
-        reportante_id = null;
+        reportado_por = null;
       } else {
         const header = request.headers.authorization;
         if (header?.startsWith('Bearer ')) {
           try {
             await authMiddleware(request, reply);
-            reportante_id = request.user?.id ?? null;
-            anonimo = reportante_id === null;
+            reportado_por = request.user?.id ?? null;
+            anonimo = reportado_por === null;
           } catch {
-            reportante_id = null;
+            reportado_por = null;
             anonimo = true;
           }
         }
@@ -121,18 +151,19 @@ export async function reportesRoutes(app: FastifyInstance): Promise<void> {
 
       const [row] = await db`
         INSERT INTO reportes_ciudadanos (
-          descripcion, tipo, municipio_id, ubicacion, anonimo, reportante_id, estado,
-          created_at, updated_at
+          descripcion, tipo, municipio_id, ubicacion, foto_url, anonimo, reportado_por, estado,
+          created_at
         )
         VALUES (
-          ${body.descripcion as string},
-          ${body.tipo as string},
-          ${body.municipio_id as string},
-          ${body.ubicacion ? JSON.stringify(body.ubicacion) : null},
+          ${body.descripcion ?? null},
+          ${body.tipo_amenaza},
+          ${body.municipio_id ?? null},
+          ST_SetSRID(ST_MakePoint(${lngNum}, ${latNum}), 4326),
+          ${body.foto_url ?? null},
           ${anonimo},
-          ${reportante_id},
+          ${reportado_por},
           'PENDIENTE',
-          NOW(), NOW()
+          NOW()
         )
         RETURNING *
       `;
