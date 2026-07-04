@@ -49,3 +49,6 @@ docs/google-services*.json
 
 # knip
 .knip-reports/
+
+# Evidencia generada por tests/sqa_siagrd01.ps1 (capturas/logs de una corrida puntual) — no versionar
+tests/evidencia/
