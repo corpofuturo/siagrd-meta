@@ -45,7 +45,7 @@ async function apiFetch(path: string) {
 
 function AlertaHistorialCard({ item }: { item: AlertaHistorial }) {
   const nivel = (item.nivel ?? item.nivel_alerta ?? 'AMARILLO') as NivelAlerta;
-  const color = NIVEL_COLORS[nivel] ?? '#6B7280';
+  const color = NIVEL_COLORS[nivel] ?? '#14532d';
   const municipio = item.municipio_nombre ?? item.municipio ?? '—';
   const fecha = item.fecha_inicio ?? item.created_at;
   const fechaStr = fecha
@@ -185,8 +185,8 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
   },
   nivelBadgeText: { fontSize: 11, fontWeight: '600', letterSpacing: 0.3 },
-  estado: { color: '#9CA3AF', fontSize: 12 },
-  fecha: { color: '#6B7280', fontSize: 12, marginLeft: 'auto' },
+  estado: { color: '#14532d', fontSize: 12 },
+  fecha: { color: '#14532d', fontSize: 12, marginLeft: 'auto' },
   titulo: { color: '#0f0a2e', fontSize: 14, fontWeight: '600' },
-  municipio: { color: '#9CA3AF', fontSize: 12 },
+  municipio: { color: '#14532d', fontSize: 12 },
 });

@@ -167,8 +167,8 @@ const styles = StyleSheet.create({
   },
   nombre: { color: '#0f0a2e', fontSize: 15, fontWeight: '600' },
   row: { flexDirection: 'row', justifyContent: 'space-between' },
-  muted: { color: '#9CA3AF', fontSize: 13 },
-  fecha: { color: '#6B7280', fontSize: 12 },
+  muted: { color: '#14532d', fontSize: 13 },
+  fecha: { color: '#14532d', fontSize: 12 },
   tipoBadge: {
     alignSelf: 'flex-start',
     backgroundColor: '#4f46e533',

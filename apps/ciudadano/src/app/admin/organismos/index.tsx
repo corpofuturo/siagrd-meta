@@ -159,7 +159,7 @@ export default function OrganismosScreen() {
               <Text style={styles.modalTitle}>Nuevo Organismo</Text>
 
               <Text style={styles.label}>Nombre *</Text>
-              <TextInput style={styles.input} placeholder="Nombre del organismo" placeholderTextColor="#6B7280" value={nombre} onChangeText={setNombre} />
+              <TextInput style={styles.input} placeholder="Nombre del organismo" placeholderTextColor="#14532d" value={nombre} onChangeText={setNombre} />
 
               <Text style={styles.label}>Tipo</Text>
               <View style={styles.tiposGrid}>
@@ -175,13 +175,13 @@ export default function OrganismosScreen() {
               </View>
 
               <Text style={styles.label}>Municipio</Text>
-              <TextInput style={styles.input} placeholder="Municipio" placeholderTextColor="#6B7280" value={municipio} onChangeText={setMunicipio} />
+              <TextInput style={styles.input} placeholder="Municipio" placeholderTextColor="#14532d" value={municipio} onChangeText={setMunicipio} />
 
               <Text style={styles.label}>Correo</Text>
-              <TextInput style={styles.input} placeholder="correo@ejemplo.com" placeholderTextColor="#6B7280" value={correo} onChangeText={setCorreo} keyboardType="email-address" autoCapitalize="none" />
+              <TextInput style={styles.input} placeholder="correo@ejemplo.com" placeholderTextColor="#14532d" value={correo} onChangeText={setCorreo} keyboardType="email-address" autoCapitalize="none" />
 
               <Text style={styles.label}>Teléfono</Text>
-              <TextInput style={styles.input} placeholder="Teléfono" placeholderTextColor="#6B7280" value={telefono} onChangeText={setTelefono} keyboardType="phone-pad" />
+              <TextInput style={styles.input} placeholder="Teléfono" placeholderTextColor="#14532d" value={telefono} onChangeText={setTelefono} keyboardType="phone-pad" />
 
               <View style={styles.modalBtns}>
                 <TouchableOpacity style={styles.cancelBtn} onPress={() => { setModalVisible(false); resetForm(); }}>
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   item: { backgroundColor: '#dcfce7', borderRadius: 14, padding: 14, gap: 6 },
   itemTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
   itemNombre: { flex: 1, color: '#0f0a2e', fontSize: 15, fontWeight: '700' },
-  itemSub: { color: '#9CA3AF', fontSize: 12 },
+  itemSub: { color: '#14532d', fontSize: 12 },
   badge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, borderWidth: 1 },
   badgeText: { fontSize: 10, fontWeight: '700' },
   verBtn: { alignSelf: 'flex-end', marginTop: 4 },
@@ -232,16 +232,16 @@ const styles = StyleSheet.create({
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
   modalCard: { backgroundColor: '#ffffff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, maxHeight: '90%' },
   modalTitle: { color: '#0f0a2e', fontSize: 18, fontWeight: '700', marginBottom: 16 },
-  label: { color: '#9CA3AF', fontSize: 12, fontWeight: '600', marginBottom: 4, marginTop: 10 },
+  label: { color: '#374151', fontSize: 12, fontWeight: '600', marginBottom: 4, marginTop: 10 },
   input: { backgroundColor: '#dcfce7', borderRadius: 10, padding: 12, color: '#0f0a2e', fontSize: 14, borderWidth: 1, borderColor: '#c7d2fe' },
   tiposGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   tipoBtn: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 8, backgroundColor: '#dcfce7', borderWidth: 1, borderColor: '#c7d2fe' },
   tipoBtnActive: { backgroundColor: '#4f46e5', borderColor: '#4f46e5' },
-  tipoBtnText: { color: '#9CA3AF', fontSize: 12 },
+  tipoBtnText: { color: '#14532d', fontSize: 12 },
   tipoBtnTextActive: { color: '#FFF', fontWeight: '700' },
   modalBtns: { flexDirection: 'row', gap: 10, marginTop: 20 },
   cancelBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: '#dcfce7', alignItems: 'center' },
-  cancelBtnText: { color: '#9CA3AF', fontWeight: '600' },
+  cancelBtnText: { color: '#14532d', fontWeight: '600' },
   saveBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: '#4f46e5', alignItems: 'center' },
   saveBtnText: { color: '#FFF', fontWeight: '700' },
 });

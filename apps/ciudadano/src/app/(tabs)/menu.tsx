@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   cardDesc: {
-    color: '#9CA3AF',
+    color: '#14532d',
     fontSize: 12,
     lineHeight: 16,
   },

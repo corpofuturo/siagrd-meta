@@ -280,7 +280,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
   listaTitulo: { fontSize: 28, fontWeight: '700', color: '#0f0a2e' },
-  listaSubtitulo: { fontSize: 14, color: '#86EFAC', marginTop: 2 },
+  listaSubtitulo: { fontSize: 14, color: '#14532d', marginTop: 2 },
   listaContent: { padding: 16, gap: 10 },
   amenazaCard: {
     backgroundColor: '#dcfce7',
@@ -292,8 +292,8 @@ const styles = StyleSheet.create({
   },
   amenazaCardTexto: { flex: 1 },
   amenazaNombre: { fontSize: 17, fontWeight: '700', color: '#0f0a2e' },
-  amenazaSubtexto: { fontSize: 12, color: '#9CA3AF', marginTop: 2 },
-  amenazaChevron: { fontSize: 24, color: '#6B7280' },
+  amenazaSubtexto: { fontSize: 12, color: '#14532d', marginTop: 2 },
+  amenazaChevron: { fontSize: 24, color: '#14532d' },
 
   // Detalle
   detalleHeader: {
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
   volverBtn: { marginBottom: 4 },
   volverBtnTexto: { color: '#4f46e5', fontSize: 15 },
   detalleTitulo: { fontSize: 24, fontWeight: '700', color: '#0f0a2e' },
-  offlineBadge: { fontSize: 11, color: '#86EFAC' },
+  offlineBadge: { fontSize: 11, color: '#14532d' },
 
   fasesRow: {
     flexDirection: 'row',
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#dcfce7',
     alignItems: 'center',
   },
-  faseBtnTexto: { fontSize: 12, fontWeight: '700', color: '#9CA3AF' },
+  faseBtnTexto: { fontSize: 12, fontWeight: '700', color: '#14532d' },
   faseBtnTextoActivo: { color: '#FFF' },
 
   scroll: { flex: 1 },
@@ -340,11 +340,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 2,
   },
-  numeroTexto: { color: '#D1D5DB', fontSize: 13, fontWeight: '700' },
+  numeroTexto: { color: '#312e81', fontSize: 13, fontWeight: '700' },
   instruccionTexto: {
     flex: 1,
     fontSize: 15,
-    color: '#E5E7EB',
+    color: '#0f0a2e',
     lineHeight: 22,
   },
 });

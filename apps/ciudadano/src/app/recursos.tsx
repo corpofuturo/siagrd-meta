@@ -167,8 +167,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   nombre: { color: '#0f0a2e', fontSize: 15, fontWeight: '600', flex: 1 },
-  tipo: { color: '#9CA3AF', fontSize: 13 },
-  organismo: { color: '#6B7280', fontSize: 12 },
+  tipo: { color: '#14532d', fontSize: 13 },
+  organismo: { color: '#14532d', fontSize: 12 },
   dispBadge: {
     borderRadius: 6,
     borderWidth: 1,

@@ -148,6 +148,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   nombre: { color: '#0f0a2e', fontSize: 15, fontWeight: '600', flex: 1 },
-  codigo: { color: '#6B7280', fontSize: 12 },
-  arrow: { fontSize: 22, color: '#c7d2fe' },
+  codigo: { color: '#14532d', fontSize: 12 },
+  arrow: { fontSize: 22, color: '#4f46e5' },
 });

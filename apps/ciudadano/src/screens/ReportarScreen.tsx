@@ -472,7 +472,7 @@ const styles = StyleSheet.create({
   },
   subtitulo: {
     fontSize: 14,
-    color: '#9CA3AF',
+    color: '#374151',
     marginBottom: 16,
   },
   grid: {
@@ -492,7 +492,7 @@ const styles = StyleSheet.create({
   tipoLabel: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#F3F4F6',
+    color: '#14532d',
   },
 
   // Paso 2 — scroll
@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
   },
   bannerCambiarTexto: {
     fontSize: 13,
-    color: '#D1D5DB',
+    color: '#312e81',
     fontWeight: '600',
   },
 
@@ -565,7 +565,7 @@ const styles = StyleSheet.create({
   seccionTitulo: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#ffffff',
+    color: '#0f0a2e',
     marginBottom: 2,
   },
 
@@ -590,7 +590,7 @@ const styles = StyleSheet.create({
   campoLabel: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#c7d2fe',
+    color: '#312e81',
   },
   campoRow: {
     flexDirection: 'row',
@@ -598,7 +598,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E5E7EB',
     borderRadius: 10,
-    backgroundColor: '#0f0a2e',
+    backgroundColor: '#F9FAFB',
     paddingHorizontal: 12,
     paddingVertical: 10,
     gap: 8,
@@ -606,7 +606,7 @@ const styles = StyleSheet.create({
   campoInput: {
     flex: 1,
     fontSize: 15,
-    color: '#ffffff',
+    color: '#0f0a2e',
     padding: 0,
   },
   campoInputMulti: {
@@ -690,7 +690,7 @@ const styles = StyleSheet.create({
   checkboxLabel: {
     flex: 1,
     fontSize: 13,
-    color: '#c7d2fe',
+    color: '#0f0a2e',
     lineHeight: 18,
   },
 
@@ -702,7 +702,7 @@ const styles = StyleSheet.create({
   },
   gpsCoordenada: {
     fontSize: 13,
-    color: '#c7d2fe',
+    color: '#0f0a2e',
     fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace',
   },
 
@@ -742,13 +742,13 @@ const styles = StyleSheet.create({
   enviadoTitulo: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#86EFAC',
+    color: '#14532d',
     textAlign: 'center',
     marginBottom: 12,
   },
   enviadoSubtitulo: {
     fontSize: 16,
-    color: '#D1D5DB',
+    color: '#6b7280',
     textAlign: 'center',
     lineHeight: 24,
     marginBottom: 40,

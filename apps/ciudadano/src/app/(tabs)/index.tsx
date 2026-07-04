@@ -70,7 +70,7 @@ export default function HomeScreen() {
   };
 
   const renderAlerta = ({ item }: { item: Alerta }) => {
-    const dotColor = NIVEL_COLORES[item.nivel] ?? '#9CA3AF';
+    const dotColor = NIVEL_COLORES[item.nivel] ?? '#14532d';
     return (
       <View style={styles.card}>
         <View style={styles.cardHeader}>
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   offlineText: {
-    color: '#D1D5DB',
+    color: '#312e81',
     fontSize: 13,
   },
   listContent: {
@@ -180,13 +180,13 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   descripcion: {
-    color: '#9CA3AF',
+    color: '#14532d',
     fontSize: 13,
     lineHeight: 19,
     marginBottom: 6,
   },
   municipio: {
-    color: '#6B7280',
+    color: '#14532d',
     fontSize: 12,
   },
 });

@@ -159,7 +159,7 @@ export default function ConfiguracionScreen() {
           <TextInput
             style={styles.input}
             placeholder="SIAGRD Meta"
-            placeholderTextColor="#6B7280"
+            placeholderTextColor="#14532d"
             value={form.nombre_sistema ?? ''}
             onChangeText={(v) => setForm((f) => ({ ...f, nombre_sistema: v }))}
             autoCapitalize="none"
@@ -178,7 +178,7 @@ export default function ConfiguracionScreen() {
           <TextInput
             style={styles.input}
             placeholder="50000"
-            placeholderTextColor="#6B7280"
+            placeholderTextColor="#14532d"
             value={form.codigo_dane ?? ''}
             onChangeText={(v) => setForm((f) => ({ ...f, codigo_dane: v }))}
             keyboardType="numeric"
@@ -188,7 +188,7 @@ export default function ConfiguracionScreen() {
           <TextInput
             style={styles.input}
             placeholder="contacto@ungrd.gov.co"
-            placeholderTextColor="#6B7280"
+            placeholderTextColor="#14532d"
             value={form.ungrd_correo ?? ''}
             onChangeText={(v) => setForm((f) => ({ ...f, ungrd_correo: v }))}
             keyboardType="email-address"
@@ -199,7 +199,7 @@ export default function ConfiguracionScreen() {
           <TextInput
             style={styles.input}
             placeholder="https://ungrd.gov.co"
-            placeholderTextColor="#6B7280"
+            placeholderTextColor="#14532d"
             value={form.ungrd_url ?? ''}
             onChangeText={(v) => setForm((f) => ({ ...f, ungrd_url: v }))}
             keyboardType="url"
@@ -232,7 +232,7 @@ export default function ConfiguracionScreen() {
               <TextInput
                 style={styles.buscadorInput}
                 placeholder="Buscar..."
-                placeholderTextColor="#6B7280"
+                placeholderTextColor="#14532d"
                 value={deptFiltro}
                 onChangeText={setDeptFiltro}
                 autoFocus
@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
   backArrow: { fontSize: 22, color: '#4f46e5', fontWeight: '700' },
   headerTitle: { flex: 1, color: '#0f0a2e', fontSize: 17, fontWeight: '700' },
   content: { padding: 20, gap: 4, paddingBottom: 60 },
-  label: { color: '#9CA3AF', fontSize: 12, fontWeight: '600', marginBottom: 4, marginTop: 14 },
+  label: { color: '#374151', fontSize: 12, fontWeight: '600', marginBottom: 4, marginTop: 14 },
   input: {
     backgroundColor: '#dcfce7', borderRadius: 10, padding: 12,
     color: '#0f0a2e', fontSize: 14, borderWidth: 1, borderColor: '#c7d2fe',
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: '#c7d2fe',
   },
   pickerBtnText: { flex: 1, color: '#0f0a2e', fontSize: 14 },
-  pickerBtnPlaceholder: { color: '#6B7280' },
+  pickerBtnPlaceholder: { color: '#14532d' },
   saveBtn: {
     marginTop: 28, padding: 16, borderRadius: 12,
     backgroundColor: '#4f46e5', alignItems: 'center',
@@ -349,5 +349,5 @@ const styles = StyleSheet.create({
   jsonContent: { paddingBottom: 8 },
   jsonText: { color: '#6EE7B7', fontSize: 11, fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace' },
   closeBtn: { marginTop: 16, padding: 14, borderRadius: 10, backgroundColor: '#dcfce7', alignItems: 'center' },
-  closeBtnText: { color: '#9CA3AF', fontWeight: '600' },
+  closeBtnText: { color: '#14532d', fontWeight: '600' },
 });

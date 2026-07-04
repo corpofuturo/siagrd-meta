@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: 80 },
   errorText: { color: '#EF4444', fontSize: 14, textAlign: 'center', paddingHorizontal: 24 },
   listContent: { padding: 16, paddingBottom: 80 },
-  sectionTitle: { color: '#9CA3AF', fontSize: 14, fontWeight: '600', marginBottom: 10, letterSpacing: 0.5 },
+  sectionTitle: { color: '#374151', fontSize: 14, fontWeight: '600', marginBottom: 10, letterSpacing: 0.5 },
   emptyText: { color: '#6B7280', fontSize: 14, marginBottom: 8 },
   tableRow: {
     flexDirection: 'row',

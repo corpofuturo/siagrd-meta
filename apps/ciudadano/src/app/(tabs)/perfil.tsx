@@ -75,7 +75,7 @@ export default function PerfilScreen() {
 
   const openPanel = (path = '') => Linking.openURL(PANEL_URL + path);
 
-  const rolColor = ROL_COLORS[rol] ?? '#9CA3AF';
+  const rolColor = ROL_COLORS[rol] ?? '#374151';
   const rolLabel = ROL_LABELS[rol] ?? rol;
 
   return (
@@ -166,11 +166,11 @@ const styles = StyleSheet.create({
     padding: 20, gap: 6, marginBottom: 24, alignItems: 'center',
   },
   nombre: { fontSize: 20, fontWeight: '700', color: '#0f0a2e' },
-  email: { fontSize: 13, color: '#9CA3AF' },
+  email: { fontSize: 13, color: '#14532d' },
   badgeRow: { flexDirection: 'row', marginTop: 4 },
   badge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20, borderWidth: 1 },
   badgeText: { fontSize: 12, fontWeight: '600' },
-  sinSesion: { fontSize: 15, color: '#6B7280' },
+  sinSesion: { fontSize: 15, color: '#14532d' },
 
   section: { width: '90%', marginBottom: 20 },
   sectionTitle: { fontSize: 11, fontWeight: '700', color: '#4B5563', letterSpacing: 1.2, marginBottom: 8, marginLeft: 4 },
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   menuText: { flex: 1 },
   menuLabel: { fontSize: 14, fontWeight: '600', color: '#0f0a2e' },
   menuLabelDanger: { color: '#EF4444' },
-  menuDesc: { fontSize: 12, color: '#6B7280', marginTop: 1 },
+  menuDesc: { fontSize: 12, color: '#14532d', marginTop: 1 },
 
   signOutBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',

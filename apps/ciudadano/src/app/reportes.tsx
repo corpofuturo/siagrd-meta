@@ -28,7 +28,7 @@ interface ReporteCiudadano {
 const ESTADO_COLORS: Record<EstadoReporte, string> = {
   PENDIENTE: '#F59E0B',
   REVISADO: '#22C55E',
-  DESCARTADO: '#6B7280',
+  DESCARTADO: '#14532d',
 };
 
 async function apiFetch(path: string, options?: RequestInit) {
@@ -53,7 +53,7 @@ function ReporteCard({
   onMarcarRevisado: (id: number | string) => void;
 }) {
   const estado = (item.estado ?? 'PENDIENTE') as EstadoReporte;
-  const estadoColor = ESTADO_COLORS[estado] ?? '#6B7280';
+  const estadoColor = ESTADO_COLORS[estado] ?? '#14532d';
   const municipio = item.municipio_nombre ?? item.municipio ?? '—';
   const fecha = item.fecha ?? item.created_at;
   const fechaStr = fecha
@@ -226,9 +226,9 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
   },
   estadoBadgeText: { fontSize: 11, fontWeight: '600', letterSpacing: 0.3 },
-  fecha: { color: '#6B7280', fontSize: 12, marginLeft: 'auto' },
-  descripcion: { color: '#D1D5DB', fontSize: 13, lineHeight: 18 },
-  municipio: { color: '#9CA3AF', fontSize: 12 },
+  fecha: { color: '#14532d', fontSize: 12, marginLeft: 'auto' },
+  descripcion: { color: '#14532d', fontSize: 13, lineHeight: 18 },
+  municipio: { color: '#14532d', fontSize: 12 },
   revisarBtn: {
     backgroundColor: '#22C55E33',
     borderColor: '#22C55E',

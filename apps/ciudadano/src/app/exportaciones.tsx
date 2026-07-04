@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   warnTitle: { color: '#F59E0B', fontSize: 14, fontWeight: '700' },
-  warnText: { color: '#D1D5DB', fontSize: 13, lineHeight: 20 },
+  warnText: { color: '#854d0e', fontSize: 13, lineHeight: 20 },
   exportBtn: {
     flexDirection: 'row',
     alignItems: 'center',

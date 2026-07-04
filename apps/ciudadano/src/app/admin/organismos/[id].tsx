@@ -36,11 +36,11 @@ async function getHeaders(): Promise<Record<string, string>> {
 }
 
 const ROL_COLORS: Record<string, string> = {
-  ADMIN: '#A78BFA', CDGRD: '#F59E0B', SOCORRO: '#22C55E', CIUDADANO: '#9CA3AF',
+  ADMIN: '#A78BFA', CDGRD: '#F59E0B', SOCORRO: '#22C55E', CIUDADANO: '#374151',
 };
 
 function RolBadge({ rol }: { rol: string }) {
-  const color = ROL_COLORS[rol] ?? '#9CA3AF';
+  const color = ROL_COLORS[rol] ?? '#374151';
   return (
     <View style={[styles.badge, { backgroundColor: color + '22', borderColor: color }]}>
       <Text style={[styles.badgeText, { color }]}>{rol}</Text>
@@ -204,22 +204,22 @@ export default function OrganismoDetalleScreen() {
               <Text style={styles.modalTitle}>Agregar Usuario</Text>
 
               <Text style={styles.label}>Email *</Text>
-              <TextInput style={styles.input} placeholder="correo@ejemplo.com" placeholderTextColor="#6B7280" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
+              <TextInput style={styles.input} placeholder="correo@ejemplo.com" placeholderTextColor="#14532d" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
 
               <Text style={styles.label}>Nombre *</Text>
-              <TextInput style={styles.input} placeholder="Nombre" placeholderTextColor="#6B7280" value={nombre} onChangeText={setNombre} />
+              <TextInput style={styles.input} placeholder="Nombre" placeholderTextColor="#14532d" value={nombre} onChangeText={setNombre} />
 
               <Text style={styles.label}>Apellido *</Text>
-              <TextInput style={styles.input} placeholder="Apellido" placeholderTextColor="#6B7280" value={apellido} onChangeText={setApellido} />
+              <TextInput style={styles.input} placeholder="Apellido" placeholderTextColor="#14532d" value={apellido} onChangeText={setApellido} />
 
               <Text style={styles.label}>Documento</Text>
-              <TextInput style={styles.input} placeholder="Cédula o NIT" placeholderTextColor="#6B7280" value={documento} onChangeText={setDocumento} keyboardType="numeric" />
+              <TextInput style={styles.input} placeholder="Cédula o NIT" placeholderTextColor="#14532d" value={documento} onChangeText={setDocumento} keyboardType="numeric" />
 
               <Text style={styles.label}>Celular</Text>
-              <TextInput style={styles.input} placeholder="Celular" placeholderTextColor="#6B7280" value={celular} onChangeText={setCelular} keyboardType="phone-pad" />
+              <TextInput style={styles.input} placeholder="Celular" placeholderTextColor="#14532d" value={celular} onChangeText={setCelular} keyboardType="phone-pad" />
 
               <Text style={styles.label}>Contraseña *</Text>
-              <TextInput style={styles.input} placeholder="Contraseña temporal" placeholderTextColor="#6B7280" value={password} onChangeText={setPassword} secureTextEntry />
+              <TextInput style={styles.input} placeholder="Contraseña temporal" placeholderTextColor="#14532d" value={password} onChangeText={setPassword} secureTextEntry />
 
               <View style={styles.modalBtns}>
                 <TouchableOpacity style={styles.cancelBtn} onPress={() => { setModalVisible(false); resetForm(); }}>
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
   badge2Row: { flexDirection: 'row', marginVertical: 2 },
   badge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8, borderWidth: 1 },
   badgeText: { fontSize: 10, fontWeight: '700' },
-  orgMeta: { color: '#9CA3AF', fontSize: 13 },
+  orgMeta: { color: '#14532d', fontSize: 13 },
   usersTitle: { color: '#0f0a2e', fontSize: 14, fontWeight: '700', marginTop: 10 },
   userItem: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
@@ -263,8 +263,8 @@ const styles = StyleSheet.create({
   },
   userLeft: { flex: 1 },
   userName: { color: '#0f0a2e', fontSize: 14, fontWeight: '600' },
-  userEmail: { color: '#9CA3AF', fontSize: 12 },
-  userMeta: { color: '#6B7280', fontSize: 11 },
+  userEmail: { color: '#14532d', fontSize: 12 },
+  userMeta: { color: '#14532d', fontSize: 11 },
   emptyBox: { paddingTop: 40, alignItems: 'center' },
   emptyText: { color: '#6B7280', fontSize: 14 },
   fab: {
@@ -277,11 +277,11 @@ const styles = StyleSheet.create({
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
   modalCard: { backgroundColor: '#ffffff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, maxHeight: '90%' },
   modalTitle: { color: '#0f0a2e', fontSize: 18, fontWeight: '700', marginBottom: 16 },
-  label: { color: '#9CA3AF', fontSize: 12, fontWeight: '600', marginBottom: 4, marginTop: 10 },
+  label: { color: '#374151', fontSize: 12, fontWeight: '600', marginBottom: 4, marginTop: 10 },
   input: { backgroundColor: '#dcfce7', borderRadius: 10, padding: 12, color: '#0f0a2e', fontSize: 14, borderWidth: 1, borderColor: '#c7d2fe' },
   modalBtns: { flexDirection: 'row', gap: 10, marginTop: 20, marginBottom: 8 },
   cancelBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: '#dcfce7', alignItems: 'center' },
-  cancelBtnText: { color: '#9CA3AF', fontWeight: '600' },
+  cancelBtnText: { color: '#14532d', fontWeight: '600' },
   saveBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: '#4f46e5', alignItems: 'center' },
   saveBtnText: { color: '#FFF', fontWeight: '700' },
 });

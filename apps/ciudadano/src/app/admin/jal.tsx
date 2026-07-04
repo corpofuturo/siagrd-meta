@@ -148,22 +148,22 @@ export default function JALScreen() {
               <Text style={styles.modalTitle}>{editTarget ? 'Editar JAL' : 'Nueva JAL'}</Text>
 
               <Text style={styles.label}>Nombre *</Text>
-              <TextInput style={styles.input} placeholder="Nombre de la JAL" placeholderTextColor="#6B7280" value={form.nombre} onChangeText={(v) => setForm((f) => ({ ...f, nombre: v }))} />
+              <TextInput style={styles.input} placeholder="Nombre de la JAL" placeholderTextColor="#14532d" value={form.nombre} onChangeText={(v) => setForm((f) => ({ ...f, nombre: v }))} />
 
               <Text style={styles.label}>Barrio / Vereda</Text>
-              <TextInput style={styles.input} placeholder="Barrio o vereda" placeholderTextColor="#6B7280" value={form.barrio_vereda} onChangeText={(v) => setForm((f) => ({ ...f, barrio_vereda: v }))} />
+              <TextInput style={styles.input} placeholder="Barrio o vereda" placeholderTextColor="#14532d" value={form.barrio_vereda} onChangeText={(v) => setForm((f) => ({ ...f, barrio_vereda: v }))} />
 
               <Text style={styles.label}>Municipio</Text>
-              <TextInput style={styles.input} placeholder="Municipio o ID" placeholderTextColor="#6B7280" value={form.municipio_id} onChangeText={(v) => setForm((f) => ({ ...f, municipio_id: v }))} />
+              <TextInput style={styles.input} placeholder="Municipio o ID" placeholderTextColor="#14532d" value={form.municipio_id} onChangeText={(v) => setForm((f) => ({ ...f, municipio_id: v }))} />
 
               <Text style={styles.label}>Presidente</Text>
-              <TextInput style={styles.input} placeholder="Nombre del presidente" placeholderTextColor="#6B7280" value={form.presidente} onChangeText={(v) => setForm((f) => ({ ...f, presidente: v }))} />
+              <TextInput style={styles.input} placeholder="Nombre del presidente" placeholderTextColor="#14532d" value={form.presidente} onChangeText={(v) => setForm((f) => ({ ...f, presidente: v }))} />
 
               <Text style={styles.label}>Correo</Text>
-              <TextInput style={styles.input} placeholder="correo@ejemplo.com" placeholderTextColor="#6B7280" value={form.correo} onChangeText={(v) => setForm((f) => ({ ...f, correo: v }))} keyboardType="email-address" autoCapitalize="none" />
+              <TextInput style={styles.input} placeholder="correo@ejemplo.com" placeholderTextColor="#14532d" value={form.correo} onChangeText={(v) => setForm((f) => ({ ...f, correo: v }))} keyboardType="email-address" autoCapitalize="none" />
 
               <Text style={styles.label}>Teléfono</Text>
-              <TextInput style={styles.input} placeholder="Teléfono" placeholderTextColor="#6B7280" value={form.telefono} onChangeText={(v) => setForm((f) => ({ ...f, telefono: v }))} keyboardType="phone-pad" />
+              <TextInput style={styles.input} placeholder="Teléfono" placeholderTextColor="#14532d" value={form.telefono} onChangeText={(v) => setForm((f) => ({ ...f, telefono: v }))} keyboardType="phone-pad" />
 
               <View style={styles.modalBtns}>
                 <TouchableOpacity style={styles.cancelBtn} onPress={() => setModalVisible(false)}>
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
   item: { backgroundColor: '#dcfce7', borderRadius: 14, padding: 14, gap: 6 },
   itemTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   itemNombre: { flex: 1, color: '#0f0a2e', fontSize: 15, fontWeight: '700' },
-  itemSub: { color: '#9CA3AF', fontSize: 12 },
+  itemSub: { color: '#14532d', fontSize: 12 },
   editBtn: { alignSelf: 'flex-end', marginTop: 4 },
   editBtnText: { color: '#4f46e5', fontSize: 12, fontWeight: '600' },
   emptyBox: { paddingTop: 60, alignItems: 'center' },
@@ -212,11 +212,11 @@ const styles = StyleSheet.create({
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
   modalCard: { backgroundColor: '#ffffff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, maxHeight: '90%' },
   modalTitle: { color: '#0f0a2e', fontSize: 18, fontWeight: '700', marginBottom: 16 },
-  label: { color: '#9CA3AF', fontSize: 12, fontWeight: '600', marginBottom: 4, marginTop: 10 },
+  label: { color: '#374151', fontSize: 12, fontWeight: '600', marginBottom: 4, marginTop: 10 },
   input: { backgroundColor: '#dcfce7', borderRadius: 10, padding: 12, color: '#0f0a2e', fontSize: 14, borderWidth: 1, borderColor: '#c7d2fe' },
   modalBtns: { flexDirection: 'row', gap: 10, marginTop: 20, marginBottom: 8 },
   cancelBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: '#dcfce7', alignItems: 'center' },
-  cancelBtnText: { color: '#9CA3AF', fontWeight: '600' },
+  cancelBtnText: { color: '#14532d', fontWeight: '600' },
   saveBtn: { flex: 1, padding: 14, borderRadius: 10, backgroundColor: '#4f46e5', alignItems: 'center' },
   saveBtnText: { color: '#FFF', fontWeight: '700' },
 });

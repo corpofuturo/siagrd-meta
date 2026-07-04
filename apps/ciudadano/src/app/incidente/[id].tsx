@@ -59,8 +59,8 @@ const ESTADO_COLORS: Record<string, string> = {
   EN_CURSO: '#F59E0B',
   CONTROLADO: '#22C55E',
   CERRADO: '#4B5563',
-  FALSO_POSITIVO: '#9CA3AF',
-  CANCELADO: '#9CA3AF',
+  FALSO_POSITIVO: '#374151',
+  CANCELADO: '#374151',
 };
 
 const NIVEL_COLORS: Record<string, string> = {
@@ -214,7 +214,7 @@ export default function IncidenteDetalleScreen() {
     );
   }
 
-  const estadoColor = ESTADO_COLORS[incidente.estado] ?? '#9CA3AF';
+  const estadoColor = ESTADO_COLORS[incidente.estado] ?? '#374151';
   const nivelColor = NIVEL_COLORS[incidente.nivel_alerta] ?? '#6B7280';
 
   return (
@@ -334,7 +334,7 @@ export default function IncidenteDetalleScreen() {
           <TextInput
             style={styles.textInput}
             placeholder="Escribe la novedad..."
-            placeholderTextColor="#6B7280"
+            placeholderTextColor="#14532d"
             multiline
             numberOfLines={4}
             value={novedad}
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   sectionTitle: {
-    color: '#9CA3AF',
+    color: '#374151',
     fontSize: 12,
     fontWeight: '700',
     letterSpacing: 1,
@@ -435,7 +435,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   municipio: {
-    color: '#9CA3AF',
+    color: '#374151',
     fontSize: 13,
     marginBottom: 12,
   },
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   infoLabel: {
-    color: '#9CA3AF',
+    color: '#14532d',
     fontSize: 12,
     flex: 1,
   },
@@ -486,7 +486,7 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   descLabel: {
-    color: '#9CA3AF',
+    color: '#14532d',
     fontSize: 11,
     fontWeight: '700',
     letterSpacing: 0.5,
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   descText: {
-    color: '#D1D5DB',
+    color: '#14532d',
     fontSize: 13,
     lineHeight: 20,
   },
@@ -515,12 +515,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   actAutor: {
-    color: '#6B7280',
+    color: '#14532d',
     fontSize: 11,
     fontWeight: '600',
   },
   actFecha: {
-    color: '#6B7280',
+    color: '#14532d',
     fontSize: 11,
   },
   emptyText: {

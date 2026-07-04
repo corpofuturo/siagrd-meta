@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   cardSub: {
-    color: '#9CA3AF',
+    color: '#14532d',
     fontSize: 13,
     marginTop: 2,
   },

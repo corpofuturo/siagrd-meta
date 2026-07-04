@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
   backArrow: { fontSize: 22, color: '#4f46e5', fontWeight: '700' },
   headerTitle: { flex: 1, color: '#0f0a2e', fontSize: 17, fontWeight: '700' },
   content: { padding: 16, gap: 12 },
-  subtitle: { color: '#9CA3AF', fontSize: 13, marginBottom: 4 },
+  subtitle: { color: '#374151', fontSize: 13, marginBottom: 4 },
   card: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -80,6 +80,6 @@ const styles = StyleSheet.create({
   cardIcon: { fontSize: 32 },
   cardText: { flex: 1 },
   cardTitle: { color: '#0f0a2e', fontSize: 15, fontWeight: '700' },
-  cardDesc: { color: '#9CA3AF', fontSize: 12, marginTop: 2 },
-  cardArrow: { fontSize: 24, color: '#c7d2fe', fontWeight: '300' },
+  cardDesc: { color: '#14532d', fontSize: 12, marginTop: 2 },
+  cardArrow: { fontSize: 24, color: '#4f46e5', fontWeight: '300' },
 });

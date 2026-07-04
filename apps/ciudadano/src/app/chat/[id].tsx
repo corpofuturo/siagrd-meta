@@ -31,7 +31,7 @@ const ROL_COLORS: Record<string, string> = {
   CDGRD: '#F59E0B',
   CMGRD: '#4f46e5',
   SOCORRO: '#22C55E',
-  CIUDADANO: '#9CA3AF',
+  CIUDADANO: '#14532d',
 };
 
 function formatHora(dateStr: string): string {
@@ -161,7 +161,7 @@ export default function ChatScreen() {
           renderItem={({ item }) => {
             const isMe = item.autor_id === myId;
             const autor = [item.nombre, item.apellido].filter(Boolean).join(' ') || 'Sistema';
-            const rolColor = ROL_COLORS[item.autor_rol ?? ''] ?? '#9CA3AF';
+            const rolColor = ROL_COLORS[item.autor_rol ?? ''] ?? '#14532d';
             return (
               <View style={[styles.msgRow, isMe ? styles.msgRowMe : styles.msgRowOther]}>
                 {item.tipo === 'ALERTA_OFICIAL' && (
@@ -192,7 +192,7 @@ export default function ChatScreen() {
         <TextInput
           style={styles.textInput}
           placeholder="Escribe un mensaje..."
-          placeholderTextColor="#6B7280"
+          placeholderTextColor="#14532d"
           value={texto}
           onChangeText={setTexto}
           multiline

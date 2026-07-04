@@ -257,12 +257,12 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   cardTipo: {
-    color: '#D1D5DB',
+    color: '#14532d',
     fontSize: 13,
     marginBottom: 2,
   },
   cardMunicipio: {
-    color: '#9CA3AF',
+    color: '#14532d',
     fontSize: 12,
     marginBottom: 10,
   },

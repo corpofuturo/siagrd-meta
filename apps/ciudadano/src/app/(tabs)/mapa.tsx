@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 32,
   },
-  loadingText: { color: '#9CA3AF', fontSize: 14, marginTop: 12 },
+  loadingText: { color: '#374151', fontSize: 14, marginTop: 12 },
   capaBar: {
     flexDirection: 'row',
     backgroundColor: '#eef2ff',
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   capaBtnActive: { backgroundColor: '#4f46e5', borderColor: '#4f46e5' },
-  capaBtnText: { color: '#9CA3AF', fontSize: 11, fontWeight: '600' },
+  capaBtnText: { color: '#374151', fontSize: 11, fontWeight: '600' },
   capaBtnTextActive: { color: '#FFFFFF' },
   contador: {
     position: 'absolute',

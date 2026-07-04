@@ -50,7 +50,7 @@ function UsuarioCard({ item }: { item: Usuario }) {
     [item.first_name, item.last_name].filter(Boolean).join(' ') ??
     '—';
   const rol = (item.rol ?? item.role ?? 'ciudadano') as string;
-  const rolColor = ROL_COLORS[rol] ?? '#6B7280';
+  const rolColor = ROL_COLORS[rol] ?? '#14532d';
   const municipio = item.municipio_nombre ?? item.municipio ?? '';
 
   return (
@@ -182,8 +182,8 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   nombre: { color: '#0f0a2e', fontSize: 15, fontWeight: '600', flex: 1 },
-  email: { color: '#9CA3AF', fontSize: 13 },
-  municipio: { color: '#6B7280', fontSize: 12 },
+  email: { color: '#14532d', fontSize: 13 },
+  municipio: { color: '#14532d', fontSize: 12 },
   rolBadge: {
     borderRadius: 6,
     borderWidth: 1,
