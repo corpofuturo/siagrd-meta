@@ -24,7 +24,6 @@ import {
   Image,
   Platform,
 } from 'react-native';
-import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { useNetInfo } from '@react-native-community/netinfo';
@@ -209,7 +208,6 @@ function SeccionGPS({ coordenada, obteniendo, onObtener, onEliminar }: SeccionGP
 // ─────────────────────────────────────────────
 
 export default function ReportarScreen() {
-  const router = useRouter();
   const netInfo = useNetInfo();
   const online = netInfo.isConnected !== false;
 
@@ -279,6 +277,16 @@ export default function ReportarScreen() {
     setCoordenada(coord);
     setObteniendo(false);
   };
+
+  // Volver al inicio del flujo (resetea estado local; no depende de historial de navegación)
+  const volverAlInicio = useCallback(() => {
+    setPaso('tipo');
+    setTipoSeleccionado('');
+    setDescripcion('');
+    setFotoUri(null);
+    setFotoAutorizada(false);
+    setCoordenada(null);
+  }, []);
 
   // Enviar
   const enviar = async () => {
@@ -437,7 +445,7 @@ export default function ReportarScreen() {
           ? 'Gracias por avisar. Las autoridades han sido notificadas.'
           : 'Sin conexión. El reporte se enviará automáticamente cuando recuperes señal.'}
       </Text>
-      <TouchableOpacity style={styles.volverBtn} onPress={() => router.back()}>
+      <TouchableOpacity style={styles.volverBtn} onPress={volverAlInicio}>
         <Text style={styles.volverBtnTexto}>Volver al inicio</Text>
       </TouchableOpacity>
     </View>
