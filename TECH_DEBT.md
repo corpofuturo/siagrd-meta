@@ -81,20 +81,28 @@ Este repositorio tiene **tres registros de deuda técnica con numeración DT-XXX
 
 Encontrados probando un APK release (JS embebido, sin Metro) contra el backend real de producción.
 
-### DT-006 — Tab "Reportar" no navega al formulario real
-**Archivo**: `apps/ciudadano/src/app/(tabs)/reportar.tsx`
-**Estado**: El tab hace `useEffect(() => router.push('/reportar'), [])` pero la navegación no ocurre — la pantalla queda vacía con el tab "Reportar" resaltado. Confirmado en dispositivo físico (no es un problema de la paleta).
-**Causa probable**: patrón conocido de Expo Router — el push disparado en el `useEffect` de una pantalla de tab entra en conflicto con el comportamiento de foco/reset del propio tab navigator.
-**Formulario real**: `apps/ciudadano/src/app/reportar.tsx` (616 líneas, flujo de 3 pasos, ya migrado a la paleta Indigo+Sage) — funciona si se navega a él directamente por otra vía.
-**Fix recomendado (no aplicado)**: renderizar el componente `ReportarScreen` directamente dentro de `(tabs)/reportar.tsx` en vez de redirigir, y cambiar el botón "Volver al inicio" (usa `router.back()`) para resetear el estado local del paso (`setPaso('tipo')`) en vez de depender de historial de navegación.
-**Impacto**: Ciudadanos no pueden reportar incidentes desde el tab principal — funcionalidad crítica del producto bloqueada en el flujo más obvio.
-**Prioridad**: Alta — retomar próxima sesión.
+### DT-006 — Tab "Reportar" no navega al formulario real (RESUELTO parcialmente, ver DT-010)
+**Archivo**: `apps/ciudadano/src/app/(tabs)/reportar.tsx`, `apps/ciudadano/src/screens/ReportarScreen.tsx`
+**Estado**: **Resuelto** (2026-07-04) — `ReportarScreen` se movió fuera del árbol de rutas (`app/reportar.tsx` → `screens/ReportarScreen.tsx`) y el tab lo renderiza directamente en vez de hacer `router.push()`. El botón "Volver al inicio" ahora resetea el estado local del flujo en vez de depender de `router.back()`. Verificado en dispositivo físico: el grid de tipos y el formulario paso 2 cargan de inmediato al tocar el tab.
+**Pendiente**: el paso 3 (confirmación) y el botón "Volver al inicio" no se verificaron en dispositivo porque el envío del reporte fallaba por un bug distinto — ver DT-010.
 
-### DT-007 — Ciudadano anónimo sin acceso al mapa de incidentes (parcialmente resuelto)
+### DT-007 — Ciudadano anónimo sin acceso al mapa de incidentes (RESUELTO)
 **Archivo**: `apps/ciudadano/src/services/auth.service.ts`, `apps/ciudadano/src/app/(tabs)/mapa.tsx`
 **Causa raíz encontrada y corregida**: `signInAnonymous()` generaba un token falso (`anon_<timestamp>`) nunca firmado por el backend; el backend ya exponía `POST /auth/anonymous` con JWT real (claim `anonymous:true`) compatible con `authMiddleware`, pero el cliente nunca lo llamaba. Corregido en commit `6614b77` (usa el endpoint real, con fallback local solo offline).
-**Pendiente de verificar**: reinstalar el APK release con el fix y confirmar en dispositivo que `/incidentes/mapa` ya no devuelve 401 para sesión anónima.
-**Decisión de negocio ya tomada por el usuario**: sí, los ciudadanos anónimos son usuarios oficiales y deben tener este acceso — no requiere más aprobación, solo verificación.
+**Verificado en dispositivo físico (2026-07-04)**: mapa carga en modo anónimo con datos reales (13 eventos), sin 401 en logcat. Cerrado.
+**Decisión de negocio ya tomada por el usuario**: sí, los ciudadanos anónimos son usuarios oficiales y deben tener este acceso.
+
+### DT-010 — POST /reportes-ciudadanos roto de raíz (RESUELTO)
+**Archivos**: `backend/src/routes/reportes.ts`, `apps/ciudadano/src/services/reporte.service.ts`, `database/migrations/027_reportes_foto_url.sql`
+**Estado**: **Resuelto** (2026-07-04) — el envío de reportes ciudadanos fallaba siempre, por tres bugs encadenados: (1) el INSERT leía `tipo`/`ubicacion` del body pero el cliente envía `tipo_amenaza`/`latitud`/`longitud`, nunca coincidían; (2) insertaba en la columna `reportante_id`, que no existe (la real es `reportado_por`); (3) escribía `updated_at`, columna que nunca existió en el esquema original. Encontrado por SQA en dispositivo físico al probar el fix de DT-006 (mensaje "Error: No se pudo enviar el reporte").
+**Fix**: handler reescrito con validación real contra el enum `tipo_amenaza`, geometría PostGIS construida con `ST_SetSRID(ST_MakePoint(...))`, nombres de columna corregidos, migración aditiva 027 (`foto_url`, `updated_at`). 5 tests de integración nuevos.
+**Pendiente**: aplicar la migración 027 contra dev/producción (no aplicada aún, requiere Postgres arriba).
+
+### DT-011 — Cola offline de reportes nunca sincroniza sola
+**Archivo**: `apps/ciudadano/src/services/offline-queue.service.ts`
+**Estado**: el comentario de cabecera documenta una función `procesarCola()` que no existe. Los reportes capturados sin conexión se guardan en `AsyncStorage` (`encolarReporte()`) pero nada los reintenta automáticamente al recuperar señal — quedan atrapados hasta que se implemente el reintento.
+**Impacto**: viola el requisito de offline-first descrito en `CLAUDE.md` §12 (capturar sin red → reconectar → debe llegar al backend). Actualmente ese ciclo se rompe en el último paso.
+**Prioridad**: Alta — es funcionalidad crítica para el caso de uso rural/zonas sin cobertura del proyecto. Delegar en `offline-sync-specialist`.
 
 ### DT-008 — Perfil mostraba IP del VPS y dominio inexistente
 **Archivo**: `apps/ciudadano/src/app/(tabs)/perfil.tsx`
