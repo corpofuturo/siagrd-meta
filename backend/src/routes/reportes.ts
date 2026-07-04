@@ -126,6 +126,17 @@ export async function reportesRoutes(app: FastifyInstance): Promise<void> {
       if (latNum < -90 || latNum > 90) throw new ValidationError('latitud debe estar entre -90 y 90');
       if (lngNum < -180 || lngNum > 180) throw new ValidationError('longitud debe estar entre -180 y 180');
 
+      // foto_url solo puede ser una URL propia de /archivos/static — este endpoint es público y
+      // sin esto un cliente anónimo podría insertar una URL arbitraria que el panel-web renderiza
+      // en <img> a funcionarios (fuga de IP/user-agent, fingerprinting de personal de emergencia).
+      if (body.foto_url) {
+        const base = process.env.PUBLIC_BASE_URL ?? '';
+        const prefijoValido = `${base}/api/v1/archivos/static/`;
+        if (!body.foto_url.startsWith(prefijoValido)) {
+          throw new ValidationError('foto_url debe ser una URL generada por /archivos/upload');
+        }
+      }
+
       let reportado_por: string | null = null;
       let anonimo = true;
 
