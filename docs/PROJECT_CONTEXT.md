@@ -1,6 +1,6 @@
 # PROJECT_CONTEXT.md — SIAGRD Meta (SATAM)
 
-> Estado real verificado — última actualización 2026-07-04. Ver `CLAUDE.md` para las reglas de trabajo. Ver también la sección "Sesión 2026-07-04" al final para lo más reciente — puede corregir afirmaciones de secciones anteriores.
+> Estado real verificado — última actualización 2026-07-06. Ver `CLAUDE.md` para las reglas de trabajo. La rama `feat/diseno-indigo-sage` descrita más abajo ya fue mergeada a `main` completa (PRs #9-#13) — ver `docs/sessions/SESSION-2026-07-04.md` para el cierre detallado y los pendientes reales.
 
 ## Qué es
 
@@ -50,9 +50,9 @@ Ver `docs/DECISIONES.md` para el registro completo. Puntos clave: PostGIS en vez
 
 Ver `TECH_DEBT.md` (raíz), `docs/DEUDA_TECNICA.md` y `BLOCKERS.md`. **Advertencia activa:** existen tres registros de deuda técnica con numeración DT-XXX independiente en este repo — no asumir a cuál se refiere un DT-XXX sin especificar el archivo. Dentro de `TECH_DEBT.md` mismo hay además dos numeraciones que conviven: `ARQ-DT-00X` (heredada de `ARQUITECTURA.md`, Hito 2, cerrada 16/16) y `DT-00X` nueva para hallazgos de SQA en dispositivo de la sesión 2026-07-04 — no son el mismo espacio de números.
 
-## Sesión 2026-07-04 — rama `feat/diseno-indigo-sage`
+## Sesión 2026-07-04 → 2026-07-06 — rama `feat/diseno-indigo-sage` (CERRADA, mergeada a `main`)
 
-**Rama**: `feat/diseno-indigo-sage`, 9 commits sobre `main` (`e0a7687` … `e03f020`), **sin PR abierto**. `git status`: sin cambios trackeados pendientes; quedan sin trackear `docs/PROMPT_*.md`, imágenes de WhatsApp en `docs/`, `tests/evidencia/` y `tests/sqa_siagrd01.ps1` — decidir si se commitean o se descartan antes de abrir el PR.
+**Estado final**: mergeada completa a `main` vía PR #9, #10, #11, #12, #13 (todos cerrados). No queda rama abierta de esta sesión. Detalle completo en `docs/sessions/SESSION-2026-07-04.md`, incluyendo un incidente real de producción durante el deploy de PR #10 (contenedores Docker huérfanos, 502 temporal, reparado y verificado) y su procedimiento de recuperación. Lo que sigue en esta sección es el registro original de la rama en progreso — se conserva por el detalle de verificación, pero los "pendientes exactos" del final ya están resueltos salvo lo listado en la sesión.
 
 **Verificado contra código (no contra lo que dicen los documentos):**
 
@@ -75,10 +75,14 @@ Ver `TECH_DEBT.md` (raíz), `docs/DEUDA_TECNICA.md` y `BLOCKERS.md`. **Advertenc
 
 **Riesgo activo**: el backend de producción en el VPS sigue con el código viejo (bug de reportes sin corregir) hasta que se mergee `main` y se despliegue — pero la migración 027 ya está aplicada, así que el deploy es seguro en cuanto a esquema.
 
-**Pendientes exactos para cerrar la rama:**
-1. ~~Verificar migración 027~~ — hecho, aplicada y confirmada.
-2. Resolver los archivos sin trackear (`docs/PROMPT_*.md`, imágenes WhatsApp, `tests/evidencia/`, `tests/sqa_siagrd01.ps1`) — decisión del usuario, no son parte del código de esta rama.
-3. Abrir PR `feat/diseno-indigo-sage` → `main`, CI verde.
-4. Con aprobación explícita del usuario (ya dada: "aprobado todo"): merge y despliegue vía `deploy.yml`.
-5. Post-deploy: verificar en dispositivo físico que el envío de reportes (DT-010) funciona contra producción real.
-6. Deuda no bloqueante para después: DT-011 (offline sync), DT-012 (subida de foto en reportes), gap de cobertura en `vitest.config.ts`, fix del fixture E2E de `dashboard.spec.ts`, bug de responsive del dashboard a 360px, auditoría independiente de Hito 1.
+**Pendientes exactos — ya resueltos, marcados solo por trazabilidad:**
+1. ~~Verificar migración 027~~ — hecho, aplicada y confirmada en producción.
+2. ~~Resolver archivos sin trackear~~ — quedaron como docs sueltos en `docs/`, no bloquearon el merge.
+3. ~~Abrir PR y merge~~ — hecho, PR #9-#13, todos mergeados a `main`.
+4. ~~Post-deploy: verificar envío de reportes contra producción real~~ — hecho vía `curl` (ver sesión 2026-07-04→06).
+
+**Pendiente real que queda abierto** (ver `docs/sessions/SESSION-2026-07-04.md` para el detalle completo):
+- Verificación en dispositivo físico (ADB) del flujo de reportar un incidente hasta el paso 3 de confirmación — no se pudo hacer por falta de celular conectado en la última sesión.
+- DT-011 (offline sync), DT-012 (subida de foto en reportes), DT-013 (gap de cobertura en `vitest.config.ts`), DT-014 (falso positivo en `dashboard.spec.ts`), DT-015 (responsive del dashboard a 360px) — todo abierto en `TECH_DEBT.md`, ninguno bloqueante.
+- Limpieza de código muerto detectada por `knip` (instalado esta sesión, no se limpió nada aún).
+- Auditoría independiente de Hito 1 (Seguridad) sigue sin hacerse pese a que `ROADMAP.md` marca 5/5.
